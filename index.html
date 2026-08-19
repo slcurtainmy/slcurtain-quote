@@ -597,7 +597,7 @@
       The final quotation will be confirmed after site verification, fabric selection and installation details.
     </div>
     <div class="summary-disclaimer" id="heightSurchNote" style="display:none">
-      ⚠ Height surcharge of RM10/sqft applies for curtain heights exceeding 10ft — charged on the additional height area above the standard.
+      ⚠ Height surcharge applies for certain curtain types with heights exceeding 10ft.
     </div>
     <div class="summary-disclaimer" id="siteDisclaimer" style="display:none">
       This quotation is valid for 30 days from the date of issue. A 50% deposit is required upon order confirmation.
@@ -633,7 +633,7 @@
       </div>
     </div>
     <div class="export-row">
-      <button class="btn-export print" onclick="saveAsImage()" id="screenshotBtn">📸 Share</button>
+      <button class="btn-export print" onclick="saveAsImage()" id="screenshotBtn">📄 PDF</button>
       <button class="btn-export" onclick="openQuoteList()" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);">📋 My Quotes</button>
       <button class="btn-export" onclick="newQuote()" style="background:rgba(220,60,60,.25);border-color:rgba(220,60,60,.5);">🗑 New</button>
       <button class="btn-export excel" onclick="exportExcel()" style="font-size:11px;padding:8px 10px;">⬇ Excel</button>
@@ -645,6 +645,8 @@
 
 </div><!-- /container -->
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 // ─── SKU DATA ────────────────────────────────────────────────────────────────
 const BLINDS = {
@@ -677,6 +679,22 @@ const CURTAINS = {
   'French Pleat — Single':                    { cost: 28.40, sell: 40.00 },
   'French Pleat — Double':                    { cost: 48.40, sell: 70.00 },
 };
+
+// Tiered height pricing for wave-treatment curtains (replaces surcharge).
+// Array = [≤10ft rate, 11–13ft rate, 14–16ft rate] per linear ft of track width.
+const CURTAIN_HEIGHT_TIERS = {
+  'Singapore Pleat — Single (with wave)':     [58, 73, 88],
+  'Singapore Pleat — Double (with wave)':     [88, 103, 118],
+  'S-Fold — Single (with wave)':              [68, 83, 98],
+  'S-Fold — Double (with wave, incl. sheer)': [98, 113, 128],
+};
+function getTieredSell(sku, hIn) {
+  const tiers = CURTAIN_HEIGHT_TIERS[sku];
+  if (!tiers) return null;
+  if (hIn <= 120) return tiers[0];   // ≤10ft (120in)
+  if (hIn <= 156) return tiers[1];   // 11–13ft (≤156in)
+  return tiers[2];                    // 14–16ft
+}
 
 const SPC = {
   'SPC — Normal Pricing':        { cost: 5.50, sell: 7.00 },
@@ -819,6 +837,7 @@ let blindIdx = 0, curtainIdx = 0, spcIdx = 0, doorIdx = 0;
 let itemOrder = 0; // global insertion counter for blind+curtain ordering
 let measureUnit = 'in'; // 'in' | 'cm' | 'mm' | 'm' — active input unit for blind/curtain dimensions
 const lineExcludes = new Set();
+let _lastLines = [], _lastFinalTotal = 0;
 
 // ─── BLIND ITEMS ─────────────────────────────────────────────────────────────
 function addBlind() {
@@ -1080,12 +1099,19 @@ function calcCurtain(id) {
   row.querySelector('.fth').textContent = dimHint(hIn);
 
   const rates = CURTAINS[sku];
-  let sellPerFt = rates.sell + (blackout ? 10 : 0) + (linen ? 10 : 0) + (premium ? 13 : 0);
+  const tieredBase = getTieredSell(sku, hIn);
+  const baseRate = tieredBase !== null ? tieredBase : rates.sell;
+  let sellPerFt = baseRate + (blackout ? 10 : 0) + (linen ? 10 : 0) + (premium ? 13 : 0);
   let costPerFt = rates.cost;
 
-  // Height surcharge: +RM13 per extra ft of height above 122 inch standard, per linear ft of track
+  // Height pricing: tiered SKUs use range-based rate; others keep legacy surcharge
   let surcharge = 0, surchargeNote = '';
-  if (hIn > 122) {
+  if (tieredBase !== null) {
+    if (hIn > 120) {
+      const tierLabel = hIn <= 156 ? '11–13 ft' : '14–16 ft';
+      surchargeNote = `📐 Height tier: ${tierLabel} — RM${tieredBase}/ft applied`;
+    }
+  } else if (hIn > 122) {
     const extra = hFt - 10;
     surcharge = 10 * extra * wFt;
     surchargeNote = `⚠ Height surcharge: RM10 × ${extra.toFixed(1)}ft extra × ${wFt.toFixed(1)}ft = +RM${surcharge.toFixed(2)}`;
@@ -1418,7 +1444,8 @@ function updateSummary() {
         addRow(row, style, typeDesc);
         const _hRaw = parseFloat(row.querySelector('.h-in')?.value) || 0;
         const _hIn  = toInches(_hRaw);
-        if (_hIn > 122 && (parseFloat(row.dataset.sell) || 0) > 0) hasHeightSurch = true;
+        const _sku = row.querySelector('select')?.value || '';
+        if (!CURTAIN_HEIGHT_TIERS[_sku] && _hIn > 122 && (parseFloat(row.dataset.sell) || 0) > 0) hasHeightSurch = true;
       }
     });
 
@@ -1501,6 +1528,9 @@ function updateSummary() {
   const gpEl   = document.getElementById('grandGP');
   if (costEl) costEl.textContent = fmt(totalCost);
   if (gpEl)   gpEl.textContent   = `${fmt(gp)} (${gpPct}%)`;
+  // Cache for PDF export
+  _lastLines = lines;
+  _lastFinalTotal = finalTotal;
   // Auto-save
   try { localStorage.setItem('sl_quote_v2', JSON.stringify(serializeQuote())); } catch(e) {}
 }
@@ -2023,6 +2053,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 
 function toggleOverride(btn, rowId) {
@@ -2043,12 +2074,15 @@ function toggleOverride(btn, rowId) {
   else { const id = rowId.replace('curtain-',''); calcCurtain(parseInt(id)||id); }
 }
 
-function saveAsImage() {
+// ─── PDF (snapshot print) ────────────────────────────────────────────────────
+
+async function saveAsImage() {
   const el  = document.getElementById('summaryBox');
   const btn = document.getElementById('screenshotBtn');
-  const customerName = (document.getElementById('customerName')?.value.trim() || 'Quote')
+  const customerName = (document.getElementById('customerName')?.value?.trim() || 'Quote')
     .replace(/[^a-zA-Z0-9_\- ]/g, '').trim() || 'Quote';
   const today = new Date().toISOString().slice(0, 10);
+  const fileName = `SL-Curtain-${customerName}-${today}.pdf`;
 
   // Hide UI-only elements before capturing
   const hideEls = el.querySelectorAll('.discount-section, .export-row, .price-override-section');
@@ -2061,65 +2095,268 @@ function saveAsImage() {
   btn.textContent = '⏳ Capturing…';
   btn.disabled = true;
 
-  html2canvas(el, {
-    backgroundColor: null,
-    scale: 2,          // 2× for crisp retina quality
-    useCORS: true,
-    logging: false,
-    scrollX: 0,
-    scrollY: -window.scrollY
-  }).then(async canvas => {
+  try {
+    const canvas = await html2canvas(el, {
+      backgroundColor: null, scale: 2, useCORS: true, logging: false,
+      scrollX: 0, scrollY: -window.scrollY
+    });
+
     hideEls.forEach(e => e.style.display = '');
     eyeEls.forEach(e => e.style.display = '');
     hiddenLineEls.forEach(e => e.style.display = '');
-    const fileName = `SL-Curtain-${customerName}-${today}.png`;
 
-    // Try Web Share API first (mobile native share sheet → WhatsApp / Save to Photos)
+    // Build PDF sized exactly to the captured snapshot
+    const imgW = canvas.width  / 2;   // logical px (canvas is 2× retina)
+    const imgH = canvas.height / 2;
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'px', format: [imgW, imgH], hotfixes: ['px_scaling'] });
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgW, imgH);
+
+    // Try Web Share API (mobile — WhatsApp, save to Files, etc.)
     if (navigator.canShare) {
       try {
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-        const file = new File([blob], fileName, { type: 'image/png' });
+        const pdfBlob = pdf.output('blob');
+        const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: `SL Curtain — ${customerName}` });
-          btn.textContent = '📸 Save / Share';
+          btn.textContent = '📄 PDF';
           btn.disabled = false;
           return;
         }
       } catch (e) {
-        // User cancelled share — that's fine, just restore button
         if (e.name === 'AbortError') {
-          btn.textContent = '📸 Save / Share';
+          btn.textContent = '📄 PDF';
           btn.disabled = false;
           return;
         }
+        // canShare exists but share failed — fall through to download
       }
     }
 
-    // Fallback: desktop download
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    btn.textContent = '📸 Save / Share';
+    // Fallback: direct download
+    pdf.save(fileName);
+    btn.textContent = '📄 PDF';
     btn.disabled = false;
-  }).catch(() => {
+
+  } catch (err) {
     hideEls.forEach(e => e.style.display = '');
     eyeEls.forEach(e => e.style.display = '');
     hiddenLineEls.forEach(e => e.style.display = '');
-    btn.textContent = '📸 Save / Share';
+    btn.textContent = '📄 PDF';
     btn.disabled = false;
-    alert('Screenshot failed. Try using your browser\'s built-in screenshot instead.');
-  });
+    alert('PDF generation failed. Try again or use your browser\'s screenshot tool.');
+  }
 }
 
-// ─── QUOTE LIST MANAGER ───────────────────────────────────────────────────────
-const QL_KEY = 'sl_quote_list_v1';
+function printQuote_UNUSED() {
+  // removed — PDF now uses snapshot approach above
+  const custName = (document.getElementById('custName')?.value || '').trim();
+  const custAddr = (document.getElementById('custPhone')?.value || '').trim();
+  const custDate = document.getElementById('custDate')?.value || new Date().toISOString().slice(0,10);
+  const propType = document.getElementById('custPropType')?.value || '';
+  const dateDisp = new Date(custDate + 'T00:00:00').toLocaleDateString('en-MY', { day:'2-digit', month:'short', year:'numeric' });
 
-function _getList() { try { return JSON.parse(localStorage.getItem(QL_KEY)) || []; } catch(e) { return []; } }
-function _saveList(list) { try { localStorage.setItem(QL_KEY, JSON.stringify(list)); } catch(e) {} }
+  const visLines  = _lastLines.filter(l => !l.isSubtotal && !l.isDiscount && !lineExcludes.has(lineKey(l)));
+  const discLines = _lastLines.filter(l => l.isDiscount);
+  const subtotal  = visLines.reduce((s, l) => s + (l.sell || 0), 0);
+
+  // Group lines by room
+  const roomGroups = {}, roomOrder = [];
+  visLines.forEach(l => {
+    const rm = l.room || '(General)';
+    if (!roomGroups[rm]) { roomGroups[rm] = []; roomOrder.push(rm); }
+    roomGroups[rm].push(l);
+  });
+
+  // Build room-grouped rows
+  let itemsHtml = '';
+  roomOrder.forEach(rm => {
+    itemsHtml += `<tr>
+      <td colspan="2" style="padding:9px 14px 7px;background:rgba(184,134,90,0.15);border-top:1px solid rgba(184,134,90,0.35);border-bottom:1px solid rgba(184,134,90,0.25)">
+        <span style="font-size:9px;font-weight:700;color:#B8865A;text-transform:uppercase;letter-spacing:1.2px">📍 ${rm}</span>
+      </td>
+    </tr>`;
+    const grp = roomGroups[rm];
+    grp.forEach((l, i) => {
+      const isLastInRoom = i === grp.length - 1;
+      const sep = `border-bottom:1px solid rgba(255,255,255,${isLastInRoom ? '0.05' : '0.1'})`;
+      const desc = (l.typeDesc || '').replace(/\n/g, ' · ');
+      if (l.isNote) {
+        itemsHtml += `<tr>
+          <td colspan="2" style="padding:6px 14px 6px 22px;${sep};font-size:10px;color:rgba(255,255,255,0.4);font-style:italic">↳ ${l.style}</td>
+        </tr>`;
+      } else {
+        itemsHtml += `<tr>
+          <td style="padding:10px 14px;${sep};vertical-align:top">
+            <div style="font-size:12px;font-weight:600;color:#fff">${l.style}</div>
+            ${desc ? `<div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px">${desc}</div>` : ''}
+            ${l.dims ? `<div style="font-size:10px;color:rgba(184,134,90,0.75);margin-top:2px">📐 ${l.dims}</div>` : ''}
+          </td>
+          <td style="padding:10px 14px;${sep};text-align:right;vertical-align:top;white-space:nowrap;width:22%">
+            <span style="font-size:12px;font-weight:600;color:#B8865A">RM ${Math.ceil(l.sell).toLocaleString('en-MY',{minimumFractionDigits:2})}</span>
+          </td>
+        </tr>`;
+      }
+    });
+  });
+
+  // Discount + total rows
+  let discHtml = '';
+  if (discLines.length) {
+    discHtml += `<tr>
+      <td style="padding:8px 14px;border-top:1px solid rgba(255,255,255,0.12);font-size:11px;color:rgba(255,255,255,0.5)">Subtotal</td>
+      <td style="padding:8px 14px;border-top:1px solid rgba(255,255,255,0.12);text-align:right;font-size:11px;color:rgba(255,255,255,0.5)">RM ${Math.ceil(subtotal).toLocaleString('en-MY',{minimumFractionDigits:2})}</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 14px;font-size:11px;color:#f59e6a">${discLines[0].style}</td>
+      <td style="padding:6px 14px;text-align:right;font-size:11px;color:#f59e6a">− RM ${Math.abs(Math.ceil(discLines[0].sell)).toLocaleString('en-MY',{minimumFractionDigits:2})}</td>
+    </tr>`;
+  }
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>SL Curtain — Preliminary Estimate</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+<style>
+@media print { @page{size:A4;margin:0} body{-webkit-print-color-adjust:exact;print-color-adjust:exact} }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:12px;background:linear-gradient(135deg,#3D2A1E 0%,#5C3828 100%);min-height:100vh}
+.page{max-width:760px;margin:0 auto;padding:28px 24px}
+table{border-collapse:collapse;width:100%}
+</style></head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <table style="margin-bottom:22px">
+    <tr>
+      <td style="vertical-align:top">
+        <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">SL <span style="color:#B8865A">CURTAIN</span></div>
+        <div style="font-size:8.5px;color:rgba(255,255,255,0.45);margin-top:5px;line-height:1.8">
+          SL CURTAIN SDN BHD &nbsp;·&nbsp; 202201008471 (1454168-U)<br>
+          No:105, Taman Nanyang, Jinjang Utara, 52000 KL<br>
+          012-3359813 &nbsp;·&nbsp; Slcurtain.enquiry@gmail.com
+        </div>
+      </td>
+      <td style="text-align:right;vertical-align:top">
+        <div style="display:inline-block;background:rgba(184,134,90,0.18);border:1px solid rgba(184,134,90,0.45);border-radius:4px;padding:3px 10px;font-size:8.5px;font-weight:700;color:#B8865A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Preliminary Estimate</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.5)">${dateDisp}</div>
+        ${custName ? `<div style="font-size:13px;font-weight:700;color:#fff;margin-top:8px">${custName}</div>` : ''}
+        ${custAddr ? `<div style="font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px">${custAddr}</div>` : ''}
+        ${propType ? `<div style="font-size:9px;color:rgba(184,134,90,0.65);margin-top:2px">${propType}</div>` : ''}
+      </td>
+    </tr>
+  </table>
+
+  <!-- Divider -->
+  <div style="height:1px;background:rgba(184,134,90,0.3);margin-bottom:18px"></div>
+
+  <!-- Items card -->
+  <div style="background:rgba(0,0,0,0.18);border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;margin-bottom:16px">
+    <table>
+      <thead>
+        <tr style="background:rgba(0,0,0,0.3)">
+          <th style="padding:9px 14px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.4);text-align:left;text-transform:uppercase;letter-spacing:1px">Item / Description</th>
+          <th style="padding:9px 14px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.4);text-align:right;text-transform:uppercase;letter-spacing:1px;width:22%">Amount (RM)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsHtml}
+        ${discHtml}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Total block -->
+  <div style="background:rgba(0,0,0,0.22);border:1px solid rgba(184,134,90,0.3);border-radius:8px;padding:16px 20px;margin-bottom:20px;text-align:right">
+    <div style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px">Total Estimate</div>
+    <div style="font-size:30px;font-weight:900;color:#B8865A;letter-spacing:-0.5px">RM ${Math.ceil(_lastFinalTotal).toLocaleString('en-MY',{minimumFractionDigits:2})}</div>
+    <div style="font-size:8.5px;color:rgba(255,255,255,0.3);margin-top:5px">${amountToWords(_lastFinalTotal)}</div>
+  </div>
+
+  <!-- Notes + QR codes -->
+  <table style="margin-bottom:16px">
+    <tr>
+      <td style="vertical-align:top;padding-right:20px">
+        <div style="font-size:9px;font-weight:700;color:#B8865A;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.8px">Payment</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.55);line-height:1.9">
+          Payable to: <span style="color:#fff;font-weight:600">SL CURTAIN SDN BHD</span><br>
+          Public Bank Berhad: <span style="color:#fff;font-weight:600">3228310727</span><br>
+          50% deposit upon confirmation · Balance upon delivery
+        </div>
+        <div style="margin-top:12px;padding:9px 11px;background:rgba(184,134,90,0.08);border:1px solid rgba(184,134,90,0.18);border-radius:4px;font-size:9px;color:rgba(255,255,255,0.35);font-style:italic;line-height:1.6">
+          This is a preliminary estimate for budgeting purposes only. Measurements are based on ${propType || 'customer-provided'} data and subject to change after site verification. Official invoice issued upon order confirmation.
+        </div>
+      </td>
+      <td style="vertical-align:top;text-align:center;width:185px">
+        <table style="width:auto;margin:0 auto">
+          <tr>
+            <td style="text-align:center;padding:0 6px">
+              <div id="qr-google" style="width:76px;height:76px;background:#fff;border-radius:4px"></div>
+              <div style="font-size:8px;color:rgba(255,255,255,0.4);margin-top:5px">Google Reviews</div>
+            </td>
+            <td style="text-align:center;padding:0 6px">
+              <div id="qr-ig" style="width:76px;height:76px;background:#fff;border-radius:4px"></div>
+              <div style="font-size:8px;color:rgba(255,255,255,0.4);margin-top:5px">Instagram</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <div style="font-size:8px;color:rgba(255,255,255,0.18);text-align:center;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px">Computer generated document &nbsp;·&nbsp; SL Curtain Sdn Bhd</div>
+</div>
+<script>
+window.addEventListener('load', function() {
+  try {
+    new QRCode(document.getElementById('qr-google'), {
+      text: 'https://share.google/I9wyrRiZ5xsNllLaY',
+      width: 76, height: 76, colorDark: '#3D2A1E', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    new QRCode(document.getElementById('qr-ig'), {
+      text: 'https://www.instagram.com/slcurtain_/',
+      width: 76, height: 76, colorDark: '#3D2A1E', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch(e) {}
+  setTimeout(function(){ window.print(); }, 900);
+});
+<\/script>
+</body></html>`;
+
+  const w = window.open('', '_blank', 'width=820,height=960');
+  if (!w) { alert('Please allow pop-ups for this page to generate the PDF.'); return; }
+  w.document.write(html);
+  w.document.close();
+}
+
+
+// ─── FIREBASE + QUOTE LIST MANAGER ──────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyDlL5b0JwBzscY823mi2QMrbcRndVAHnM0",
+  authDomain:        "slcurtain-quote.firebaseapp.com",
+  projectId:         "slcurtain-quote",
+  storageBucket:     "slcurtain-quote.firebasestorage.app",
+  messagingSenderId: "791113622707",
+  appId:             "1:791113622707:web:d85db695392da469693cc6"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let _qlUnsubscribe = null;
+
+function _startSync() {
+  if (_qlUnsubscribe) return;
+  _qlUnsubscribe = db.collection('quotes')
+    .orderBy('updatedAt', 'desc')
+    .onSnapshot(snap => {
+      _renderListFromData(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, err => console.warn('Firestore sync error:', err));
+}
 
 function openQuoteList() {
-  _renderList();
+  _startSync();
   document.getElementById('qlOverlay').classList.add('open');
   document.getElementById('qlSheet').classList.add('open');
 }
@@ -2129,7 +2366,7 @@ function closeQuoteList() {
   document.getElementById('qlSheet').classList.remove('open');
 }
 
-function saveToQuoteList() {
+async function saveToQuoteList() {
   const state = serializeQuote();
   const name  = (state.customer?.name || '').trim();
   const btn   = document.getElementById('qlSaveBtn');
@@ -2137,58 +2374,65 @@ function saveToQuoteList() {
     closeQuoteList();
     const inp = document.getElementById('custName');
     if (inp) { inp.focus(); inp.style.outline = '2px solid #f0a040'; setTimeout(() => inp.style.outline = '', 1800); }
-    return alert('Please enter the customer name first.');
+    alert('Please enter the customer name first.');
+    return;
   }
-  const list = _getList();
-  const existing = list.find(q => q.name.toLowerCase() === name.toLowerCase());
-  const total = parseFloat((document.getElementById('grandTotal')?.textContent || '0').replace(/[^0-9.]/g,'')) || 0;
-  if (existing) {
-    if (!confirm('Update saved quote for "' + name + '"?')) return;
-    existing.date  = state.customer?.date || new Date().toISOString().slice(0,10);
-    existing.total = total;
-    existing.state = state;
-    _saveList([existing, ...list.filter(q => q.id !== existing.id)]);
-  } else {
-    _saveList([{ id: Date.now().toString(), name, date: state.customer?.date || new Date().toISOString().slice(0,10), total, state }, ...list]);
+  try {
+    btn && (btn.textContent = 'Saving...');
+    const total = parseFloat((document.getElementById('grandTotal')?.textContent || '0').replace(/[^0-9.]/g,'')) || 0;
+    const date  = state.customer?.date || new Date().toISOString().slice(0,10);
+    const ts    = firebase.firestore.FieldValue.serverTimestamp();
+    // Check if same name already exists
+    const existing = await db.collection('quotes').where('name', '==', name).limit(1).get();
+    if (!existing.empty) {
+      if (!confirm('Update saved quote for "' + name + '"?')) { btn && (btn.textContent = '💾 Save Current Quote'); return; }
+      await existing.docs[0].ref.update({ name, date, total, state, updatedAt: ts });
+    } else {
+      await db.collection('quotes').add({ name, date, total, state, updatedAt: ts });
+    }
+    if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => btn.textContent = '💾 Save Current Quote', 1600); }
+  } catch(e) {
+    console.error(e);
+    alert('Save failed. Check your internet connection.');
+    btn && (btn.textContent = '💾 Save Current Quote');
   }
-  _renderList();
-  if (btn) { const orig = btn.textContent; btn.textContent = '\u2713 Saved!'; setTimeout(() => btn.textContent = orig, 1600); }
 }
 
-function _loadQuote(id) {
-  const entry = _getList().find(q => q.id === id);
-  if (!entry) return;
-  closeQuoteList();
-  applyQuoteState(entry.state);
+async function _loadQuote(id) {
+  try {
+    const doc = await db.collection('quotes').doc(id).get();
+    if (!doc.exists) return;
+    closeQuoteList();
+    applyQuoteState(doc.data().state);
+  } catch(e) { alert('Could not load quote. Check your connection.'); }
 }
 
-function _deleteQuote(id, name) {
+async function _deleteQuote(id, name) {
   if (!confirm('Delete quote for "' + name + '"?')) return;
-  _saveList(_getList().filter(q => q.id !== id));
-  _renderList();
+  try { await db.collection('quotes').doc(id).delete(); }
+  catch(e) { alert('Delete failed. Check your connection.'); }
 }
 
-function _renderList() {
-  const list = _getList();
-  const el   = document.getElementById('qlList');
+function _renderListFromData(list) {
+  const el = document.getElementById('qlList');
   if (!el) return;
-  if (list.length === 0) {
+  if (!list || list.length === 0) {
     el.innerHTML = '<div class="ql-empty">No saved quotes yet.<br>Fill in a customer name above<br>and tap <strong>Save Current Quote</strong>.</div>';
     return;
   }
   el.innerHTML = '<div class="ql-section-label">' + list.length + ' saved quote' + (list.length > 1 ? 's' : '') + '</div>' +
     list.map(function(q) {
-      var totalStr = q.total > 0 ? 'RM ' + q.total.toLocaleString() : '\u2014';
+      var totalStr = q.total > 0 ? 'RM ' + q.total.toLocaleString() : '—';
       var safeId   = (q.id   || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
       var safeName = (q.name || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
       return '<div class="ql-item" data-id="' + safeId + '" data-name="' + safeName + '">' +
         '<div class="ql-item-info" onclick="qlItemLoad(this)">' +
           '<div class="ql-item-name">' + q.name + '</div>' +
-          '<div class="ql-item-meta">' + q.date + ' \u00b7 ' + totalStr + '</div>' +
+          '<div class="ql-item-meta">' + q.date + ' · ' + totalStr + '</div>' +
         '</div>' +
         '<div class="ql-item-actions">' +
           '<button class="ql-load-btn" onclick="qlItemLoad(this)">Load</button>' +
-          '<button class="ql-del-btn" onclick="qlItemDel(this)">\uD83D\uDDD1</button>' +
+          '<button class="ql-del-btn" onclick="qlItemDel(this)">🗑</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -2197,6 +2441,11 @@ function _renderList() {
 function qlItemLoad(el) {
   const item = el.closest('.ql-item');
   if (item) _loadQuote(item.dataset.id);
+}
+
+function qlItemDel(el) {
+  const item = el.closest('.ql-item');
+  if (item) _deleteQuote(item.dataset.id, item.dataset.name);
 }
 
 function qlItemDel(el) {
