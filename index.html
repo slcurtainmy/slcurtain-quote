@@ -2079,7 +2079,7 @@ function toggleOverride(btn, rowId) {
 async function saveAsImage() {
   const el  = document.getElementById('summaryBox');
   const btn = document.getElementById('screenshotBtn');
-  const customerName = (document.getElementById('customerName')?.value?.trim() || 'Quote')
+  const customerName = (document.getElementById('custName')?.value?.trim() || 'Quote')
     .replace(/[^a-zA-Z0-9_\- ]/g, '').trim() || 'Quote';
   const today = new Date().toISOString().slice(0, 10);
   const fileName = `SL Curtain_${customerName}_${today}.pdf`;
