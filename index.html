@@ -2082,7 +2082,7 @@ async function saveAsImage() {
   const customerName = (document.getElementById('customerName')?.value?.trim() || 'Quote')
     .replace(/[^a-zA-Z0-9_\- ]/g, '').trim() || 'Quote';
   const today = new Date().toISOString().slice(0, 10);
-  const fileName = `SL-Curtain-${customerName}-${today}.pdf`;
+  const fileName = `SL Curtain_${customerName}_${today}.pdf`;
 
   // Hide UI-only elements before capturing
   const hideEls = el.querySelectorAll('.discount-section, .export-row, .price-override-section');
