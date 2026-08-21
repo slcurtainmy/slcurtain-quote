@@ -686,7 +686,9 @@ const CURTAINS = {
 // Tiered height pricing for wave-treatment curtains (replaces surcharge).
 // Array = [≤10ft rate, 11–13ft rate, 14–16ft rate] per linear ft of track width.
 const CURTAIN_HEIGHT_TIERS = {
+  'Singapore Pleat — Single (no wave)':       [48, 58, 68],
   'Singapore Pleat — Single (with wave)':     [58, 73, 88],
+  'Singapore Pleat — Double (no wave)':       [78, 88, 98],
   'Singapore Pleat — Double (with wave)':     [88, 103, 118],
   'S-Fold — Single (with wave)':              [68, 83, 98],
   'S-Fold — Double (with wave, incl. sheer)': [98, 113, 128],
@@ -2469,5 +2471,15 @@ function qlItemDel(el) {
   <button class="ql-save-btn" id="qlSaveBtn" onclick="saveToQuoteList()">💾 Save Current Quote</button>
   <div class="ql-list" id="qlList"></div>
 </div>
+
+<script>
+// Service Worker — forces fresh HTML on every load (fixes iOS home screen caching)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(err => console.warn('SW registration failed:', err));
+  });
+}
+</script>
 </body>
 </html>
