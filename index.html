@@ -176,6 +176,58 @@
     line-height: 1; padding: 0 4px; transition: color .15s; align-self: flex-end; margin-bottom: 9px;
   }
   .btn-remove:hover { color: var(--red); }
+  .btn-dup {
+    background: rgba(184,134,90,.15); border: 1px solid rgba(184,134,90,.3); border-radius: 6px;
+    color: rgba(255,255,255,.6); font-size: 13px; padding: 4px 9px; cursor: pointer;
+    font-family: inherit; align-self: flex-end; margin-bottom: 9px; transition: background .15s, color .15s;
+  }
+  .btn-dup:hover { background: rgba(184,134,90,.35); color: #fff; }
+  .drag-handle { cursor: grab; padding: 0 6px 0 0; color: rgba(255,255,255,.3); font-size: 15px; flex-shrink: 0; opacity: 0; transition: opacity .15s; user-select: none; line-height: 1.2; }
+  .summary-item:hover .drag-handle { opacity: 1; }
+  .summary-item.dragging { opacity: .4; }
+  .summary-item.drag-over { outline: 2px solid rgba(184,134,90,.6); outline-offset: -2px; border-radius: 8px; }
+  .grp-drag-handle { cursor: grab; padding: 0 7px 0 0; color: rgba(184,134,90,.4); font-size: 13px; flex-shrink: 0; opacity: 0; transition: opacity .15s; user-select: none; line-height: 1; }
+  .room-group-header:hover .grp-drag-handle { opacity: 1; }
+  .room-group.grp-dragging { opacity: .4; }
+  .room-group.drag-over-grp { outline: 2px solid rgba(184,134,90,.7); outline-offset: -2px; border-radius: 10px; }
+  .s-fabric { font-size: 10px; color: rgba(255,255,255,.32); font-style: italic; margin-top: 1px; }
+  /* Room group */
+  .room-group { margin-bottom: 10px; border: 1px solid rgba(184,134,90,.35); border-radius: 10px; overflow: hidden; }
+  .room-group-header { display: flex; justify-content: space-between; align-items: center; padding: 7px 14px; background: rgba(184,134,90,.1); }
+  .room-group-name { font-size: 11px; font-weight: 700; color: #B8865A; letter-spacing: .6px; text-transform: uppercase; }
+  .room-group-badge { font-size: 10px; color: rgba(184,134,90,.7); background: rgba(184,134,90,.15); border-radius: 4px; padding: 2px 6px; margin-left: 6px; }
+  .room-group-total { font-size: 13px; font-weight: 700; color: #B8865A; }
+  .room-group-choose { font-size: 10px; color: rgba(255,255,255,.35); font-style: italic; padding: 3px 14px 5px; background: rgba(184,134,90,.05); }
+  .room-group .summary-item { padding-left: 14px; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .room-group .summary-item:last-child { border-bottom: none; }
+  .room-group .eye-toggle { display: none; }
+  .room-group-divider { border-top: 1px solid rgba(255,255,255,.08); margin: 0 14px; }
+  .room-group-option-block { padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .room-group-option-block:last-child { border-bottom: none; }
+  .room-group-option-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .rgo-style { font-size: 12px; color: rgba(255,255,255,.88); font-weight: 600; }
+  .rgo-total { font-size: 13px; font-weight: 700; color: #B8865A; }
+  .room-group-subitem { display: flex; justify-content: space-between; padding: 1px 0 1px 8px; }
+  .rgs-dims { font-size: 11px; color: rgba(255,255,255,.4); }
+  .rgs-price { font-size: 11px; color: rgba(255,255,255,.5); }
+  .alt-total-btn {
+    background: rgba(184,134,90,.12); border: 1px solid rgba(184,134,90,.28);
+    color: rgba(184,134,90,.55); border-radius: 4px; font-size: 9px; font-weight: 700;
+    padding: 2px 7px; cursor: pointer; font-family: inherit; letter-spacing: .3px;
+    transition: all .15s; white-space: nowrap;
+  }
+  .alt-total-btn:hover { background: rgba(184,134,90,.25); color: #B8865A; }
+  .alt-total-btn.active { background: rgba(184,134,90,.2); border-color: rgba(184,134,90,.5); color: #B8865A; }
+  .pdf-mode .alt-total-btn { display: none !important; }
+  .exc-alt-btn {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+    color: rgba(255,255,255,.35); border-radius: 4px; font-size: 9px; font-weight: 600;
+    padding: 2px 7px; cursor: pointer; font-family: inherit; letter-spacing: .2px;
+    transition: all .15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .exc-alt-btn:hover { border-color: rgba(255,255,255,.3); color: rgba(255,255,255,.6); }
+  .exc-alt-btn.active { background: rgba(184,134,90,.2); border-color: rgba(184,134,90,.45); color: #B8865A; }
+  .pdf-mode .exc-alt-btn { display: none !important; }
 
   .item-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
   .item-row:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
@@ -237,6 +289,73 @@
     border-top: 1px solid rgba(255,255,255,.15); padding-top: 14px; }
   .gp-row { display: none; }
 
+  /* ─── PDF export mode ──────────────────────────────────────────────────────
+     Applied via .pdf-mode class on #summaryBox during html2canvas capture.
+     Replaces card-in-card nesting with a clean open-section editorial layout.
+  ─────────────────────────────────────────────────────────────────────────── */
+  .pdf-mode .line-items { gap: 0 !important; }
+
+  /* Room group: strip the card entirely */
+  .pdf-mode .room-group {
+    border: none !important; border-radius: 0 !important;
+    overflow: visible !important; margin-bottom: 0 !important;
+  }
+  /* Room header: single rule above, no fill */
+  .pdf-mode .room-group-header {
+    background: none !important;
+    border-top: 1px solid rgba(255,255,255,.22) !important;
+    padding: 14px 0 5px !important;
+  }
+  .pdf-mode .room-group-name { font-size: 12px !important; letter-spacing: 1px !important; }
+  .pdf-mode .room-group-badge { display: none !important; }
+  .pdf-mode .room-group-total { font-size: 14px !important; }
+
+  /* "Select one option" / "All included" — no background strip */
+  .pdf-mode .room-group-choose {
+    background: none !important;
+    padding: 0 0 6px !important;
+    font-size: 9px !important;
+    color: rgba(255,255,255,.28) !important;
+    letter-spacing: .4px;
+  }
+
+  /* Items inside group: no left-pad box indent, generous vertical rhythm */
+  .pdf-mode .room-group .summary-item {
+    padding: 9px 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.1) !important;
+  }
+  .pdf-mode .room-group .summary-item:last-child { border-bottom: none !important; }
+
+  /* Option dividers between alternatives: slightly more visible */
+  .pdf-mode .room-group-divider {
+    margin: 0 !important;
+    border-top: 1px solid rgba(255,255,255,.15) !important;
+  }
+
+  /* Combined multi-window option block */
+  .pdf-mode .room-group-option-block {
+    padding: 9px 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.1) !important;
+  }
+  .pdf-mode .room-group-option-block:last-child { border-bottom: none !important; }
+
+  /* Solo items (direct children of .line-items, not inside a group) */
+  .pdf-mode .line-items > .summary-item {
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+  }
+  .pdf-mode .line-items > .summary-item:last-child { border-bottom: none; }
+
+  /* Spacing between the last item in a group and the next section's rule */
+  .pdf-mode .room-group + .room-group .room-group-header,
+  .pdf-mode .room-group + .summary-item { margin-top: 4px; }
+
+  /* Ensure notes/surcharges after groups breathe */
+  .pdf-mode .line-items > .summary-item[style*="dashed"] {
+    margin-top: 2px;
+    border-bottom: none !important;
+    opacity: .55 !important;
+  }
 
   /* ── Discount section ── */
   .discount-section { margin: 14px 0 10px; }
@@ -434,6 +553,19 @@
   .sl-modal-btns button { flex: 1; padding: 11px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; }
   .sl-modal-cancel { background: rgba(255,255,255,.12); color: #fff; }
   .sl-modal-confirm { background: rgba(200,50,50,.8); color: #fff; }
+  /* ── Tinted Screen ── */
+  .ts-room { background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .ts-room-header { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 8px; }
+  .ts-room-header .field:first-child { flex: 2; min-width: 140px; }
+  .ts-room-header .field:nth-child(2) { flex: 1; min-width: 110px; }
+  .ts-window { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; padding: 8px 0 4px; border-top: 1px dashed rgba(255,255,255,.1); }
+  .ts-window .field { flex: 1; min-width: 75px; }
+  .ts-window .field.sqft-field { max-width: 100px; }
+  .btn-add-win { background: rgba(255,255,255,.07); border: 1px dashed rgba(255,255,255,.25); border-radius: 8px; color: rgba(255,255,255,.6); font-size: 12px; padding: 7px 14px; cursor: pointer; font-family: inherit; margin-top: 8px; display: block; }
+  .btn-add-win:hover { background: rgba(255,255,255,.13); color: #fff; }
+  .ts-total-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(184,134,90,.35); }
+  .ts-sqft-label { color: rgba(255,255,255,.5); font-size: 11px; }
+  .ts-price-label { color: #B8865A; font-weight: 700; font-size: 15px; }
 </style>
 </head>
 <body>
@@ -536,6 +668,7 @@
     <div class="tab active" data-tab="blinds">🪟 Blinds</div>
     <div class="tab" data-tab="curtains">🪢 Curtains & Sheers</div>
     <div class="tab" data-tab="spc">🪵 SPC Flooring</div>
+    <div class="tab" data-tab="tinted">🎞 Tinted Screen</div>
   </div>
 
   <!-- Unit selector bar -->
@@ -589,6 +722,18 @@
     </div>
   </div>
 
+  <!-- ======================== TINTED SCREEN ======================== -->
+  <div class="panel" id="panel-tinted">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Tinted Screen</div>
+        <div class="badge">Per sqft · Min 100 sqft/project · Min RM 150 total</div>
+      </div>
+      <div id="tinted-rooms"></div>
+      <button class="btn-add" onclick="addTintedRoom()">+ Add Room</button>
+    </div>
+  </div>
+
   <!-- ======================== SUMMARY ======================== -->
   <div class="summary-box" id="summaryBox">
     <div class="summary-top-row">
@@ -607,7 +752,10 @@
     </div>
     <hr class="divider" />
     <div class="total-row">
-      <span class="total-label" id="totalLabel">Estimated Total Budget</span>
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+        <span class="total-label" id="totalLabel">Estimated Total Budget</span>
+        <button id="excAltBtn" class="exc-alt-btn" onclick="toggleExcludeAlt()" title="Toggle: include or exclude optional items (alternatives) from total">incl. options</button>
+      </div>
       <span class="total-amount" id="grandTotal">RM 0</span>
     </div>
     <div class="summary-disclaimer" id="summaryDisclaimer">
@@ -737,6 +885,14 @@ const MOTOR = {
   stdTrack: 7, installCost: 100
 };
 
+const TINTED_SCREEN = {
+  'Series I': { cost: 7.00, sell: 9.00 },
+  'Series V': { cost: 6.00, sell: 8.00 },
+  'Series E': { cost: 4.50, sell: 6.50 },
+};
+const TINTED_MIN_SQFT   = 100;
+const TINTED_MIN_CHARGE = 150;
+
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 const fmt = n => 'RM ' + Math.ceil(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
@@ -853,10 +1009,14 @@ function runConvert(source) {
 }
 
 // ─── COUNTERS ────────────────────────────────────────────────────────────────
-let blindIdx = 0, curtainIdx = 0, spcIdx = 0, doorIdx = 0;
+let blindIdx = 0, curtainIdx = 0, spcIdx = 0, doorIdx = 0, tintedIdx = 0;
 let itemOrder = 0; // global insertion counter for blind+curtain ordering
 let measureUnit = 'in'; // 'in' | 'cm' | 'mm' | 'm' — active input unit for blind/curtain dimensions
 const lineExcludes = new Set();
+const altTotalRooms = new Set(); // rooms (alternatives groups) where user has toggled total visible
+let excludeAltTotal = false;    // when true, grand total excludes alternatives-group items
+let summaryCustomOrder = []; // user-defined display order of summary items (array of _srcId strings)
+let groupCustomOrder   = []; // user-defined order of top-level groups/items ('grp:ROOM' or 'item:SRCID')
 let _lastLines = [], _lastFinalTotal = 0;
 
 // ─── BLIND ITEMS ─────────────────────────────────────────────────────────────
@@ -871,8 +1031,8 @@ function addBlind() {
   div.innerHTML = `
     <div class="item-desc">
       <div class="field">
-        <label>Description</label>
-        <input type="text" placeholder="e.g. Living Room, Room 1" class="desc" />
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Office 1, Living Room" class="desc" list="loc-suggestions" />
       </div>
       <div class="field">
         <label>Fabric Code</label>
@@ -920,6 +1080,7 @@ function addBlind() {
         </div>
       </div>
     </div>
+    <button class="btn-dup" onclick="duplicateBlind(${id})" title="Duplicate">⧉</button>
     <button class="btn-remove" onclick="removeItem('blind-${id}')">✕</button>
   `;
   container.appendChild(div);
@@ -977,7 +1138,7 @@ function calcBlind(id) {
   if (overrideVal !== null) row.querySelector('.sell-out').value = fmt(overrideVal) + ' ✏';
   row.dataset.cost  = rawSqft > 0 ? (rates.cost * billSqft + installCost) * qty : 0;
   row.dataset.springTube = rawSqft > 0 ? springTubeSurch * qty : 0;
-  row.dataset.dims  = wIn > 0 && hIn > 0 ? `${wFt.toFixed(1)}(w) × ${hFt.toFixed(1)}(h) ft` : '';
+  row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wFt)}(w) × ${Math.ceil(hFt)}(h) ft` : '';
   const blindDesc = row.querySelector('.desc').value.trim();
   const blindPfx  = blindDesc ? `[${blindDesc}] ` : '';
   row.dataset.label = rawSqft > 0
@@ -997,8 +1158,8 @@ function addCurtain() {
   div.innerHTML = `
     <div class="item-desc">
       <div class="field">
-        <label>Description</label>
-        <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" />
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" list="loc-suggestions" />
       </div>
       <div class="field">
         <label>Fabric Code</label>
@@ -1063,11 +1224,7 @@ function addCurtain() {
           </div>
           <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
             <div style="font-size:10px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:5px">🧵 Artisan Sewing</div>
-            <select class="sewing-style" onchange="calcCurtain(${id})" style="font-size:11px;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;background:white;color:var(--primary);font-family:inherit;width:100%;cursor:pointer">
-              <option value="0">— None —</option>
-              <option value="400">Centre Open · 2 sides (RM200/side)</option>
-              <option value="200">Side Open · 1 side (RM200)</option>
-            </select>
+            <input type="number" class="sewing-custom-amt" placeholder="Price per set (RM)" min="0" step="10" oninput="calcCurtain(${id})" style="width:100%;font-size:11px;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;background:white;color:var(--primary);font-family:inherit;box-sizing:border-box" />
           </div>
         </div>
       </div>
@@ -1085,6 +1242,7 @@ function addCurtain() {
         </div>
       </div>
     </div>
+    <button class="btn-dup" onclick="duplicateCurtain(${id})" title="Duplicate">⧉</button>
     <button class="btn-remove" onclick="removeItem('curtain-${id}')">✕</button>
   `;
   container.appendChild(div);
@@ -1104,7 +1262,7 @@ function calcCurtain(id) {
   const blackout = row.querySelector('.blackout').checked;
   const linen    = row.querySelector('.linen').checked;
   const premium  = row.querySelector('.premium')?.checked || false;
-  const sewingAmt = parseInt(row.querySelector('.sewing-style')?.value) || 0;
+  const sewingAmt = parseFloat(row.querySelector('.sewing-custom-amt')?.value) || 0;
   const motorizedEl = row.querySelector('.motorized');
   const isMotorCompatible = /s-fold|singapore pleat/i.test(sku);
   if (motorizedEl && !isMotorCompatible) motorizedEl.checked = false;
@@ -1147,14 +1305,13 @@ function calcCurtain(id) {
     motorNote = `⚡ Motor: RM${m.hwSell}${extraFt > 0 ? ` + ${extraFt.toFixed(1)}ft extra track (+RM${(m.extraSell * extraFt * qty)})` : ''} × ${qty} motor`;
   }
 
-  const sewingLabel = sewingAmt === 400 ? 'Centre Open' : sewingAmt === 200 ? 'Side Open' : '';
+  const sewingLabel = sewingAmt > 0 ? `Artisan Sewing` : '';
   const total = wIn > 0 ? Math.ceil(((sellPerFt * wFt) + surcharge) * qty + motorSell + sewingAmt) : 0;
   const totalCost = wIn > 0 ? costPerFt * wFt * qty + motorCost : 0;
 
   row.querySelector('.sell-out').value = wIn > 0 ? fmt(total) : '—';
   row.querySelector('.surcharge-info').textContent = surchargeNote;
-  const sewingHint = sewingAmt === 400 ? '🧵 Artisan Sewing — Centre Open (2 sides × RM200 = +RM400)'
-                   : sewingAmt === 200 ? '🧵 Artisan Sewing — Side Open (1 side = +RM200)' : '';
+  const sewingHint = sewingAmt > 0 ? `🧵 Artisan Sewing +RM${sewingAmt}` : '';
   row.querySelector('.sewing-info').textContent = sewingHint;
   row.querySelector('.motor-info').textContent = motorNote;
   const covInp = row.querySelector('.override-price');
@@ -1163,7 +1320,7 @@ function calcCurtain(id) {
   if (covVal !== null) row.querySelector('.sell-out').value = fmt(covVal) + ' ✏';
   row.dataset.cost  = totalCost;
   row.dataset.surcharge = surcharge;
-  row.dataset.dims  = wIn > 0 && hIn > 0 ? `${(wIn/12).toFixed(1)}(w) × ${(hIn/12).toFixed(1)}(h) ft` : '';
+  row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn/12)}(w) × ${Math.ceil(hIn/12)}(h) ft` : '';
   const curtDesc = row.querySelector('.desc').value.trim();
   const curtPfx  = curtDesc ? `[${curtDesc}] ` : '';
   const addOnTag = [blackout && 'Blackout', linen && 'Linen', premium && 'Chenille', sewingLabel].filter(Boolean).join(' + ');
@@ -1183,8 +1340,8 @@ function addSPC() {
   div.innerHTML = `
     <div class="item-desc">
       <div class="field">
-        <label>Description</label>
-        <input type="text" placeholder="e.g. Living Room, Bedroom 1" class="desc" />
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Living Room, Bedroom 1" class="desc" list="loc-suggestions" />
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)">
@@ -1220,6 +1377,7 @@ function addSPC() {
         </div>
       </div>
     </div>
+    <button class="btn-dup" onclick="duplicateSPC(${id})" title="Duplicate">⧉</button>
     <button class="btn-remove" onclick="removeItem('spc-${id}')">✕</button>
   `;
   container.appendChild(div);
@@ -1272,8 +1430,8 @@ function addDoor() {
   div.innerHTML = `
     <div class="item-desc">
       <div class="field">
-        <label>Description</label>
-        <input type="text" placeholder="e.g. Main Door, Room 1" class="desc" />
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Main Door, Room 1" class="desc" list="loc-suggestions" />
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr)">
@@ -1292,6 +1450,7 @@ function addDoor() {
       <label>Sell Price</label>
       <input type="text" readonly class="sell-out" value="—" />
     </div>
+    <button class="btn-dup" onclick="duplicateDoor(${id})" title="Duplicate">⧉</button>
     <button class="btn-remove" onclick="removeItem('door-${id}')">✕</button>
   `;
   container.appendChild(div);
@@ -1315,6 +1474,211 @@ function calcDoor(id) {
   const doorPfx  = doorDesc ? `[${doorDesc}] ` : '';
   row.dataset.label = `${doorPfx}${qty}× ${sku}`;
   updateSummary();
+}
+
+// ─── TINTED SCREEN ───────────────────────────────────────────────────────────
+function addTintedRoom() {
+  const rid = tintedIdx++;
+  const container = document.getElementById('tinted-rooms');
+  const div = document.createElement('div');
+  div.className = 'ts-room';
+  div.dataset.rid  = rid;
+  div.dataset.sell = 0;
+  div.dataset.cost = 0;
+  div.dataset.sqft = 0;
+  div.innerHTML = `
+    <div class="ts-room-header">
+      <div class="field">
+        <label>Room / Location</label>
+        <input type="text" class="ts-desc" placeholder="e.g. Living Room" oninput="calcTinted(${rid})" list="loc-suggestions" />
+      </div>
+      <div class="field">
+        <label>Series</label>
+        <select class="ts-series" onchange="calcTinted(${rid})">
+          ${Object.keys(TINTED_SCREEN).map(k => `<option value="${k}">${k}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn-dup" onclick="duplicateTintedRoom(${rid})" title="Duplicate" style="margin-bottom:2px">⧉</button>
+      <button class="btn-remove" onclick="removeTintedRoom(${rid})" style="margin-bottom:2px">✕</button>
+    </div>
+    <div class="ts-windows"></div>
+    <button class="btn-add-win" onclick="addTintedWindow(${rid})">＋ Add Window</button>
+    <div class="ts-total-bar">
+      <span class="ts-sqft-label">—</span>
+      <span class="ts-price-label">—</span>
+    </div>`;
+  container.appendChild(div);
+  addTintedWindow(rid);
+}
+
+function addTintedWindow(rid) {
+  const room = document.querySelector(`.ts-room[data-rid="${rid}"]`);
+  if (!room) return;
+  const wins = room.querySelector('.ts-windows');
+  const div = document.createElement('div');
+  div.className = 'ts-window';
+  div.innerHTML = `
+    <div class="field">
+      <label>W (inch)</label>
+      <input type="number" min="1" class="ts-w" placeholder="e.g. 48" oninput="calcTinted(${rid})" />
+    </div>
+    <div class="field">
+      <label>H (inch)</label>
+      <input type="number" min="1" class="ts-h" placeholder="e.g. 60" oninput="calcTinted(${rid})" />
+    </div>
+    <div class="field sqft-field">
+      <label>Sqft</label>
+      <input type="text" readonly class="ts-sqft-out highlight" value="—" />
+    </div>
+    <button class="btn-remove" onclick="removeTintedWindow(this,${rid})">✕</button>`;
+  wins.appendChild(div);
+}
+
+function calcTinted(rid) {
+  const room = document.querySelector(`.ts-room[data-rid="${rid}"]`);
+  if (!room) return;
+  const series = room.querySelector('.ts-series').value;
+  const rates  = TINTED_SCREEN[series];
+  let totalSqft = 0;
+  room.querySelectorAll('.ts-window').forEach(win => {
+    const wIn  = parseFloat(win.querySelector('.ts-w').value) || 0;
+    const hIn  = parseFloat(win.querySelector('.ts-h').value) || 0;
+    const sqft = (wIn / 12) * (hIn / 12);
+    win.querySelector('.ts-sqft-out').value = sqft > 0 ? sqft.toFixed(2) + ' sqft' : '—';
+    totalSqft += sqft;
+  });
+  const billSqft = totalSqft > 0 ? Math.ceil(totalSqft) : 0;  // round up sqft; project minimum applied at summary level
+  const sell     = totalSqft > 0 ? billSqft * rates.sell : 0;
+  const cost     = totalSqft * rates.cost;
+  room.dataset.sell = sell;
+  room.dataset.cost = cost;
+  room.dataset.sqft = totalSqft.toFixed(2);
+  const sqftText = totalSqft > 0
+    ? `${totalSqft.toFixed(2)} sqft → billed ${billSqft} sqft`
+    : '—';
+  room.querySelector('.ts-sqft-label').textContent  = sqftText;
+  room.querySelector('.ts-price-label').textContent = totalSqft > 0 ? fmt(sell) : '—';
+  updateSummary();
+}
+
+function removeTintedRoom(rid) {
+  const room = document.querySelector(`.ts-room[data-rid="${rid}"]`);
+  if (room) room.remove();
+  updateSummary();
+}
+
+function removeTintedWindow(btn, rid) {
+  btn.closest('.ts-window').remove();
+  calcTinted(rid);
+}
+
+// ─── DUPLICATE ───────────────────────────────────────────────────────────────
+function duplicateBlind(id) {
+  const src = document.getElementById('blind-' + id);
+  if (!src) return;
+  addBlind();
+  const nid = blindIdx - 1;
+  const dst = document.getElementById('blind-' + nid);
+  if (!dst) return;
+  const sv = (cls, srcEl) => { const el = dst.querySelector(cls); if (el && srcEl) el.value = srcEl.value; };
+  sv('.desc',          src.querySelector('.desc'));
+  sv('.fabric-code',   src.querySelector('.fabric-code'));
+  sv('.fabric-colour', src.querySelector('.fabric-colour'));
+  dst.querySelector('select').value = src.querySelector('select').value;
+  sv('.w-in', src.querySelector('.w-in'));
+  sv('.h-in', src.querySelector('.h-in'));
+  sv('.qty',  src.querySelector('.qty'));
+  const ovSrc = src.querySelector('.override-price');
+  if (ovSrc && ovSrc.value) {
+    dst.querySelector('.override-price').value = ovSrc.value;
+    dst.querySelector('.price-override-section').style.display = '';
+  }
+  calcBlind(nid);
+}
+
+function duplicateCurtain(id) {
+  const src = document.getElementById('curtain-' + id);
+  if (!src) return;
+  addCurtain();
+  const nid = curtainIdx - 1;
+  const dst = document.getElementById('curtain-' + nid);
+  if (!dst) return;
+  const sv = (cls, srcEl) => { const el = dst.querySelector(cls); if (el && srcEl) el.value = srcEl.value; };
+  sv('.desc',          src.querySelector('.desc'));
+  sv('.fabric-code',   src.querySelector('.fabric-code'));
+  sv('.fabric-colour', src.querySelector('.fabric-colour'));
+  dst.querySelector('select').value = src.querySelector('select').value;
+  sv('.w-in', src.querySelector('.w-in'));
+  sv('.h-in', src.querySelector('.h-in'));
+  sv('.qty',  src.querySelector('.qty'));
+  ['blackout','linen','premium','motorized'].forEach(cls => {
+    const srcChk = src.querySelector('.' + cls);
+    const dstChk = dst.querySelector('.' + cls);
+    if (srcChk && dstChk) dstChk.checked = srcChk.checked;
+  });
+  const sewSrc = src.querySelector('.sewing-custom-amt');
+  const sewDst = dst.querySelector('.sewing-custom-amt');
+  if (sewSrc && sewDst) sewDst.value = sewSrc.value;
+  const ovSrc = src.querySelector('.override-price');
+  if (ovSrc && ovSrc.value) {
+    dst.querySelector('.override-price').value = ovSrc.value;
+    dst.querySelector('.price-override-section').style.display = '';
+  }
+  calcCurtain(nid);
+}
+
+function duplicateSPC(id) {
+  const src = document.getElementById('spc-' + id);
+  if (!src) return;
+  addSPC();
+  const nid = spcIdx - 1;
+  const dst = document.getElementById('spc-' + nid);
+  if (!dst) return;
+  const sv = (cls, srcEl) => { const el = dst.querySelector(cls); if (el && srcEl) el.value = srcEl.value; };
+  sv('.desc', src.querySelector('.desc'));
+  dst.querySelector('select').value = src.querySelector('select').value;
+  sv('.l-in', src.querySelector('.l-in'));
+  sv('.b-in', src.querySelector('.b-in'));
+  const ovSrc = src.querySelector('.override-price');
+  if (ovSrc && ovSrc.value) {
+    dst.querySelector('.override-price').value = ovSrc.value;
+    dst.querySelector('.price-override-section').style.display = '';
+  }
+  calcSPC(nid);
+}
+
+function duplicateDoor(id) {
+  const src = document.getElementById('door-' + id);
+  if (!src) return;
+  addDoor();
+  const nid = doorIdx - 1;
+  const dst = document.getElementById('door-' + nid);
+  if (!dst) return;
+  dst.querySelector('.desc').value = src.querySelector('.desc').value;
+  dst.querySelector('select').value = src.querySelector('select').value;
+  dst.querySelector('.qty').value = src.querySelector('.qty').value;
+  calcDoor(nid);
+}
+
+function duplicateTintedRoom(rid) {
+  const src = document.querySelector(`.ts-room[data-rid="${rid}"]`);
+  if (!src) return;
+  addTintedRoom();
+  const allRooms = document.querySelectorAll('.ts-room');
+  const dst = allRooms[allRooms.length - 1];
+  const newRid = parseInt(dst.dataset.rid);
+  dst.querySelector('.ts-desc').value   = src.querySelector('.ts-desc').value;
+  dst.querySelector('.ts-series').value = src.querySelector('.ts-series').value;
+  // Clear default window, copy all source windows
+  dst.querySelector('.ts-windows').innerHTML = '';
+  src.querySelectorAll('.ts-window').forEach(srcWin => {
+    addTintedWindow(newRid);
+    const wins = dst.querySelectorAll('.ts-window');
+    const dstWin = wins[wins.length - 1];
+    dstWin.querySelector('.ts-w').value = srcWin.querySelector('.ts-w').value;
+    dstWin.querySelector('.ts-h').value = srcWin.querySelector('.ts-h').value;
+  });
+  calcTinted(newRid);
 }
 
 // ─── REMOVE ──────────────────────────────────────────────────────────────────
@@ -1356,8 +1720,7 @@ function curtainFriendlyLabel(sku, isBlackout, isLinen, isMotorized, isPremium, 
       tags.push(isDouble ? 'with wave treatment (on night curtain only)' : 'with wave treatment');
     }
   }
-  if (sewingStyle === 'Centre Open') tags.push('🧵 Artisan Sewing — Centre Open (2 sides · RM400)');
-  else if (sewingStyle === 'Side Open') tags.push('🧵 Artisan Sewing — Side Open (1 side · RM200)');
+  if (sewingStyle && sewingStyle.startsWith('Artisan Sewing')) tags.push(`🧵 ${sewingStyle}`);
   return { style, typeDesc: tags.join('\n') };
 }
 function spcFriendlyLabel(sku) {
@@ -1367,7 +1730,115 @@ function spcFriendlyLabel(sku) {
   if (/skirting/i.test(sku)) return { style: 'Skirting', typeDesc: '' };
   return { style: sku, typeDesc: '' };
 }
-function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscount, isSubtotal, _key }) {
+// ─── ROOM-GROUPED SUMMARY RENDER ────────────────────────────────────────────
+// Strip window-number suffixes so "Living Room - Window 1" groups with "Living Room - Window 2"
+function baseRoom(loc) {
+  return (loc || '').replace(/[\s\-–]+(?:Window|Win|W)\s*\d+\s*$/i, '').trim();
+}
+
+function renderGroupedSummary(lines) {
+  // Pre-collect all real items per base room (handles non-consecutive and "Window N" naming)
+  const roomItems = {};
+  lines.forEach(l => {
+    if (l.room && !l.isNote && !l.isSubtotal && !l.isDiscount) {
+      const br = baseRoom(l.room);
+      if (!roomItems[br]) roomItems[br] = [];
+      roomItems[br].push(l);
+    }
+  });
+  const multiRooms = new Set(Object.keys(roomItems).filter(r => roomItems[r].length > 1));
+
+  if (multiRooms.size === 0)
+    return lines.map(l => renderSummaryCard({ ...l, _key: lineKey(l) })).join('');
+
+  let html = '';
+  const rendered = new Set();
+
+  lines.forEach(line => {
+    const isReal = !line.isNote && !line.isSubtotal && !line.isDiscount;
+    const br = baseRoom(line.room);
+    if (isReal && line.room && multiRooms.has(br)) {
+      if (rendered.has(br)) return;
+      rendered.add(br);
+      const grpItems = roomItems[br];
+
+      // Group by style: same style = same treatment for multiple windows (all one option)
+      // Different styles = different alternatives to choose from
+      const styleGroupMap = {};
+      const styleOrder = [];
+      grpItems.forEach(l => {
+        const k = l.style || '';
+        if (!styleGroupMap[k]) { styleGroupMap[k] = []; styleOrder.push(k); }
+        styleGroupMap[k].push(l);
+      });
+
+      const isAlternatives = styleOrder.length > 1;
+      const totalAll = grpItems.reduce((s, l) => s + (l.sell || 0), 0);
+      // Count = distinct style groups (actual number of options/alternatives)
+      const badgeText = isAlternatives ? `${styleOrder.length} options` : `${grpItems.length} items`;
+      const chooseNote = isAlternatives
+        ? `<div class="room-group-choose">✦ Select one option</div>`
+        : `<div class="room-group-choose">✦ All included</div>`;
+      const safeRoom = br.replace(/'/g, "\\'");
+      const showAltTotal = isAlternatives && altTotalRooms.has(br);
+      const headerRight = isAlternatives
+        ? `<div style="display:flex;align-items:center;gap:7px">
+             ${showAltTotal ? `<span class="room-group-total">${fmt(totalAll)}</span>` : ''}
+             <button class="alt-total-btn${showAltTotal ? ' active' : ''}" onclick="toggleAltTotal('${safeRoom}')" title="${showAltTotal ? 'Hide combined total' : 'Show combined total'}">
+               ${showAltTotal ? '− RM' : '+ RM'}
+             </button>
+           </div>`
+        : `<span class="room-group-total">${fmt(totalAll)}</span>`;
+
+      let itemsHtml = '';
+      if (isAlternatives) {
+        styleOrder.forEach((sKey, si) => {
+          const sItems = styleGroupMap[sKey];
+          const sTotal = sItems.reduce((s, l) => s + (l.sell || 0), 0);
+          if (sItems.length > 1) {
+            // Same style, multiple windows → show as combined option block
+            const subRows = sItems.map(l =>
+              `<div class="room-group-subitem">
+                <span class="rgs-dims">${l.dims || ''}</span>
+                <span class="rgs-price">${fmt(l.sell)}</span>
+              </div>`
+            ).join('');
+            itemsHtml += `<div class="room-group-option-block">
+              <div class="room-group-option-header">
+                <span class="rgo-style">${sKey}</span>
+                <span class="rgo-total">${fmt(sTotal)}</span>
+              </div>
+              ${subRows}
+            </div>`;
+          } else {
+            // Single item for this option — render normally, with divider between sections
+            const divider = si > 0 ? `<div class="room-group-divider"></div>` : '';
+            itemsHtml += divider + renderSummaryCard({ ...sItems[0], _key: lineKey(sItems[0]), _inGroup: true });
+          }
+        });
+      } else {
+        itemsHtml = grpItems.map(l => renderSummaryCard({ ...l, _key: lineKey(l), _inGroup: true })).join('');
+      }
+
+      html += `<div class="room-group" data-grpkey="${safeRoom}">
+        <div class="room-group-header">
+          <div style="display:flex;align-items:center">
+            <span class="grp-drag-handle" draggable="true" title="Drag to reorder group">☰</span>
+            <span class="room-group-name">${br}</span>
+            <span class="room-group-badge">${badgeText}</span>
+          </div>
+          ${headerRight}
+        </div>
+        ${chooseNote}${itemsHtml}
+      </div>`;
+    } else {
+      html += renderSummaryCard({ ...line, _key: lineKey(line) });
+    }
+  });
+  return html;
+}
+
+function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscount, isSubtotal, _key, _srcId, _inGroup, fabricCode, fabricColour }) {
   if (isSubtotal) {
     return `<div class="summary-item" style="opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:10px;margin-top:4px">
       <div class="summary-item-left"><div class="s-style" style="font-size:12px;letter-spacing:.3px;text-transform:uppercase">Subtotal</div></div>
@@ -1390,15 +1861,23 @@ function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscou
     ? `<button class="eye-toggle" data-key="${(_key || '').replace(/"/g,'&quot;')}" onclick="eyeToggle(this)" title="${isHidden ? 'Show in quote' : 'Hide from quote'}">${isHidden ? '\u{1F648}' : '\u{1F441}\uFE0F'}</button>`
     : '';
 
+  // Drag handle — only for real priced items, hidden on hover
+  const canMove = _srcId && !isNote && !isSubtotal && !isDiscount;
+  const safeId  = (_srcId || '').replace(/"/g, '&quot;');
+  const moveBtn = canMove ? `<span class="drag-handle" title="Drag to reorder">☰</span>` : '';
+
+  const lkeyAttr = _srcId ? ` data-lkey="${safeId}" draggable="true"` : '';
   const wrap = isNote
     ? 'style="opacity:.75;border-top:1px dashed rgba(255,255,255,.2);padding-top:12px;margin-top:2px"'
     : '';
-  return `<div class="summary-item ${hiddenClass}" ${wrap}>
-    ${eyeBtn}
+  const fabricLine = [fabricCode, fabricColour].filter(Boolean).join(' · ');
+  return `<div class="summary-item ${hiddenClass}"${lkeyAttr} ${wrap}>
+    ${moveBtn}${eyeBtn}
     <div class="summary-item-left">
-      ${room ? `<div class="s-room">${room}</div>` : ''}
+      ${(room && !_inGroup) ? `<div class="s-room">${room}</div>` : ''}
       <div class="s-style" ${isNote ? 'style="font-size:12px;font-style:italic"' : ''}>${style}${dims ? ` <span class="s-dims">${dims}</span>` : ''}</div>
       ${typeDesc ? typeDesc.split('\n').map(t => `<div class="s-type">${t}</div>`).join('') : ''}
+      ${fabricLine ? `<div class="s-fabric">${fabricLine}</div>` : ''}
     </div>
     <div class="s-price" ${isNote ? 'style="font-size:13px"' : ''}>${isHidden ? '—' : fmt(sell)}</div>
   </div>`;
@@ -1409,11 +1888,74 @@ function lineKey(line) {
   return (line.room || '') + '|||' + (line.style || '');
 }
 
+function toggleExcludeAlt() {
+  excludeAltTotal = !excludeAltTotal;
+  const btn = document.getElementById('excAltBtn');
+  if (btn) {
+    btn.textContent = excludeAltTotal ? 'excl. options' : 'incl. options';
+    btn.classList.toggle('active', excludeAltTotal);
+  }
+  updateSummary();
+}
+
+function toggleAltTotal(room) {
+  if (altTotalRooms.has(room)) altTotalRooms.delete(room);
+  else altTotalRooms.add(room);
+  updateSummary();
+}
+
 function eyeToggle(btn) {
   const key = btn.dataset.key;
   if (lineExcludes.has(key)) lineExcludes.delete(key);
   else lineExcludes.add(key);
   updateSummary();
+}
+
+// ─── SUMMARY REORDER ────────────────────────────────────────────────────────
+function moveSummaryLine(lkey, dir) {
+  const summaryEl = document.getElementById('summaryLines');
+  const items = [...summaryEl.querySelectorAll('.summary-item[data-lkey]')];
+  const idx = items.findIndex(el => el.dataset.lkey === lkey);
+  if (idx === -1) return;
+  const target = idx + dir;
+  if (target < 0 || target >= items.length) return;
+  if (dir === -1) summaryEl.insertBefore(items[idx], items[target]);
+  else            summaryEl.insertBefore(items[target], items[idx]);
+  summaryCustomOrder = [...summaryEl.querySelectorAll('.summary-item[data-lkey]')].map(el => el.dataset.lkey).filter(Boolean);
+}
+
+function applySummaryOrder() {
+  if (!summaryCustomOrder.length) return;
+  const summaryEl = document.getElementById('summaryLines');
+  const items = [...summaryEl.querySelectorAll('.summary-item[data-lkey]')];
+  const current = items.map(el => el.dataset.lkey);
+  // Keep valid stored order, append new keys at end
+  const valid = summaryCustomOrder.filter(k => current.includes(k));
+  const fresh = current.filter(k => !valid.includes(k));
+  summaryCustomOrder = [...valid, ...fresh];
+  summaryCustomOrder.map(k => items.find(el => el.dataset.lkey === k)).filter(Boolean)
+    .forEach(item => summaryEl.appendChild(item));
+}
+
+function applyGroupOrder() {
+  if (!groupCustomOrder.length) return;
+  const summaryEl = document.getElementById('summaryLines');
+  const topKids = [...summaryEl.children].filter(el =>
+    el.matches('.room-group[data-grpkey]') || el.matches('.summary-item[data-lkey]')
+  );
+  const keyOf = el => el.dataset.grpkey ? `grp:${el.dataset.grpkey}` : `item:${el.dataset.lkey}`;
+  const current = topKids.map(keyOf);
+  const valid = groupCustomOrder.filter(k => current.includes(k));
+  const fresh = current.filter(k => !valid.includes(k));
+  groupCustomOrder = [...valid, ...fresh];
+  groupCustomOrder
+    .map(k => {
+      if (k.startsWith('grp:'))  return summaryEl.querySelector(`.room-group[data-grpkey="${CSS.escape(k.slice(4))}"]`);
+      if (k.startsWith('item:')) return summaryEl.querySelector(`.summary-item[data-lkey="${CSS.escape(k.slice(5))}"]`);
+      return null;
+    })
+    .filter(Boolean)
+    .forEach(el => summaryEl.appendChild(el));
 }
 
 function updateSummary() {
@@ -1426,7 +1968,9 @@ function updateSummary() {
     if (sell <= 0) return;
     const room = row.querySelector('.desc')?.value.trim() || '';
     const dims = row.dataset.dims || '';
-    lines.push({ room, style, typeDesc, sell, dims });
+    const fabricCode   = row.querySelector('.fabric-code')?.value.trim()   || '';
+    const fabricColour = row.querySelector('.fabric-colour')?.value.trim() || '';
+    lines.push({ room, style, typeDesc, sell, dims, _srcId: row.id, fabricCode, fabricColour });
     totalSell += sell;
     totalCost += parseFloat(row.dataset.cost) || 0;
   };
@@ -1448,7 +1992,7 @@ function updateSummary() {
         row.dataset.sell = origSell; // restore
         if (surch > 0) {
           const qty = parseInt(row.querySelector('.qty')?.value) || 1;
-          lines.push({ room: '', style: '🔧 Spring + Tube Surcharge', typeDesc: `Roller Blind oversize · RM150 × ${qty} pcs`, sell: surch, dims: '' });
+          lines.push({ room: '', style: '🔧 Spring + Tube Surcharge', typeDesc: `Roller Blind oversize · RM150 × ${qty} pcs`, sell: surch, dims: '', _srcId: row.id + '|||surch' });
           totalSell += surch;
           totalCost += 0; // already factored in
         }
@@ -1458,8 +2002,8 @@ function updateSummary() {
         const isLinen     = row.querySelector('.linen')?.checked     || false;
         const isMotorized = row.querySelector('.motorized')?.checked || false;
         const isPremium   = row.querySelector('.premium')?.checked   || false;
-        const sewingVal   = parseInt(row.querySelector('.sewing-style')?.value) || 0;
-        const sewingStyle = sewingVal === 400 ? 'Centre Open' : sewingVal === 200 ? 'Side Open' : '';
+        const sewingVal   = parseFloat(row.querySelector('.sewing-custom-amt')?.value) || 0;
+        const sewingStyle = sewingVal > 0 ? `Artisan Sewing · RM${sewingVal}/set` : '';
         const { style, typeDesc } = curtainFriendlyLabel(sku, isBlackout, isLinen, isMotorized, isPremium, sewingStyle);
         addRow(row, style, typeDesc);
         const _hRaw = parseFloat(row.querySelector('.h-in')?.value) || 0;
@@ -1491,7 +2035,7 @@ function updateSummary() {
     const topUp = Math.ceil(totalSpcSell * (350 / totalSpcSqft - 1));
     lines.push({ room: '', style: 'Minimum Order Adjustment',
       typeDesc: `${totalSpcSqft.toFixed(1)} sqft total → 350 sqft minimum`,
-      sell: topUp, isNote: true });
+      sell: topUp, isNote: true, _srcId: 'spc-minadj' });
     totalSell += topUp;
   }
 
@@ -1500,6 +2044,40 @@ function updateSummary() {
     const sku = row.querySelector('select')?.value || '';
     addRow(row, sku, '');
   });
+
+  // Tinted Screen
+  let tintedSubtotal = 0, tintedProjectSqft = 0;
+  document.querySelectorAll('.ts-room').forEach(room => {
+    const sell = parseFloat(room.dataset.sell) || 0;
+    if (sell <= 0) return;
+    const desc       = room.querySelector('.ts-desc')?.value.trim() || '';
+    const series     = room.querySelector('.ts-series')?.value || '';
+    const actualSqft = parseFloat(room.dataset.sqft) || 0;
+    const billSqft   = Math.ceil(actualSqft);
+    const rates      = TINTED_SCREEN[series];
+    const typeDesc   = `${actualSqft.toFixed(1)} sqft → ${billSqft} sqft · RM${rates.sell}/sqft`;
+    lines.push({ room: desc, style: `Tinted Screen — ${series}`, typeDesc, sell, _srcId: 'tinted-' + room.dataset.rid });
+    tintedSubtotal += sell;
+    tintedProjectSqft += actualSqft;
+    totalSell += sell;
+    totalCost += parseFloat(room.dataset.cost) || 0;
+  });
+  if (tintedSubtotal > 0) {
+    // Project-level sqft minimum note
+    if (tintedProjectSqft < TINTED_MIN_SQFT) {
+      lines.push({ room: '', style: '⚠ Below minimum sqft',
+        typeDesc: `Project total ${tintedProjectSqft.toFixed(1)} sqft (min ${TINTED_MIN_SQFT} sqft/project)`,
+        sell: 0, isNote: true, _srcId: 'tinted-belowmin' });
+    }
+    // Project-level minimum charge
+    if (tintedSubtotal < TINTED_MIN_CHARGE) {
+      const topUp = TINTED_MIN_CHARGE - tintedSubtotal;
+      lines.push({ room: '', style: 'Minimum Charge Adjustment',
+        typeDesc: `Tinted Screen total → RM ${TINTED_MIN_CHARGE} minimum`,
+        sell: topUp, isNote: true, _srcId: 'tinted-mincharge' });
+      totalSell += topUp;
+    }
+  }
 
   // ── Discount ──
   const discVal  = parseFloat(document.getElementById('discountVal')?.value) || 0;
@@ -1521,6 +2099,30 @@ function updateSummary() {
   }
   const finalTotal = visibleSell - discAmt;
 
+  // Compute altSell: sum of items belonging to alternatives groups (for the exclude-options toggle)
+  const _brMap = {};
+  lines.forEach(l => {
+    if (l.room && !l.isNote && !l.isSubtotal && !l.isDiscount) {
+      const br = baseRoom(l.room);
+      if (!_brMap[br]) _brMap[br] = [];
+      _brMap[br].push(l);
+    }
+  });
+  const _altBRs = new Set(Object.entries(_brMap).filter(([, items]) => {
+    if (items.length <= 1) return false;
+    return new Set(items.map(l => l.style || '')).size > 1;
+  }).map(([br]) => br));
+  const altSell = lines.reduce((s, l) => {
+    if (l.isNote || l.isSubtotal || l.isDiscount) return s;
+    if (lineExcludes.has(lineKey(l))) return s;
+    return _altBRs.has(baseRoom(l.room)) ? s + (l.sell || 0) : s;
+  }, 0);
+  const hasAlts = _altBRs.size > 0;
+
+  // Update label to reflect mode
+  const _lbl = document.getElementById('totalLabel');
+  if (_lbl) _lbl.textContent = 'Estimated Total Budget';
+
   // Customer info block
   const _cName = document.getElementById('custName')?.value.trim() || '';
   const _cRes  = document.getElementById('custPhone')?.value.trim() || '';
@@ -1535,11 +2137,23 @@ function updateSummary() {
   const summaryEl = document.getElementById('summaryLines');
   summaryEl.innerHTML = lines.length === 0
     ? '<div style="text-align:center;padding:32px 16px 24px"><div style="font-size:28px;opacity:.2;margin-bottom:10px">🪟</div><div style="color:rgba(255,255,255,.4);font-size:13px;line-height:1.75">No items yet.<br>Add curtains or blinds above<br>to build your estimate.</div></div>'
-    : lines.map(line => renderSummaryCard({ ...line, _key: lineKey(line) })).join('');
+    : renderGroupedSummary(lines);
+  applySummaryOrder();
+  applyGroupOrder();
 
   const gp    = finalTotal - totalCost;
   const gpPct = finalTotal > 0 ? (gp / finalTotal * 100).toFixed(1) : '0';
-  document.getElementById('grandTotal').textContent = fmt(finalTotal);
+  // Show/hide "excl. options" button depending on whether alternatives exist
+  const excAltBtn = document.getElementById('excAltBtn');
+  if (excAltBtn) excAltBtn.style.display = hasAlts ? '' : 'none';
+
+  // When "excl. options" is active and alternatives exist, hide the grand total
+  const grandTotalEl = document.getElementById('grandTotal');
+  if (excludeAltTotal && hasAlts) {
+    grandTotalEl.textContent = '—';
+  } else {
+    grandTotalEl.textContent = fmt(finalTotal);
+  }
   const hsnEl = document.getElementById('heightSurchNote');
   if (hsnEl) hsnEl.style.display = hasHeightSurch ? '' : 'none';
   const discEl = document.getElementById('grandDiscount');
@@ -1551,6 +2165,13 @@ function updateSummary() {
   // Cache for PDF export
   _lastLines = lines;
   _lastFinalTotal = finalTotal;
+  // Repopulate location autocomplete datalist
+  const locDL = document.getElementById('loc-suggestions');
+  if (locDL) {
+    const locs = new Set();
+    document.querySelectorAll('.desc, .ts-desc').forEach(inp => { const v = inp.value.trim(); if (v) locs.add(v); });
+    locDL.innerHTML = [...locs].map(v => `<option value="${v.replace(/"/g,'&quot;')}"></option>`).join('');
+  }
   // Auto-save
   try { localStorage.setItem('sl_quote_v2', JSON.stringify(serializeQuote())); } catch(e) {}
 }
@@ -1649,7 +2270,7 @@ function serializeQuote() {
         base.linen      = row.querySelector('.linen')?.checked      || false;
         base.motorized  = row.querySelector('.motorized')?.checked  || false;
         base.premium    = row.querySelector('.premium')?.checked    || false;
-        base.sewingStyle= row.querySelector('.sewing-style')?.value || '0';
+        base.sewingCustomAmt = row.querySelector('.sewing-custom-amt')?.value || '';
       } else if (type === 'spc') {
         base.l = row.querySelector('.l-in')?.value || '';
         base.b = row.querySelector('.b-in')?.value || '';
@@ -1676,10 +2297,20 @@ function serializeQuote() {
       isPct: document.getElementById('dpct')?.classList.contains('active') ?? true,
     },
     lineExcludes: [...lineExcludes],
+    summaryCustomOrder: [...summaryCustomOrder],
+    groupCustomOrder:   [...groupCustomOrder],
     blinds:   getRows('#blind-items',   'blind'),
     curtains: getRows('#curtain-items', 'curtain'),
     spcs:     getRows('#spc-items',     'spc'),
     doors:    getRows('#door-items',    'door'),
+    tintedRooms: [...document.querySelectorAll('.ts-room')].map(room => ({
+      desc:    room.querySelector('.ts-desc')?.value    || '',
+      series:  room.querySelector('.ts-series')?.value || '',
+      windows: [...room.querySelectorAll('.ts-window')].map(w => ({
+        w: w.querySelector('.ts-w')?.value || '',
+        h: w.querySelector('.ts-h')?.value || '',
+      })),
+    })),
   };
 }
 
@@ -1710,9 +2341,11 @@ function applyQuoteState(state) {
     setDiscType(state.discount.isPct ? 'pct' : 'rm');
   }
 
-  // lineExcludes
+  // lineExcludes & summary order
   lineExcludes.clear();
   (state.lineExcludes || []).forEach(k => lineExcludes.add(k));
+  summaryCustomOrder = state.summaryCustomOrder || [];
+  groupCustomOrder   = state.groupCustomOrder   || [];
 
   // Helper to fill a row after adding it
   const fillRow = (row, d, calcFn) => {
@@ -1740,6 +2373,7 @@ function applyQuoteState(state) {
   ['#blind-items','#curtain-items','#spc-items','#door-items'].forEach(sel => {
     document.querySelector(sel).querySelectorAll('.item-row').forEach(r => r.remove());
   });
+  document.getElementById('tinted-rooms').innerHTML = '';
 
   // Blind rows
   (state.blinds || []).forEach(d => {
@@ -1774,7 +2408,7 @@ function applyQuoteState(state) {
     sv('.w-in', d.w); sv('.h-in', d.h); sv('.qty', d.qty); sv('.override-price', d.override);
     if (row.querySelector('select') && d.sku) row.querySelector('select').value = d.sku;
     sc('.blackout', d.blackout); sc('.linen', d.linen); sc('.motorized', d.motorized); sc('.premium', d.premium);
-    if (d.sewingStyle && row.querySelector('.sewing-style')) row.querySelector('.sewing-style').value = d.sewingStyle;
+    if (d.sewingCustomAmt) { const el = row.querySelector('.sewing-custom-amt'); if (el) el.value = d.sewingCustomAmt; }
     if (d.override) {
       const sec = row.querySelector('.price-override-section');
       const btn = row.querySelector('.btn-override-toggle');
@@ -1826,6 +2460,26 @@ function applyQuoteState(state) {
     calcDoor(id);
   });
 
+  // Tinted Screen rooms
+  (state.tintedRooms || []).forEach(d => {
+    addTintedRoom();
+    const rooms = document.querySelectorAll('.ts-room');
+    const room  = rooms[rooms.length - 1];
+    const rid   = parseInt(room.dataset.rid);
+    if (d.desc)   room.querySelector('.ts-desc').value   = d.desc;
+    if (d.series && TINTED_SCREEN[d.series]) room.querySelector('.ts-series').value = d.series;
+    // Replace the default empty window with saved windows
+    room.querySelector('.ts-windows').innerHTML = '';
+    (d.windows || []).forEach(w => {
+      addTintedWindow(rid);
+      const wins  = room.querySelectorAll('.ts-window');
+      const winEl = wins[wins.length - 1];
+      if (w.w) winEl.querySelector('.ts-w').value = w.w;
+      if (w.h) winEl.querySelector('.ts-h').value = w.h;
+    });
+    calcTinted(rid);
+  });
+
   updateSummary();
 }
 
@@ -1872,9 +2526,12 @@ function _doNewQuote() {
   closeNewQuoteModal();
   try { localStorage.removeItem('sl_quote_v2'); } catch(e) {}
   lineExcludes.clear();
+  summaryCustomOrder = [];
+  groupCustomOrder   = [];
   ['#blind-items','#curtain-items','#spc-items','#door-items'].forEach(sel => {
     document.querySelector(sel).querySelectorAll('.item-row').forEach(r => r.remove());
   });
+  document.getElementById('tinted-rooms').innerHTML = '';
   ['custName','custPhone','discountVal'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('custDate').value = new Date().toISOString().slice(0,10);
   document.getElementById('custPropType').value = '';
@@ -1954,8 +2611,8 @@ function exportExcel() {
       const bo = row.querySelector('.blackout')?.checked;
       const li = row.querySelector('.linen')?.checked;
       const pr = row.querySelector('.premium')?.checked;
-      const sw = parseInt(row.querySelector('.sewing-style')?.value) || 0;
-      const swLabel = sw === 400 ? 'Centre Open' : sw === 200 ? 'Side Open' : '';
+      const sw = parseFloat(row.querySelector('.sewing-custom-amt')?.value) || 0;
+      const swLabel = sw > 0 ? `Artisan Sewing +RM${sw}` : '';
       const addOnParts = [bo && 'Blackout', li && 'Linen', pr && 'Premium', swLabel].filter(Boolean);
       rows.push([++n, g(row), row.querySelector('select').value,
                  fc(row), fv(row),
@@ -2026,6 +2683,35 @@ function exportExcel() {
     gap();
   }
 
+  // ── Tinted Screen ────────────────────────────────────────────────────────────
+  const tintedRooms = document.querySelectorAll('.ts-room');
+  if ([...tintedRooms].some(r => parseFloat(r.dataset.sell) > 0)) {
+    rows.push(['TINTED SCREEN']);
+    rows.push(['#','Room / Location','Series','Windows','Actual Sqft','Billed Sqft','Rate (RM/sqft)','Total (RM)']);
+    let n = 0, tintTotal = 0;
+    tintedRooms.forEach(room => {
+      const sell = parseFloat(room.dataset.sell) || 0;
+      if (sell <= 0) return;
+      const desc       = room.querySelector('.ts-desc')?.value.trim() || '—';
+      const series     = room.querySelector('.ts-series')?.value || '';
+      const actualSqft = parseFloat(room.dataset.sqft) || 0;
+      const billSqft   = Math.ceil(actualSqft);
+      const rate       = TINTED_SCREEN[series]?.sell || 0;
+      const winCount   = room.querySelectorAll('.ts-window').length;
+      rows.push([++n, desc, series, winCount, +actualSqft.toFixed(2), +billSqft.toFixed(2), rate, sell]);
+      tintTotal += sell;
+    });
+    if (tintTotal > 0 && tintTotal < TINTED_MIN_CHARGE) {
+      const topUp = TINTED_MIN_CHARGE - tintTotal;
+      rows.push(['','Minimum Charge Adjustment', `Total → RM ${TINTED_MIN_CHARGE} minimum`,
+        '','','','', topUp]);
+      rows.push(['','','','','','','Subtotal', TINTED_MIN_CHARGE]);
+    } else {
+      rows.push(['','','','','','','Subtotal', tintTotal]);
+    }
+    gap();
+  }
+
   // ── Grand Total ──────────────────────────────────────────────────────────────
   const discAmtXls = parseFloat(document.getElementById('grandDiscount').textContent) || 0;
   if (discAmtXls > 0) {
@@ -2077,6 +2763,98 @@ function exportExcel() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
+// ─── DRAG-AND-DROP REORDER ───────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const summaryEl = document.getElementById('summaryLines');
+  let dragSrcKey    = null; // individual item drag
+  let dragSrcGrpKey = null; // group drag
+
+  const clearDragClasses = () =>
+    summaryEl.querySelectorAll('.drag-over, .drag-over-grp, .dragging, .grp-dragging')
+      .forEach(el => el.classList.remove('drag-over', 'drag-over-grp', 'dragging', 'grp-dragging'));
+
+  summaryEl.addEventListener('dragstart', e => {
+    // Group handle drag — fired when user grabs the .grp-drag-handle span
+    if (e.target.matches('.grp-drag-handle')) {
+      const grp = e.target.closest('.room-group[data-grpkey]');
+      if (!grp) return;
+      dragSrcGrpKey = grp.dataset.grpkey;
+      grp.classList.add('grp-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', 'grp:' + dragSrcGrpKey);
+      return;
+    }
+    // Individual item drag
+    const item = e.target.closest('.summary-item[data-lkey]');
+    if (!item) return;
+    dragSrcKey = item.dataset.lkey;
+    item.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragSrcKey);
+  });
+
+  summaryEl.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    clearDragClasses();
+    if (dragSrcGrpKey) {
+      // Highlight target group
+      const tgtGrp = e.target.closest('.room-group[data-grpkey]');
+      if (tgtGrp && tgtGrp.dataset.grpkey !== dragSrcGrpKey) tgtGrp.classList.add('drag-over-grp');
+      // Also re-add the dragging class so source stays faded
+      const srcGrp = summaryEl.querySelector(`.room-group[data-grpkey="${CSS.escape(dragSrcGrpKey)}"]`);
+      if (srcGrp) srcGrp.classList.add('grp-dragging');
+    } else if (dragSrcKey) {
+      const item = e.target.closest('.summary-item[data-lkey]');
+      if (item && item.dataset.lkey !== dragSrcKey) item.classList.add('drag-over');
+      const srcItem = summaryEl.querySelector(`.summary-item[data-lkey="${CSS.escape(dragSrcKey)}"]`);
+      if (srcItem) srcItem.classList.add('dragging');
+    }
+  });
+
+  summaryEl.addEventListener('dragleave', e => {
+    if (!summaryEl.contains(e.relatedTarget)) clearDragClasses();
+  });
+
+  summaryEl.addEventListener('drop', e => {
+    e.preventDefault();
+    clearDragClasses();
+
+    if (dragSrcGrpKey) {
+      // Group drop — move entire .room-group before target group
+      const tgtGrp = e.target.closest('.room-group[data-grpkey]');
+      if (tgtGrp && tgtGrp.dataset.grpkey !== dragSrcGrpKey) {
+        const srcGrp = summaryEl.querySelector(`.room-group[data-grpkey="${CSS.escape(dragSrcGrpKey)}"]`);
+        if (srcGrp) {
+          tgtGrp.parentElement.insertBefore(srcGrp, tgtGrp);
+          // Snapshot top-level order
+          const topKids = [...summaryEl.children].filter(el =>
+            el.matches('.room-group[data-grpkey]') || el.matches('.summary-item[data-lkey]')
+          );
+          groupCustomOrder = topKids.map(el => el.dataset.grpkey ? `grp:${el.dataset.grpkey}` : `item:${el.dataset.lkey}`);
+        }
+      }
+      dragSrcGrpKey = null;
+      return;
+    }
+
+    // Individual item drop
+    const tgt = e.target.closest('.summary-item[data-lkey]');
+    if (!tgt || !dragSrcKey || tgt.dataset.lkey === dragSrcKey) { dragSrcKey = null; return; }
+    const srcItem = summaryEl.querySelector(`.summary-item[data-lkey="${CSS.escape(dragSrcKey)}"]`);
+    if (!srcItem) { dragSrcKey = null; return; }
+    tgt.parentElement.insertBefore(srcItem, tgt);
+    summaryCustomOrder = [...summaryEl.querySelectorAll('.summary-item[data-lkey]')].map(el => el.dataset.lkey).filter(Boolean);
+    dragSrcKey = null;
+  });
+
+  summaryEl.addEventListener('dragend', () => {
+    clearDragClasses();
+    dragSrcKey = null;
+    dragSrcGrpKey = null;
+  });
+});
+
 window.addEventListener('DOMContentLoaded', () => {
   const qrOpts = (url) => ({
     text: url, width: 44, height: 44,
@@ -2109,6 +2887,7 @@ function toggleOverride(btn, rowId) {
   else { const id = rowId.replace('curtain-',''); calcCurtain(parseInt(id)||id); }
 }
 
+
 // ─── PDF (snapshot print) ────────────────────────────────────────────────────
 
 async function saveAsImage() {
@@ -2126,10 +2905,15 @@ async function saveAsImage() {
   // Hide UI-only elements before capturing
   const hideEls = el.querySelectorAll('.discount-section, .export-row, .price-override-section');
   const eyeEls = el.querySelectorAll('.eye-toggle');
+  const dragHandleEls = el.querySelectorAll('.drag-handle');
   const hiddenLineEls = el.querySelectorAll('.hidden-line');
   hideEls.forEach(e => e.style.display = 'none');
   eyeEls.forEach(e => e.style.display = 'none');
+  dragHandleEls.forEach(e => e.style.display = 'none');
   hiddenLineEls.forEach(e => e.style.display = 'none');
+
+  // Apply PDF layout overrides (open-section style, no card nesting)
+  el.classList.add('pdf-mode');
 
   // Pin to mobile width so PC and mobile PDFs look identical
   const origWidth    = el.style.width;
@@ -2152,8 +2936,10 @@ async function saveAsImage() {
     });
 
     restoreEl();
+    el.classList.remove('pdf-mode');
     hideEls.forEach(e => e.style.display = '');
     eyeEls.forEach(e => e.style.display = '');
+    dragHandleEls.forEach(e => e.style.display = '');
     hiddenLineEls.forEach(e => e.style.display = '');
 
     // Build PDF sized exactly to the captured snapshot
@@ -2178,6 +2964,7 @@ async function saveAsImage() {
         if (e.name === 'AbortError') {
           btn.textContent = '📄 PDF';
           btn.disabled = false;
+          el.classList.remove('pdf-mode');
           return;
         }
         // canShare exists but share failed — fall through to download
@@ -2191,8 +2978,10 @@ async function saveAsImage() {
 
   } catch (err) {
     restoreEl();
+    el.classList.remove('pdf-mode');
     hideEls.forEach(e => e.style.display = '');
     eyeEls.forEach(e => e.style.display = '');
+    dragHandleEls.forEach(e => e.style.display = '');
     hiddenLineEls.forEach(e => e.style.display = '');
     btn.textContent = '📄 PDF';
     btn.disabled = false;
@@ -2542,5 +3331,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<datalist id="loc-suggestions"></datalist>
 </body>
 </html>
