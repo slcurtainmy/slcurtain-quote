@@ -608,10 +608,10 @@
   .btn-override-toggle:hover { border-color: #b05d00; color: #b05d00; background: #fff4ed; }
   .btn-override-toggle.active { border-color: #b05d00; color: #fff; background: #b05d00; }
   .spring-tube-btn {
-    display: block; margin-top: 6px; font-size: 11px; font-weight: 600;
-    padding: 6px 10px; border-radius: 6px; cursor: pointer; border: 1px solid;
+    display: block; font-size: 11px; font-weight: 600;
+    padding: 8px 12px; border-radius: 6px; cursor: pointer; border: 1px solid;
     background: none; font-family: inherit; transition: all .15s; line-height: 1.4;
-    min-height: 34px; width: 100%; text-align: left;
+    min-height: 36px; width: 100%; text-align: left; box-sizing: border-box;
   }
   .spring-tube-btn.st-active {
     color: rgba(184,134,90,.95); border-color: rgba(184,134,90,.4);
@@ -1228,13 +1228,13 @@ function addBlind() {
         <label>Sqft / Blind</label>
         <input type="text" readonly class="sqft-out highlight" value="—" />
         <span class="hint sqft-note"></span>
-        <button class="spring-tube-btn" style="display:none" type="button" onclick="toggleSpringTube(${id})"></button>
       </div>
       <div class="field">
         <label>Qty</label>
         <input type="number" min="1" value="1" oninput="calcBlind(${id})" class="qty" />
       </div>
     </div>
+    <button class="spring-tube-btn" style="display:none;flex:0 0 100%" type="button" onclick="toggleSpringTube(${id})"></button>
     <div class="field sell-field">
       <label>Sell Price <button class="btn-override-toggle" onclick="toggleOverride(this,'blind-${id}')" type="button">✏ Override</button></label>
       <input type="text" readonly class="sell-out" value="—" />
