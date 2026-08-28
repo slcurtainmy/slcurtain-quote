@@ -99,10 +99,16 @@
   .tab {
     padding: 10px 22px; cursor: pointer; font-size: 14px; font-weight: 600;
     color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -2px;
-    transition: all .2s; user-select: none;
+    transition: all .2s; user-select: none; display: flex; align-items: center; gap: 6px;
   }
   .tab.active { color: var(--primary); border-bottom-color: var(--accent); }
   .tab:hover:not(.active) { color: var(--text); }
+  .tab-count {
+    font-size: 10px; font-weight: 700; line-height: 1; padding: 2px 6px;
+    border-radius: 10px; background: var(--accent); color: #fff;
+    display: none; flex-shrink: 0;
+  }
+  .tab-count.has-items { display: inline-flex; }
 
   .panel { display: none; }
   .panel.active { display: block; }
@@ -207,6 +213,7 @@
   .room-group-option-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
   .rgo-style { font-size: 12px; color: rgba(255,255,255,.88); font-weight: 600; }
   .rgo-total { font-size: 13px; font-weight: 700; color: #B8865A; }
+  .rgo-typedesc { font-size: 10.5px; color: rgba(255,255,255,.5); margin-bottom: 3px; }
   .room-group-subitem { display: flex; justify-content: space-between; padding: 1px 0 1px 8px; }
   .rgs-dims { font-size: 11px; color: rgba(255,255,255,.4); }
   .rgs-price { font-size: 11px; color: rgba(255,255,255,.5); }
@@ -220,14 +227,45 @@
   .alt-total-btn.active { background: rgba(184,134,90,.2); border-color: rgba(184,134,90,.5); color: #B8865A; }
   .pdf-mode .alt-total-btn { display: none !important; }
   .exc-alt-btn {
-    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
-    color: rgba(255,255,255,.35); border-radius: 4px; font-size: 9px; font-weight: 600;
-    padding: 2px 7px; cursor: pointer; font-family: inherit; letter-spacing: .2px;
+    background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.22);
+    color: rgba(255,255,255,.5); border-radius: 6px; font-size: 10px; font-weight: 600;
+    padding: 3px 9px; cursor: pointer; font-family: inherit; letter-spacing: .2px;
     transition: all .15s; white-space: nowrap; flex-shrink: 0;
   }
-  .exc-alt-btn:hover { border-color: rgba(255,255,255,.3); color: rgba(255,255,255,.6); }
-  .exc-alt-btn.active { background: rgba(184,134,90,.2); border-color: rgba(184,134,90,.45); color: #B8865A; }
+  .exc-alt-btn::before { content: '☑ '; font-size: 10px; }
+  .exc-alt-btn.active::before { content: '☐ '; }
+  .exc-alt-btn:hover { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.75); }
+  .exc-alt-btn.active { background: rgba(184,134,90,.18); border-color: rgba(184,134,90,.5); color: #B8865A; }
   .pdf-mode .exc-alt-btn { display: none !important; }
+  /* More dropdown */
+  .more-dropdown-wrap { position: relative; }
+  .more-menu {
+    display: none; position: absolute; bottom: calc(100% + 6px); right: 0;
+    background: #2a1e15; border: 1px solid rgba(255,255,255,.15); border-radius: 8px;
+    padding: 5px 0; min-width: 150px; z-index: 200;
+    box-shadow: 0 4px 20px rgba(0,0,0,.5);
+  }
+  .more-menu.open { display: block; }
+  .more-menu-item {
+    display: block; width: 100%; text-align: left; padding: 8px 14px;
+    background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 600;
+    color: rgba(255,255,255,.7); cursor: pointer; transition: all .12s; white-space: nowrap;
+  }
+  .more-menu-item:hover { background: rgba(255,255,255,.07); color: #fff; }
+  .more-menu-item.danger { color: rgba(220,80,80,.85); }
+  .more-menu-item.danger:hover { background: rgba(220,60,60,.12); color: rgba(220,80,80,1); }
+  .more-menu hr { border: none; border-top: 1px solid rgba(255,255,255,.08); margin: 4px 0; }
+  /* Fabric toggle */
+  .btn-fabric-toggle {
+    font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 5px;
+    border: 1px dashed rgba(61,42,30,.35); background: none; color: var(--muted);
+    cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap;
+    align-self: flex-end; margin-bottom: 2px;
+  }
+  .btn-fabric-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-fabric-toggle.open { border-style: solid; border-color: var(--accent); color: var(--accent); }
+  .fabric-fields { flex: 0 0 100%; display: flex; gap: 10px; flex-wrap: wrap; }
+  .hint.sqft-note { line-height: 1.65; }
 
   .item-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
   .item-row:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
@@ -290,72 +328,137 @@
   .gp-row { display: none; }
 
   /* ─── PDF export mode ──────────────────────────────────────────────────────
-     Applied via .pdf-mode class on #summaryBox during html2canvas capture.
-     Replaces card-in-card nesting with a clean open-section editorial layout.
+     Applied via .pdf-mode on #summaryBox during html2canvas capture.
+     Confirmed items (order 0-1) sort before alternatives (order 6).
+     Section dividers + A/B/C badges injected by JS, removed after capture.
   ─────────────────────────────────────────────────────────────────────────── */
-  .pdf-mode .line-items { gap: 0 !important; }
 
-  /* Room group: strip the card entirely */
+  /* Flex column enables CSS order-based resequencing */
+  .pdf-mode .line-items {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+  .pdf-mode .line-items > .room-group                    { order: 0; }
+  .pdf-mode .line-items > .summary-item                  { order: 1; }
+  .pdf-mode .line-items > .room-group[data-alternatives] { order: 6; }
+  /* Notes/surcharges always last */
+  .pdf-mode .line-items > .summary-item[style*="dashed"] {
+    order: 9;
+    margin-top: 2px;
+    border-bottom: none !important;
+    opacity: .55 !important;
+  }
+
+  /* ── Strip card chrome from all groups ── */
   .pdf-mode .room-group {
     border: none !important; border-radius: 0 !important;
     overflow: visible !important; margin-bottom: 0 !important;
   }
-  /* Room header: single rule above, no fill */
+
+  /* ── Confirmed-group header: subtle rule, no fill ── */
   .pdf-mode .room-group-header {
     background: none !important;
-    border-top: 1px solid rgba(255,255,255,.22) !important;
+    border-top: 1px solid rgba(255,255,255,.18) !important;
     padding: 14px 0 5px !important;
   }
-  .pdf-mode .room-group-name { font-size: 12px !important; letter-spacing: 1px !important; }
-  .pdf-mode .room-group-badge { display: none !important; }
-  .pdf-mode .room-group-total { font-size: 14px !important; }
+  .pdf-mode .room-group-name   { font-size: 11px !important; letter-spacing: 1.2px !important; }
+  .pdf-mode .room-group-badge  { display: none !important; }
+  .pdf-mode .room-group-total  { font-size: 14px !important; }
 
-  /* "Select one option" / "All included" — no background strip */
-  .pdf-mode .room-group-choose {
-    background: none !important;
-    padding: 0 0 6px !important;
-    font-size: 9px !important;
-    color: rgba(255,255,255,.28) !important;
-    letter-spacing: .4px;
+  /* ── Alternatives-group header: amber accent, more vertical space ── */
+  .pdf-mode .room-group[data-alternatives] .room-group-header {
+    border-top: 1.5px solid rgba(184,134,90,.38) !important;
+    padding: 20px 0 5px !important;
   }
+  .pdf-mode .room-group[data-alternatives] .room-group-name {
+    font-size: 12px !important;
+    letter-spacing: 1.6px !important;
+    color: rgba(255,255,255,.78) !important;
+  }
+  /* Show option count badge for alternatives, hide total (meaningless for select-one) */
+  .pdf-mode .room-group[data-alternatives] .room-group-badge {
+    display: inline !important;
+    background: transparent !important;
+    border: none !important;
+    color: rgba(184,134,90,.6) !important;
+    font-size: 9px !important;
+    padding: 0 !important;
+  }
+  .pdf-mode .room-group-choose { display: none !important; }
+  .pdf-mode .room-group[data-alternatives] .room-group-total { display: none !important; }
+  .pdf-mode .grp-drag-handle   { display: none !important; }
 
-  /* Items inside group: no left-pad box indent, generous vertical rhythm */
+  /* ── Items inside confirmed groups ── */
   .pdf-mode .room-group .summary-item {
     padding: 9px 0 !important;
     border-bottom: 1px solid rgba(255,255,255,.1) !important;
   }
   .pdf-mode .room-group .summary-item:last-child { border-bottom: none !important; }
 
-  /* Option dividers between alternatives: slightly more visible */
-  .pdf-mode .room-group-divider {
-    margin: 0 !important;
-    border-top: 1px solid rgba(255,255,255,.15) !important;
+  /* ── Alternative options: pad left for letter badge ── */
+  .pdf-mode .room-group[data-alternatives] > .room-group-option-block,
+  .pdf-mode .room-group[data-alternatives] > .summary-item {
+    position: relative !important;
+    padding: 12px 0 12px 28px !important;
+    border-bottom: 1px solid rgba(255,255,255,.08) !important;
+  }
+  .pdf-mode .room-group[data-alternatives] > .room-group-option-block:last-child,
+  .pdf-mode .room-group[data-alternatives] > .summary-item:last-child {
+    border-bottom: none !important;
+  }
+  /* Dividers between alternatives replaced by letter badge separation */
+  .pdf-mode .room-group-divider { display: none !important; }
+
+  /* ── Option letter badge (A / B / C …) ── */
+  .pdf-option-letter {
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(184,134,90,.12);
+    border: 1px solid rgba(184,134,90,.3);
+    color: #B8865A;
+    font-size: 8px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    line-height: 1;
   }
 
-  /* Combined multi-window option block */
-  .pdf-mode .room-group-option-block {
-    padding: 9px 0 !important;
-    border-bottom: 1px solid rgba(255,255,255,.1) !important;
-  }
-  .pdf-mode .room-group-option-block:last-child { border-bottom: none !important; }
-
-  /* Solo items (direct children of .line-items, not inside a group) */
+  /* ── Standalone items (direct .line-items children, not in a group) ── */
   .pdf-mode .line-items > .summary-item {
     padding: 9px 0;
     border-bottom: 1px solid rgba(255,255,255,.1);
   }
   .pdf-mode .line-items > .summary-item:last-child { border-bottom: none; }
 
-  /* Spacing between the last item in a group and the next section's rule */
-  .pdf-mode .room-group + .room-group .room-group-header,
-  .pdf-mode .room-group + .summary-item { margin-top: 4px; }
-
-  /* Ensure notes/surcharges after groups breathe */
-  .pdf-mode .line-items > .summary-item[style*="dashed"] {
-    margin-top: 2px;
-    border-bottom: none !important;
-    opacity: .55 !important;
+  /* ── Section divider labels (injected by JS, order set inline) ── */
+  .pdf-section-divider {
+    font-size: 7.5px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.28);
+    padding: 10px 0 3px;
+    flex-shrink: 0;
   }
+  .pdf-section-divider.div-options {
+    color: rgba(184,134,90,.55);
+    padding-top: 6px;
+  }
+
+  /* ── rgo / rgs / spec typographic refinements ── */
+  .pdf-mode .rgo-style { font-size: 12px !important; font-weight: 600 !important; }
+  .pdf-mode .rgo-total { font-size: 13px !important; font-weight: 700 !important; }
+  .pdf-mode .rgo-typedesc { font-size: 10px !important; color: rgba(0,0,0,.45) !important; }
+  .pdf-mode .rgs-dims  { font-size: 10px !important; color: rgba(255,255,255,.45) !important; }
+  .pdf-mode .rgs-price { font-size: 10px !important; }
+  .pdf-mode .s-fabric  { font-size: 9px !important; color: rgba(255,255,255,.28) !important; }
 
   /* ── Discount section ── */
   .discount-section { margin: 14px 0 10px; }
@@ -504,6 +607,21 @@
   }
   .btn-override-toggle:hover { border-color: #b05d00; color: #b05d00; background: #fff4ed; }
   .btn-override-toggle.active { border-color: #b05d00; color: #fff; background: #b05d00; }
+  .spring-tube-btn {
+    display: block; margin-top: 4px; font-size: 9px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px; cursor: pointer; border: 1px solid;
+    background: none; font-family: inherit; transition: all .15s; line-height: 1.5;
+  }
+  .spring-tube-btn.st-active {
+    color: rgba(184,134,90,.95); border-color: rgba(184,134,90,.4);
+    background: rgba(184,134,90,.09);
+  }
+  .spring-tube-btn.st-active:hover { background: rgba(184,134,90,.18); }
+  .spring-tube-btn.st-waived {
+    color: rgba(255,255,255,.35); border-color: rgba(255,255,255,.18);
+    text-decoration: line-through;
+  }
+  .spring-tube-btn.st-waived:hover { color: rgba(255,255,255,.55); }
   .price-override-wrap { margin-top: 6px; display: block; }
   .override-price {
     width: 100%; padding: 14px 16px; font-size: 18px; font-family: inherit;
@@ -661,14 +779,21 @@
       </div>
       <input type="hidden" id="custPropType" value="Own Stay" />
     </div>
+    <div class="prop-type-row" style="margin-top:8px">
+      <span class="prop-type-label">Customer Type</span>
+      <div class="prop-pills" id="custTypePills">
+        <button class="prop-pill active" onclick="setCustomerType('retail', this)">Retail</button>
+        <button class="prop-pill" onclick="setCustomerType('designer', this)" style="color:inherit">🏷 Designer</button>
+      </div>
+    </div>
   </div>
 
   <!-- Tabs -->
   <div class="tabs">
-    <div class="tab active" data-tab="blinds">🪟 Blinds</div>
-    <div class="tab" data-tab="curtains">🪢 Curtains & Sheers</div>
-    <div class="tab" data-tab="spc">🪵 SPC Flooring</div>
-    <div class="tab" data-tab="tinted">🎞 Tinted Screen</div>
+    <div class="tab active" data-tab="blinds">🪟 Blinds<span class="tab-count" id="cnt-blinds"></span></div>
+    <div class="tab" data-tab="curtains">🪢 Curtains & Sheers<span class="tab-count" id="cnt-curtains"></span></div>
+    <div class="tab" data-tab="spc">🪵 SPC Flooring<span class="tab-count" id="cnt-spc"></span></div>
+    <div class="tab" data-tab="tinted">🎞 Tinted Screen<span class="tab-count" id="cnt-tinted"></span></div>
   </div>
 
   <!-- Unit selector bar -->
@@ -747,6 +872,7 @@
       </div>
     </div>
     <div id="summaryCustomer"></div>
+    <div id="designerTag" style="display:none;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#B8865A;background:rgba(184,134,90,.12);border:1px solid rgba(184,134,90,.3);border-radius:5px;padding:3px 8px;margin-bottom:6px;width:fit-content">🏷 Designer Pricing</div>
     <div class="line-items" id="summaryLines">
       <div style="text-align:center;color:rgba(255,255,255,.4);font-size:13px;padding:20px 0;">Add items above to see your estimate.</div>
     </div>
@@ -802,9 +928,16 @@
       <button class="btn-export print" onclick="saveAsImage()" id="screenshotBtn">📄 PDF</button>
       <button class="btn-export" onclick="openQuoteList()" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);">📋 My Quotes</button>
       <button class="btn-export" onclick="newQuote()" style="background:rgba(220,60,60,.25);border-color:rgba(220,60,60,.5);">🗑 New</button>
-      <button class="btn-export excel" onclick="exportExcel()" style="font-size:11px;padding:8px 10px;">⬇ Excel</button>
-      <button class="btn-export" onclick="saveQuoteJSON()" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);font-size:11px;padding:8px 10px;">⬇ JSON</button>
-      <button class="btn-export" onclick="loadQuoteJSON()" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);font-size:11px;padding:8px 10px;">📂 JSON</button>
+      <div class="more-dropdown-wrap" style="margin-left:auto">
+        <button class="btn-export" onclick="toggleMoreMenu()" id="moreMenuBtn" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);">⋯ More</button>
+        <div class="more-menu" id="moreMenu">
+          <button class="more-menu-item" onclick="exportExcel();closeMoreMenu()">⬇ Export Excel</button>
+          <button class="more-menu-item" onclick="saveQuoteJSON();closeMoreMenu()">⬇ Save JSON</button>
+          <button class="more-menu-item" onclick="loadQuoteJSON();closeMoreMenu()">📂 Load JSON</button>
+          <hr>
+          <button class="more-menu-item" onclick="loadDesignerTestData();closeMoreMenu()">🧪 Load Test Data</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -827,6 +960,14 @@ const BLINDS = {
   'Roman Blind (Premium)':  { cost: 15.00, sell: 30.00 },
   'Timber Blind':           { cost: 16.00, sell: 28.00 },
   'Dream Curtain':          { cost: 9.00,  sell: 18.00 },
+};
+
+// Exclusive designer sell rates (cost unchanged; only SKUs where designer < retail)
+const DESIGNER_RATES = {
+  'Roller Blind':           8.50,
+  'Venetian Blind':         8.50,
+  'Zebra Blind (Blackout)': 14.00,
+  'Timber Blind':           25.00,
 };
 
 const CURTAINS = {
@@ -890,8 +1031,10 @@ const TINTED_SCREEN = {
   'Series V': { cost: 6.00, sell: 8.00 },
   'Series E': { cost: 4.50, sell: 6.50 },
 };
-const TINTED_MIN_SQFT   = 100;
-const TINTED_MIN_CHARGE = 150;
+const TINTED_MIN_SQFT      = 100;   // project-level sqft minimum (advisory warning)
+const TINTED_ROOM_MIN_SELL = 350;   // per-room minimum sell price when room < 100 sqft
+const TINTED_ROOM_MIN_COST = 250;   // per-room minimum cost when minimum sell applies
+const TINTED_MIN_CHARGE    = 350;   // project-level price floor (kept in sync)
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 const fmt = n => 'RM ' + Math.ceil(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -1014,7 +1157,8 @@ let itemOrder = 0; // global insertion counter for blind+curtain ordering
 let measureUnit = 'in'; // 'in' | 'cm' | 'mm' | 'm' — active input unit for blind/curtain dimensions
 const lineExcludes = new Set();
 const altTotalRooms = new Set(); // rooms (alternatives groups) where user has toggled total visible
-let excludeAltTotal = false;    // when true, grand total excludes alternatives-group items
+let excludeAltTotal  = false;   // when true, grand total excludes alternatives-group items
+let isDesignerQuote  = false;   // when true, eligible blind SKUs use DESIGNER_RATES
 let summaryCustomOrder = []; // user-defined display order of summary items (array of _srcId strings)
 let groupCustomOrder   = []; // user-defined order of top-level groups/items ('grp:ROOM' or 'item:SRCID')
 let _lastLines = [], _lastFinalTotal = 0;
@@ -1034,13 +1178,16 @@ function addBlind() {
         <label>Location</label>
         <input type="text" placeholder="e.g. Office 1, Living Room" class="desc" list="loc-suggestions" />
       </div>
-      <div class="field">
-        <label>Fabric Code</label>
-        <input type="text" placeholder="e.g. WH-2301" class="fabric-code" />
-      </div>
-      <div class="field">
-        <label>Fabric Colour</label>
-        <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" />
+      <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
+      <div class="fabric-fields" style="display:none">
+        <div class="field">
+          <label>Fabric Code</label>
+          <input type="text" placeholder="e.g. WH-2301" class="fabric-code" />
+        </div>
+        <div class="field">
+          <label>Fabric Colour</label>
+          <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" />
+        </div>
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,0.8fr) minmax(0,0.8fr)">
@@ -1064,6 +1211,7 @@ function addBlind() {
         <label>Sqft / Blind</label>
         <input type="text" readonly class="sqft-out highlight" value="—" />
         <span class="hint sqft-note"></span>
+        <button class="spring-tube-btn" style="display:none" type="button" onclick="toggleSpringTube(${id})"></button>
       </div>
       <div class="field">
         <label>Qty</label>
@@ -1111,25 +1259,32 @@ function calcBlind(id) {
   const isDream  = sku === 'Dream Curtain';
   const twoPiece = wFt > 10;              // >10ft width → 2 pieces → double install (all blinds)
 
+  // Rates must be resolved before sqft-note block (designerRate used there)
+  const rates        = BLINDS[sku];
+  const designerRate = isDesignerQuote && DESIGNER_RATES[sku] !== undefined ? DESIGNER_RATES[sku] : null;
+  const effectiveSell = designerRate !== null ? designerRate : rates.sell;
+  const autoSpring   = sku === 'Roller Blind' && (wIn > 90 || billSqft > 40);
+  const springWaived = row.dataset.springTubeWaived === '1';
+
   if (rawSqft > 0) {
     row.querySelector('.sqft-out').value = billSqft.toFixed(2) + ' sqft';
-    let noteText = isMin ? '⚠ Min 20 sqft applied' : `actual: ${rawSqft.toFixed(2)} sqft`;
-    if (twoPiece) noteText += ' · ⚠ Width >10ft — 2 pieces, double install (RM60)'; // applies to all blinds
-    if (sku === 'Roller Blind' && (wIn > 90 || billSqft > 40)) noteText += ' · ⚠ Spring+tube surcharge RM150/pcs';
-    row.querySelector('.sqft-note').textContent = noteText;
-    row.querySelector('.sqft-note').className = 'hint sqft-note' + (isMin || twoPiece || (sku === 'Roller Blind' && (wIn > 90 || billSqft > 40)) ? ' warn' : '');
+    const noteLines = [isMin ? '⚠ Min 20 sqft applied' : `actual: ${rawSqft.toFixed(2)} sqft`];
+    if (twoPiece) noteLines.push('⚠ Width >10ft — 2 pieces, double install (RM60)');
+    if (autoSpring && !springWaived) noteLines.push('⚠ Spring+tube surcharge RM150/pcs');
+    if (autoSpring && springWaived)  noteLines.push('🔧 Spring+tube waived');
+    if (designerRate !== null) noteLines.push(`🏷 Designer RM${designerRate}/sqft`);
+    row.querySelector('.sqft-note').innerHTML = noteLines.join('<br>');
+    row.querySelector('.sqft-note').className = 'hint sqft-note' + (isMin || twoPiece || autoSpring || designerRate !== null ? ' warn' : '');
   } else {
     row.querySelector('.sqft-out').value = '—';
     row.querySelector('.sqft-note').textContent = '';
   }
-
-  const rates       = BLINDS[sku];
-  const installSell = twoPiece ? 60 : 30;
-  const installCost = twoPiece ? 40 : 20;
-  // Roller Blind spring+tube surcharge: width>85in OR height>70in → RM150/pcs
-  const springTubeSurch = (sku === 'Roller Blind' && (wIn > 90 || billSqft > 40)) ? 150 : 0;
+  const installSell  = twoPiece ? 60 : 30;
+  const installCost  = twoPiece ? 40 : 20;
+  // Roller Blind spring+tube surcharge: auto-triggers when oversize, can be manually waived
+  const springTubeSurch = autoSpring && !springWaived ? 150 : 0;
   // Sell = sell/sqft × sqft/blind × qty  +  install × qty  +  spring/tube surcharge × qty
-  const total = rawSqft > 0 ? Math.ceil((rates.sell * billSqft + installSell) * qty + springTubeSurch * qty) : 0;
+  const total = rawSqft > 0 ? Math.ceil((effectiveSell * billSqft + installSell) * qty + springTubeSurch * qty) : 0;
 
   row.querySelector('.sell-out').value = rawSqft > 0 ? fmt(total) : '—';
   const overrideInp = row.querySelector('.override-price');
@@ -1138,6 +1293,23 @@ function calcBlind(id) {
   if (overrideVal !== null) row.querySelector('.sell-out').value = fmt(overrideVal) + ' ✏';
   row.dataset.cost  = rawSqft > 0 ? (rates.cost * billSqft + installCost) * qty : 0;
   row.dataset.springTube = rawSqft > 0 ? springTubeSurch * qty : 0;
+  // Update spring+tube toggle button
+  const stBtn = row.querySelector('.spring-tube-btn');
+  if (stBtn) {
+    if (autoSpring) {
+      stBtn.style.display = '';
+      if (springWaived) {
+        stBtn.textContent = '🔧 Waived — tap to restore';
+        stBtn.className = 'spring-tube-btn st-waived';
+      } else {
+        stBtn.textContent = '🔧 +RM150/pcs — tap to waive';
+        stBtn.className = 'spring-tube-btn st-active';
+      }
+    } else {
+      stBtn.style.display = 'none';
+      if (row.dataset.springTubeWaived) row.dataset.springTubeWaived = '';
+    }
+  }
   row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wFt)}(w) × ${Math.ceil(hFt)}(h) ft` : '';
   const blindDesc = row.querySelector('.desc').value.trim();
   const blindPfx  = blindDesc ? `[${blindDesc}] ` : '';
@@ -1161,13 +1333,16 @@ function addCurtain() {
         <label>Location</label>
         <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" list="loc-suggestions" />
       </div>
-      <div class="field">
-        <label>Fabric Code</label>
-        <input type="text" placeholder="e.g. WH-2301" class="fabric-code" />
-      </div>
-      <div class="field">
-        <label>Fabric Colour</label>
-        <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" />
+      <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
+      <div class="fabric-fields" style="display:none">
+        <div class="field">
+          <label>Fabric Code</label>
+          <input type="text" placeholder="e.g. WH-2301" class="fabric-code" />
+        </div>
+        <div class="field">
+          <label>Fabric Colour</label>
+          <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" />
+        </div>
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr)">
@@ -1547,7 +1722,7 @@ function calcTinted(rid) {
     win.querySelector('.ts-sqft-out').value = sqft > 0 ? sqft.toFixed(2) + ' sqft' : '—';
     totalSqft += sqft;
   });
-  const billSqft = totalSqft > 0 ? Math.ceil(totalSqft) : 0;  // round up sqft; project minimum applied at summary level
+  const billSqft = totalSqft > 0 ? Math.ceil(totalSqft) : 0;  // round up; project minimum applied at summary level
   const sell     = totalSqft > 0 ? billSqft * rates.sell : 0;
   const cost     = totalSqft * rates.cost;
   room.dataset.sell = sell;
@@ -1593,7 +1768,59 @@ function duplicateBlind(id) {
     dst.querySelector('.override-price').value = ovSrc.value;
     dst.querySelector('.price-override-section').style.display = '';
   }
+  if (src.dataset.springTubeWaived === '1') dst.dataset.springTubeWaived = '1';
+  const srcFab = src.querySelector('.fabric-fields');
+  if (srcFab && srcFab.style.display !== 'none') {
+    const dstFab = dst.querySelector('.fabric-fields');
+    const dstFabBtn = dst.querySelector('.btn-fabric-toggle');
+    if (dstFab && dstFabBtn) { dstFab.style.display = ''; dstFabBtn.textContent = '－ Fabric'; dstFabBtn.classList.add('open'); }
+    const sv2 = (cls, srcEl) => { const el = dst.querySelector(cls); if (el && srcEl) el.value = srcEl.value; };
+    sv2('.fabric-code', src.querySelector('.fabric-code'));
+    sv2('.fabric-colour', src.querySelector('.fabric-colour'));
+  }
   calcBlind(nid);
+}
+
+function toggleFabric(btn) {
+  const fields = btn.nextElementSibling;
+  const open = fields.style.display !== 'none';
+  fields.style.display = open ? 'none' : '';
+  btn.textContent = open ? '＋ Fabric' : '－ Fabric';
+  btn.classList.toggle('open', !open);
+}
+
+function toggleMoreMenu() {
+  document.getElementById('moreMenu').classList.toggle('open');
+}
+function closeMoreMenu() {
+  document.getElementById('moreMenu').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  const wrap = document.querySelector('.more-dropdown-wrap');
+  if (wrap && !wrap.contains(e.target)) closeMoreMenu();
+});
+
+function updateTabCounts() {
+  const counts = {
+    blinds:   document.querySelectorAll('#blind-items .item-row').length,
+    curtains: document.querySelectorAll('#curtain-items .item-row').length,
+    spc:      document.querySelectorAll('#spc-items .item-row').length,
+    tinted:   document.querySelectorAll('.ts-room').length,
+  };
+  Object.entries(counts).forEach(([key, n]) => {
+    const el = document.getElementById('cnt-' + key);
+    if (!el) return;
+    el.textContent = n;
+    el.classList.toggle('has-items', n > 0);
+  });
+}
+
+function toggleSpringTube(id) {
+  const row = document.getElementById('blind-' + id);
+  if (!row) return;
+  row.dataset.springTubeWaived = row.dataset.springTubeWaived === '1' ? '' : '1';
+  calcBlind(id);
+  updateSummary();
 }
 
 function duplicateCurtain(id) {
@@ -1623,6 +1850,12 @@ function duplicateCurtain(id) {
   if (ovSrc && ovSrc.value) {
     dst.querySelector('.override-price').value = ovSrc.value;
     dst.querySelector('.price-override-section').style.display = '';
+  }
+  const srcFabC = src.querySelector('.fabric-fields');
+  if (srcFabC && srcFabC.style.display !== 'none') {
+    const dstFabC = dst.querySelector('.fabric-fields');
+    const dstFabBtnC = dst.querySelector('.btn-fabric-toggle');
+    if (dstFabC && dstFabBtnC) { dstFabC.style.display = ''; dstFabBtnC.textContent = '－ Fabric'; dstFabBtnC.classList.add('open'); }
   }
   calcCurtain(nid);
 }
@@ -1767,7 +2000,7 @@ function renderGroupedSummary(lines) {
       const styleGroupMap = {};
       const styleOrder = [];
       grpItems.forEach(l => {
-        const k = l.style || '';
+        const k = (l.style || '') + '||' + (l.typeDesc || '');
         if (!styleGroupMap[k]) { styleGroupMap[k] = []; styleOrder.push(k); }
         styleGroupMap[k].push(l);
       });
@@ -1803,11 +2036,14 @@ function renderGroupedSummary(lines) {
                 <span class="rgs-price">${fmt(l.sell)}</span>
               </div>`
             ).join('');
+            const grpTypeDesc = (sItems[0].typeDesc || '').split('\n').filter(Boolean)
+              .map(t => `<div class="rgo-typedesc">${t}</div>`).join('');
             itemsHtml += `<div class="room-group-option-block">
               <div class="room-group-option-header">
-                <span class="rgo-style">${sKey}</span>
+                <span class="rgo-style">${sItems[0].style || ''}</span>
                 <span class="rgo-total">${fmt(sTotal)}</span>
               </div>
+              ${grpTypeDesc}
               ${subRows}
             </div>`;
           } else {
@@ -1820,7 +2056,7 @@ function renderGroupedSummary(lines) {
         itemsHtml = grpItems.map(l => renderSummaryCard({ ...l, _key: lineKey(l), _inGroup: true })).join('');
       }
 
-      html += `<div class="room-group" data-grpkey="${safeRoom}">
+      html += `<div class="room-group" data-grpkey="${safeRoom}"${isAlternatives ? ' data-alternatives' : ''}>
         <div class="room-group-header">
           <div style="display:flex;align-items:center">
             <span class="grp-drag-handle" draggable="true" title="Drag to reorder group">☰</span>
@@ -1959,6 +2195,7 @@ function applyGroupOrder() {
 }
 
 function updateSummary() {
+  updateTabCounts();
   const lines = [];
   let totalSell = 0, totalCost = 0;
   let hasHeightSurch = false;
@@ -2046,7 +2283,7 @@ function updateSummary() {
   });
 
   // Tinted Screen
-  let tintedSubtotal = 0, tintedProjectSqft = 0;
+  let tintedSubtotal = 0, tintedProjectSqft = 0, tintedTotalCost = 0;
   document.querySelectorAll('.ts-room').forEach(room => {
     const sell = parseFloat(room.dataset.sell) || 0;
     if (sell <= 0) return;
@@ -2057,25 +2294,24 @@ function updateSummary() {
     const rates      = TINTED_SCREEN[series];
     const typeDesc   = `${actualSqft.toFixed(1)} sqft → ${billSqft} sqft · RM${rates.sell}/sqft`;
     lines.push({ room: desc, style: `Tinted Screen — ${series}`, typeDesc, sell, _srcId: 'tinted-' + room.dataset.rid });
-    tintedSubtotal += sell;
+    tintedSubtotal    += sell;
     tintedProjectSqft += actualSqft;
-    totalSell += sell;
-    totalCost += parseFloat(room.dataset.cost) || 0;
+    const roomCost     = parseFloat(room.dataset.cost) || 0;
+    tintedTotalCost   += roomCost;
+    totalSell         += sell;
+    totalCost         += roomCost;
   });
   if (tintedSubtotal > 0) {
-    // Project-level sqft minimum note
-    if (tintedProjectSqft < TINTED_MIN_SQFT) {
-      lines.push({ room: '', style: '⚠ Below minimum sqft',
-        typeDesc: `Project total ${tintedProjectSqft.toFixed(1)} sqft (min ${TINTED_MIN_SQFT} sqft/project)`,
-        sell: 0, isNote: true, _srcId: 'tinted-belowmin' });
-    }
-    // Project-level minimum charge
-    if (tintedSubtotal < TINTED_MIN_CHARGE) {
+    // Project minimum: total project sqft < 100 sqft → minimum RM350 sell, RM250 cost
+    if (tintedProjectSqft < TINTED_MIN_SQFT && tintedSubtotal < TINTED_MIN_CHARGE) {
       const topUp = TINTED_MIN_CHARGE - tintedSubtotal;
       lines.push({ room: '', style: 'Minimum Charge Adjustment',
-        typeDesc: `Tinted Screen total → RM ${TINTED_MIN_CHARGE} minimum`,
+        typeDesc: `Project total ${tintedProjectSqft.toFixed(1)} sqft — minimum RM${TINTED_MIN_CHARGE} applies (< ${TINTED_MIN_SQFT} sqft)`,
         sell: topUp, isNote: true, _srcId: 'tinted-mincharge' });
       totalSell += topUp;
+      // Swap accumulated tinted cost for minimum cost
+      totalCost -= tintedTotalCost;
+      totalCost += TINTED_ROOM_MIN_COST;
     }
   }
 
@@ -2133,6 +2369,8 @@ function updateSummary() {
       ? `<div class="scust-line">${parts.join(' @ ')}</div>`
       : '';
   }
+  const designerTagEl = document.getElementById('designerTag');
+  if (designerTagEl) designerTagEl.style.display = isDesignerQuote ? '' : 'none';
 
   const summaryEl = document.getElementById('summaryLines');
   summaryEl.innerHTML = lines.length === 0
@@ -2181,6 +2419,18 @@ function setPropType(btn) {
   btn.closest('#propPills').querySelectorAll('.prop-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('custPropType').value = btn.textContent.trim().replace(/^[^\s]+\s/, '');
+}
+
+function setCustomerType(type, btn) {
+  isDesignerQuote = (type === 'designer');
+  btn.closest('#custTypePills').querySelectorAll('.prop-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Recalculate all blind rows so effectiveSell updates immediately
+  document.querySelectorAll('[id^="blind-"]').forEach(row => {
+    const id = row.id.replace('blind-', '');
+    calcBlind(id);
+  });
+  updateSummary();
 }
 
 // ─── MEASUREMENT MODE ────────────────────────────────────────────────────────
@@ -2263,6 +2513,7 @@ function serializeQuote() {
       if (type === 'blind') {
         base.w = row.querySelector('.w-in')?.value || '';
         base.h = row.querySelector('.h-in')?.value || '';
+        base.springTubeWaived = row.dataset.springTubeWaived === '1';
       } else if (type === 'curtain') {
         base.w          = row.querySelector('.w-in')?.value         || '';
         base.h          = row.querySelector('.h-in')?.value         || '';
@@ -2299,6 +2550,7 @@ function serializeQuote() {
     lineExcludes: [...lineExcludes],
     summaryCustomOrder: [...summaryCustomOrder],
     groupCustomOrder:   [...groupCustomOrder],
+    isDesignerQuote,
     blinds:   getRows('#blind-items',   'blind'),
     curtains: getRows('#curtain-items', 'curtain'),
     spcs:     getRows('#spc-items',     'spc'),
@@ -2346,6 +2598,14 @@ function applyQuoteState(state) {
   (state.lineExcludes || []).forEach(k => lineExcludes.add(k));
   summaryCustomOrder = state.summaryCustomOrder || [];
   groupCustomOrder   = state.groupCustomOrder   || [];
+  isDesignerQuote    = !!state.isDesignerQuote;
+  // Restore Customer Type pill UI
+  const ctPills = document.getElementById('custTypePills');
+  if (ctPills) {
+    ctPills.querySelectorAll('.prop-pill').forEach((b, i) => {
+      b.classList.toggle('active', isDesignerQuote ? i === 1 : i === 0);
+    });
+  }
 
   // Helper to fill a row after adding it
   const fillRow = (row, d, calcFn) => {
@@ -2393,6 +2653,12 @@ function applyQuoteState(state) {
       if (btn) btn.classList.add('active');
       if (sf)  sf.classList.add('override-open');
     }
+    if (d.springTubeWaived) row.dataset.springTubeWaived = '1';
+    if (d.fabricCode || d.fabricColour) {
+      const ftBtn = row.querySelector('.btn-fabric-toggle');
+      const ftFields = row.querySelector('.fabric-fields');
+      if (ftBtn && ftFields) { ftFields.style.display = ''; ftBtn.textContent = '－ Fabric'; ftBtn.classList.add('open'); }
+    }
     calcBlind(id);
   });
 
@@ -2416,6 +2682,11 @@ function applyQuoteState(state) {
       if (sec) sec.style.display = '';
       if (btn) btn.classList.add('active');
       if (sf)  sf.classList.add('override-open');
+    }
+    if (d.fabricCode || d.fabricColour) {
+      const ftBtn = row.querySelector('.btn-fabric-toggle');
+      const ftFields = row.querySelector('.fabric-fields');
+      if (ftBtn && ftFields) { ftFields.style.display = ''; ftBtn.textContent = '－ Fabric'; ftBtn.classList.add('open'); }
     }
     calcCurtain(id);
   });
@@ -2516,6 +2787,27 @@ function loadQuoteJSON() {
   input.click();
 }
 
+function loadDesignerTestData() {
+  applyQuoteState({
+    version: 2,
+    customer: { name: 'Designer Rate — Test Run', phone: '012-345-6789', date: new Date().toISOString().slice(0,10), propType: '' },
+    propPillActive: '', mode: 'blinds', measureUnit: 'in',
+    discount: { val: '', isPct: true },
+    lineExcludes: [], summaryCustomOrder: [], groupCustomOrder: [],
+    isDesignerQuote: true,
+    blinds: [
+      { desc: 'T1 Roller Standard',         sku: 'Roller Blind',                w: '48',  h: '60', qty: '1', springTubeWaived: false },
+      { desc: 'T2 Venetian',                sku: 'Venetian Blind',              w: '60',  h: '84', qty: '1', springTubeWaived: false },
+      { desc: 'T3 Zebra Blackout',          sku: 'Zebra Blind (Blackout)',      w: '54',  h: '72', qty: '1', springTubeWaived: false },
+      { desc: 'T4 Timber x3',              sku: 'Timber Blind',               w: '48',  h: '60', qty: '3', springTubeWaived: false },
+      { desc: 'T5 Semi Blackout (no rate)', sku: 'Zebra Blind (Semi Blackout)', w: '48',  h: '60', qty: '1', springTubeWaived: false },
+      { desc: 'T6 Roller Oversize x2',     sku: 'Roller Blind',               w: '96',  h: '72', qty: '2', springTubeWaived: false },
+      { desc: 'T7 Roller Wide+Oversize',    sku: 'Roller Blind',               w: '132', h: '84', qty: '1', springTubeWaived: false },
+    ],
+    curtains: [], spcs: [], doors: [], tintedRooms: [],
+  });
+}
+
 function newQuote() {
   document.getElementById('newQuoteModal').classList.add('show');
 }
@@ -2528,6 +2820,8 @@ function _doNewQuote() {
   lineExcludes.clear();
   summaryCustomOrder = [];
   groupCustomOrder   = [];
+  isDesignerQuote    = false;
+  document.querySelectorAll('#custTypePills .prop-pill').forEach((b,i) => b.classList.toggle('active', i===0));
   ['#blind-items','#curtain-items','#spc-items','#door-items'].forEach(sel => {
     document.querySelector(sel).querySelectorAll('.item-row').forEach(r => r.remove());
   });
@@ -2912,8 +3206,44 @@ async function saveAsImage() {
   dragHandleEls.forEach(e => e.style.display = 'none');
   hiddenLineEls.forEach(e => e.style.display = 'none');
 
-  // Apply PDF layout overrides (open-section style, no card nesting)
+  // Apply PDF layout overrides (confirmed-first, lettered alternatives)
   el.classList.add('pdf-mode');
+
+  // Inject section dividers + A/B/C badges — removed from DOM after capture
+  const summaryLinesEl = el.querySelector('#summaryLines');
+  const pdfInjected = [];
+  if (summaryLinesEl) {
+    const hasConfirmed = !!summaryLinesEl.querySelector(
+      '.summary-item[data-lkey], .room-group:not([data-alternatives])'
+    );
+    const hasAlt = !!summaryLinesEl.querySelector('.room-group[data-alternatives]');
+    if (hasConfirmed && hasAlt) {
+      const d1 = document.createElement('div');
+      d1.className = 'pdf-section-divider';
+      d1.textContent = 'Confirmed Items';
+      d1.style.order = '-1';
+      summaryLinesEl.insertBefore(d1, summaryLinesEl.firstChild);
+      pdfInjected.push(d1);
+      const d2 = document.createElement('div');
+      d2.className = 'pdf-section-divider div-options';
+      d2.textContent = 'Options — Select One Per Space';
+      d2.style.order = '5';
+      summaryLinesEl.appendChild(d2);
+      pdfInjected.push(d2);
+    }
+    summaryLinesEl.querySelectorAll('.room-group[data-alternatives]').forEach(grp => {
+      let idx = 0;
+      [...grp.children].filter(c =>
+        c.matches('.room-group-option-block') || c.matches('.summary-item')
+      ).forEach(opt => {
+        const badge = document.createElement('span');
+        badge.className = 'pdf-option-letter';
+        badge.textContent = String.fromCharCode(65 + idx++);
+        opt.insertBefore(badge, opt.firstChild);
+        pdfInjected.push(badge);
+      });
+    });
+  }
 
   // Pin to mobile width so PC and mobile PDFs look identical
   const origWidth    = el.style.width;
@@ -2937,6 +3267,7 @@ async function saveAsImage() {
 
     restoreEl();
     el.classList.remove('pdf-mode');
+    pdfInjected.forEach(e => e.remove());
     hideEls.forEach(e => e.style.display = '');
     eyeEls.forEach(e => e.style.display = '');
     dragHandleEls.forEach(e => e.style.display = '');
@@ -2964,6 +3295,7 @@ async function saveAsImage() {
         if (e.name === 'AbortError') {
           btn.textContent = '📄 PDF';
           btn.disabled = false;
+          pdfInjected.forEach(e => e.remove());
           el.classList.remove('pdf-mode');
           return;
         }
@@ -2979,6 +3311,7 @@ async function saveAsImage() {
   } catch (err) {
     restoreEl();
     el.classList.remove('pdf-mode');
+    pdfInjected.forEach(e => e.remove());
     hideEls.forEach(e => e.style.display = '');
     eyeEls.forEach(e => e.style.display = '');
     dragHandleEls.forEach(e => e.style.display = '');
