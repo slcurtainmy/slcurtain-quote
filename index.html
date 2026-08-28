@@ -532,7 +532,7 @@
 
   @media print {
     header .btn-converter, .tabs, .btn-add, .btn-remove,
-    .export-row, .converter-panel { display: none !important; }
+    .export-row, .converter-panel, #sticky-total { display: none !important; }
     .panel { display: block !important; }
     .summary-box { background: #3D2A1E !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .card { break-inside: avoid; margin-bottom: 12px; }
@@ -671,6 +671,19 @@
   .sl-modal-btns button { flex: 1; padding: 11px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; border: none; }
   .sl-modal-cancel { background: rgba(255,255,255,.12); color: #fff; }
   .sl-modal-confirm { background: rgba(200,50,50,.8); color: #fff; }
+  .sl-modal-save { background: rgba(184,134,90,.85); color: #fff; }
+  /* ── Sticky total bar ── */
+  #sticky-total {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+    background: rgba(18,10,5,.97); backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255,255,255,.12);
+    display: none; align-items: center; justify-content: space-between;
+    padding: 10px 18px; gap: 10px;
+  }
+  #sticky-total.visible { display: flex; }
+  #sticky-total .st-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.45); }
+  #sticky-total .st-amount { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -.3px; }
+  body.has-sticky-total { padding-bottom: 52px; }
   /* ── Tinted Screen ── */
   .ts-room { background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
   .ts-room-header { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 8px; }
@@ -755,6 +768,9 @@
           📐 On-Site Measurement
         </button>
       </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+      <span id="autoSaveStatus" style="font-size:10px;font-weight:600;color:rgba(255,255,255,.35);opacity:0;transition:opacity .4s"></span>
     </div>
     <div class="grid-3" style="margin-bottom:14px">
       <div class="field">
@@ -2392,6 +2408,19 @@ function updateSummary() {
   } else {
     grandTotalEl.textContent = fmt(finalTotal);
   }
+  // Sticky total bar
+  const stickyBar = document.getElementById('sticky-total');
+  const stickyAmt = document.getElementById('stickyTotalAmt');
+  if (stickyBar && stickyAmt) {
+    if (finalTotal > 0) {
+      stickyAmt.textContent = fmt(finalTotal);
+      stickyBar.classList.add('visible');
+      document.body.classList.add('has-sticky-total');
+    } else {
+      stickyBar.classList.remove('visible');
+      document.body.classList.remove('has-sticky-total');
+    }
+  }
   const hsnEl = document.getElementById('heightSurchNote');
   if (hsnEl) hsnEl.style.display = hasHeightSurch ? '' : 'none';
   const discEl = document.getElementById('grandDiscount');
@@ -2755,8 +2784,69 @@ function applyQuoteState(state) {
 }
 
 function autoSave() {
+  const el = document.getElementById('autoSaveStatus');
+  if (el) { el.textContent = 'Saving…'; el.style.opacity = '1'; }
   try { localStorage.setItem('sl_quote_v2', JSON.stringify(serializeQuote())); } catch(e) {}
+  if (el) {
+    el.textContent = '✓ Auto-saved';
+    clearTimeout(el._fadeTimer);
+    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, 2200);
+  }
 }
+
+// Clamp dimension inputs to valid (positive) values on blur
+function clampDim(input) {
+  const v = parseFloat(input.value);
+  if (input.value !== '' && (!isFinite(v) || v <= 0)) {
+    input.value = '';
+    input.style.outline = '2px solid rgba(220,60,60,.8)';
+    input.style.boxShadow = '0 0 0 3px rgba(220,60,60,.2)';
+    setTimeout(() => { input.style.outline = ''; input.style.boxShadow = ''; }, 1500);
+  }
+}
+document.addEventListener('focusout', e => {
+  if (e.target.matches('.w-in, .h-in')) clampDim(e.target);
+});
+
+// Save current quote then clear for new one
+async function _saveAndNewQuote() {
+  const name = document.getElementById('custName')?.value?.trim();
+  if (!name) {
+    closeNewQuoteModal();
+    const inp = document.getElementById('custName');
+    if (inp) { inp.focus(); inp.style.outline = '2px solid #f0a040'; setTimeout(() => inp.style.outline = '', 1800); }
+    alert('Please enter a customer name before saving.');
+    return;
+  }
+  try {
+    const state = serializeQuote();
+    const total = parseFloat((document.getElementById('grandTotal')?.textContent || '0').replace(/[^0-9.]/g,'')) || 0;
+    const date  = state.customer?.date || new Date().toISOString().slice(0,10);
+    const ts    = firebase.firestore.FieldValue.serverTimestamp();
+    const existing = await db.collection('quotes').where('name', '==', name).limit(1).get();
+    if (!existing.empty) {
+      await existing.docs[0].ref.update({ name, date, total, state, updatedAt: ts });
+    } else {
+      await db.collection('quotes').add({ name, date, total, state, updatedAt: ts });
+    }
+    showToast('✓ Saved — starting new quote');
+    _doNewQuote();
+  } catch(err) {
+    console.error(err);
+    alert('Save failed. Check your connection and try again.');
+  }
+}
+
+// Keyboard shortcut: Cmd/Ctrl+Enter to add row on active tab
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    const activeTab = document.querySelector('.tab.active')?.dataset?.tab;
+    if (activeTab === 'blinds')    addBlind();
+    else if (activeTab === 'curtains') addCurtain();
+    else if (activeTab === 'spc')  addSPC();
+  }
+});
 
 function saveQuoteJSON() {
   const state = serializeQuote();
@@ -3646,14 +3736,20 @@ function qlItemDel(el) {
   <div class="sl-modal">
     <h3>Start a new quote?</h3>
     <p>This will clear all current items and customer info. This cannot be undone.</p>
-    <div class="sl-modal-btns">
-      <button class="sl-modal-cancel" onclick="closeNewQuoteModal()">Cancel</button>
-      <button class="sl-modal-confirm" onclick="_doNewQuote()">Clear &amp; start new</button>
+    <div class="sl-modal-btns" style="flex-wrap:wrap">
+      <button class="sl-modal-cancel" onclick="closeNewQuoteModal()" style="flex:1 1 100%">Cancel</button>
+      <button class="sl-modal-save" onclick="_saveAndNewQuote()" style="flex:1">💾 Save first</button>
+      <button class="sl-modal-confirm" onclick="_doNewQuote()" style="flex:1">Discard &amp; new</button>
     </div>
   </div>
 </div>
 <!-- Toast notification -->
 <div class="sl-toast" id="slToast"></div>
+<!-- Sticky total bar -->
+<div id="sticky-total">
+  <span class="st-label">Estimated Total</span>
+  <span class="st-amount" id="stickyTotalAmt">RM 0</span>
+</div>
 
 <script>
 // Service Worker — forces fresh HTML on every load (fixes iOS home screen caching)
