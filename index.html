@@ -182,6 +182,22 @@
     line-height: 1; padding: 0 4px; transition: color .15s; align-self: flex-end; margin-bottom: 9px;
   }
   .btn-remove:hover { color: var(--red); }
+  /* Multi-window extra rows */
+  .extra-wins { width: 100%; }
+  .extra-win-row {
+    display: flex; align-items: flex-end; gap: 8px;
+    padding: 6px 0 2px; border-top: 1px solid rgba(255,255,255,.07);
+  }
+  .xwin-label { font-size: 11px; color: rgba(255,255,255,.35); width: 38px; flex-shrink: 0; padding-bottom: 5px; }
+  .xwin-price { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.65); min-width: 68px; padding-bottom: 5px; }
+  .btn-rm-win { background: none; border: none; color: rgba(255,100,100,.5); cursor: pointer; font-size: 15px; padding: 2px 4px; flex-shrink: 0; padding-bottom: 5px; }
+  .btn-rm-win:hover { color: var(--red); }
+  .btn-add-win {
+    background: none; border: 1px dashed rgba(255,255,255,.18); color: rgba(255,255,255,.38);
+    font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
+    font-family: inherit; margin-top: 6px; transition: all .15s;
+  }
+  .btn-add-win:hover { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.7); }
   .btn-dup {
     background: rgba(184,134,90,.15); border: 1px solid rgba(184,134,90,.3); border-radius: 6px;
     color: rgba(255,255,255,.6); font-size: 13px; padding: 4px 9px; cursor: pointer;
@@ -531,24 +547,22 @@
   .btn-export.print:hover { background: rgba(255,255,255,.25); }
 
   @media print {
-    header .btn-converter, .tabs, .btn-add, .btn-remove,
-    .export-row, .converter-panel, #sticky-total { display: none !important; }
-    .panel { display: block !important; }
-    .summary-box { background: #3D2A1E !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .card { break-inside: avoid; margin-bottom: 12px; }
-    body { background: white; }
-    /* Clean up form fields for print */
-    .hint { display: none !important; }
-    .item-row input, .item-row select {
-      border: none !important; background: transparent !important;
-      padding: 2px 0 !important; font-size: 12px !important;
+    @page { size: A4 portrait; margin: 12mm 15mm; }
+    /* Hide everything except the summary card */
+    header, .tabs, #panel-blinds, #panel-curtains, #panel-spc, #panel-tinted,
+    .export-row, .converter-panel, #sticky-total, .more-dropdown-wrap,
+    .btn-add, .btn-remove, .btn-dup, .btn-add-win,
+    #newQuoteModal, .sl-modal-overlay, .toast { display: none !important; }
+    /* Summary fills the A4 page */
+    body { background: white !important; margin: 0; padding: 0; }
+    #summaryBox {
+      background: #3D2A1E !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      border-radius: 0 !important; box-shadow: none !important;
+      width: 100% !important; max-width: 100% !important; margin: 0 !important;
     }
-    .item-desc { border-bottom: 1px dashed #ccc; padding-bottom: 4px; margin-bottom: 4px; }
-    label { font-size: 9px !important; }
-    .sell-field input { font-weight: 700 !important; color: #3D2A1E !important; }
-    .toggle { display: none !important; }
-    .toggle-row span { font-size: 11px; }
-    .card-title { font-size: 14px; border-bottom: 2px solid #3D2A1E; padding-bottom: 6px; margin-bottom: 10px; }
+    /* Avoid breaking items across pages */
+    .room-group, .summary-item, .total-row, .card { break-inside: avoid; page-break-inside: avoid; }
   }
 
   /* ── Mobile-first responsive ── */
@@ -1235,6 +1249,8 @@ function addBlind() {
         <input type="number" min="1" value="1" oninput="calcBlind(${id})" class="qty" />
       </div>
     </div>
+    <div class="extra-wins"></div>
+    <button class="btn-add-win" type="button" onclick="addExtraWin(${id},'blind')">＋ Window</button>
     <button class="spring-tube-btn" style="display:none;flex:0 0 100%" type="button" onclick="toggleSpringTube(${id})"></button>
     <div class="field sell-field">
       <label>Sell Price <button class="btn-override-toggle" onclick="toggleOverride(this,'blind-${id}')" type="button">✏ Override</button></label>
@@ -1251,6 +1267,47 @@ function addBlind() {
   `;
   container.appendChild(div);
   calcBlind(id);
+}
+
+// ─── MULTI-WINDOW HELPERS ─────────────────────────────────────────────────────
+function addExtraWin(id, type) {
+  const row = document.getElementById(type + '-' + id);
+  if (!row) return;
+  const container = row.querySelector('.extra-wins');
+  if (!container) return;
+  const winNum = container.children.length + 2;
+  const unitLabel = measureUnit === 'in' ? 'inch' : measureUnit;
+  const wr = document.createElement('div');
+  wr.className = 'extra-win-row';
+  const calcFn = type === 'blind' ? `calcBlind(${id})` : `calcCurtain(${id})`;
+  wr.innerHTML = `
+    <span class="xwin-label">Win ${winNum}</span>
+    <div class="field" style="flex:1;min-width:0">
+      <label>W (${unitLabel})</label>
+      <input type="number" min="0.1" step="any" class="xw-in" oninput="${calcFn}" />
+    </div>
+    <div class="field" style="flex:1;min-width:0">
+      <label>H (${unitLabel})</label>
+      <input type="number" min="0.1" step="any" class="xh-in" oninput="${calcFn}" />
+    </div>
+    <span class="xwin-price">—</span>
+    <button class="btn-rm-win" type="button" onclick="removeExtraWin(this,${id},'${type}')">✕</button>
+  `;
+  container.appendChild(wr);
+}
+
+function removeExtraWin(btn, id, type) {
+  btn.closest('.extra-win-row').remove();
+  // Renumber remaining windows
+  const row = document.getElementById(type + '-' + id);
+  if (row) {
+    row.querySelectorAll('.extra-win-row').forEach((wr, i) => {
+      const lbl = wr.querySelector('.xwin-label');
+      if (lbl) lbl.textContent = `Win ${i + 2}`;
+    });
+    if (type === 'blind') calcBlind(id);
+    else calcCurtain(id);
+  }
 }
 
 function calcBlind(id) {
@@ -1304,12 +1361,33 @@ function calcBlind(id) {
   // Sell = sell/sqft × sqft/blind × qty  +  install × qty  +  spring/tube surcharge × qty
   const total = rawSqft > 0 ? Math.ceil((effectiveSell * billSqft + installSell) * qty + springTubeSurch * qty) : 0;
 
-  row.querySelector('.sell-out').value = rawSqft > 0 ? fmt(total) : '—';
+  // Sum extra windows
+  let extraSell = 0, extraCost = 0;
+  row.querySelectorAll('.extra-win-row').forEach(wr => {
+    const xwRaw = parseFloat(wr.querySelector('.xw-in').value) || 0;
+    const xhRaw = parseFloat(wr.querySelector('.xh-in').value) || 0;
+    const priceHint = wr.querySelector('.xwin-price');
+    if (!xwRaw || !xhRaw) { if (priceHint) priceHint.textContent = '—'; return; }
+    const xwIn = toInches(xwRaw), xhIn = toInches(xhRaw);
+    const xwFt = xwIn / 12, xhFt = xhIn / 12;
+    const xRaw = xwFt * xhFt;
+    const xBill = xRaw < 20 && xRaw > 0 ? 20 : xRaw;
+    const xAutoSpring = sku === 'Roller Blind' && (xwIn > 90 || xBill > 40);
+    const xSpring = xAutoSpring && !springWaived ? 150 : 0;
+    const xInstS = xwFt > 10 ? 60 : 30, xInstC = xwFt > 10 ? 40 : 20;
+    const xTotal = xRaw > 0 ? Math.ceil(effectiveSell * xBill + xInstS + xSpring) : 0;
+    extraSell += xTotal;
+    extraCost += xRaw > 0 ? rates.cost * xBill + xInstC : 0;
+    if (priceHint) priceHint.textContent = xRaw > 0 ? fmt(xTotal) : '—';
+  });
+
   const overrideInp = row.querySelector('.override-price');
   const overrideVal = overrideInp && overrideInp.value !== '' ? parseFloat(overrideInp.value) : null;
-  row.dataset.sell  = overrideVal !== null ? overrideVal : total;
+  const grandSell = overrideVal !== null ? overrideVal : total + extraSell;
+  row.querySelector('.sell-out').value = (rawSqft > 0 || extraSell > 0) ? fmt(grandSell) : '—';
   if (overrideVal !== null) row.querySelector('.sell-out').value = fmt(overrideVal) + ' ✏';
-  row.dataset.cost  = rawSqft > 0 ? (rates.cost * billSqft + installCost) * qty : 0;
+  row.dataset.sell  = grandSell;
+  row.dataset.cost  = (rawSqft > 0 ? (rates.cost * billSqft + installCost) * qty : 0) + extraCost;
   row.dataset.springTube = rawSqft > 0 ? springTubeSurch * qty : 0;
   // Update spring+tube toggle button
   const stBtn = row.querySelector('.spring-tube-btn');
@@ -1331,8 +1409,11 @@ function calcBlind(id) {
   row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wFt)}(w) × ${Math.ceil(hFt)}(h) ft` : '';
   const blindDesc = row.querySelector('.desc').value.trim();
   const blindPfx  = blindDesc ? `[${blindDesc}] ` : '';
-  row.dataset.label = rawSqft > 0
-    ? `${blindPfx}${qty}× ${sku} (${wFt.toFixed(1)}×${hFt.toFixed(1)} ft = ${billSqft.toFixed(1)} sqft/blind)`
+  const xWinCount = row.querySelectorAll('.extra-win-row').length;
+  row.dataset.label = rawSqft > 0 || extraSell > 0
+    ? xWinCount > 0
+      ? `${blindPfx}${sku} (${xWinCount + 1} windows)`
+      : `${blindPfx}${qty}× ${sku} (${wFt.toFixed(1)}×${hFt.toFixed(1)} ft = ${billSqft.toFixed(1)} sqft/blind)`
     : blindPfx + sku;
   updateSummary();
 }
@@ -1422,6 +1503,8 @@ function addCurtain() {
         </div>
       </div>
     </div>
+    <div class="extra-wins"></div>
+    <button class="btn-add-win" type="button" onclick="addExtraWin(${id},'curtain')">＋ Window</button>
     <div class="field sell-field">
       <label>Sell Price <button class="btn-override-toggle" onclick="toggleOverride(this,'curtain-${id}')" type="button">✏ Override</button></label>
       <input type="text" readonly class="sell-out" value="—" />
@@ -1502,23 +1585,48 @@ function calcCurtain(id) {
   const total = wIn > 0 ? Math.ceil(((sellPerFt * wFt) + surcharge) * qty + motorSell + sewingAmt) : 0;
   const totalCost = wIn > 0 ? costPerFt * wFt * qty + motorCost : 0;
 
-  row.querySelector('.sell-out').value = wIn > 0 ? fmt(total) : '—';
   row.querySelector('.surcharge-info').textContent = surchargeNote;
   const sewingHint = sewingAmt > 0 ? `🧵 Artisan Sewing +RM${sewingAmt}` : '';
   row.querySelector('.sewing-info').textContent = sewingHint;
   row.querySelector('.motor-info').textContent = motorNote;
+
+  // Sum extra windows
+  let extraSell = 0, extraCost = 0;
+  row.querySelectorAll('.extra-win-row').forEach(wr => {
+    const xwRaw = parseFloat(wr.querySelector('.xw-in').value) || 0;
+    const xhRaw = parseFloat(wr.querySelector('.xh-in').value) || 0;
+    const priceHint = wr.querySelector('.xwin-price');
+    if (!xwRaw) { if (priceHint) priceHint.textContent = '—'; return; }
+    const xwIn = toInches(xwRaw), xhIn = toInches(xhRaw);
+    const xwFt = inchToFt(xwIn), xhFt = inchToFt(xhIn);
+    const xTiered = getTieredSell(sku, xhIn);
+    const xBase = xTiered !== null ? xTiered : rates.sell;
+    let xSellPf = xBase + (blackout ? 10 : 0) + (linen ? 10 : 0) + (premium ? 13 : 0);
+    let xSurch = 0;
+    if (xTiered === null && xhIn > 122) xSurch = 10 * (xhFt - 10) * xwFt;
+    const xTotal = xwIn > 0 ? Math.ceil(xSellPf * xwFt + xSurch) : 0;
+    extraSell += xTotal;
+    extraCost += xwIn > 0 ? rates.cost * xwFt : 0;
+    if (priceHint) priceHint.textContent = xwIn > 0 ? fmt(xTotal) : '—';
+  });
+
   const covInp = row.querySelector('.override-price');
   const covVal = covInp && covInp.value !== '' ? parseFloat(covInp.value) : null;
-  row.dataset.sell  = covVal !== null ? covVal : total;
+  const grandSell = covVal !== null ? covVal : total + extraSell;
+  row.querySelector('.sell-out').value = (wIn > 0 || extraSell > 0) ? fmt(grandSell) : '—';
   if (covVal !== null) row.querySelector('.sell-out').value = fmt(covVal) + ' ✏';
-  row.dataset.cost  = totalCost;
+  row.dataset.sell  = grandSell;
+  row.dataset.cost  = totalCost + extraCost;
   row.dataset.surcharge = surcharge;
   row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn/12)}(w) × ${Math.ceil(hIn/12)}(h) ft` : '';
   const curtDesc = row.querySelector('.desc').value.trim();
   const curtPfx  = curtDesc ? `[${curtDesc}] ` : '';
   const addOnTag = [blackout && 'Blackout', linen && 'Linen', premium && 'Chenille', sewingLabel].filter(Boolean).join(' + ');
-  row.dataset.label = wIn > 0
-    ? `${curtPfx}${qty}× ${sku} (${wFt.toFixed(1)} ft${addOnTag ? ' + ' + addOnTag : ''})`
+  const xWinCount = row.querySelectorAll('.extra-win-row').length;
+  row.dataset.label = wIn > 0 || extraSell > 0
+    ? xWinCount > 0
+      ? `${curtPfx}${sku} (${xWinCount + 1} windows${addOnTag ? ' + ' + addOnTag : ''})`
+      : `${curtPfx}${qty}× ${sku} (${wFt.toFixed(1)} ft${addOnTag ? ' + ' + addOnTag : ''})`
     : curtPfx + sku;
   updateSummary();
 }
@@ -2547,6 +2655,10 @@ function serializeQuote() {
         base.w = row.querySelector('.w-in')?.value || '';
         base.h = row.querySelector('.h-in')?.value || '';
         base.springTubeWaived = row.dataset.springTubeWaived === '1';
+        base.extraWins = [...row.querySelectorAll('.extra-win-row')].map(wr => ({
+          w: wr.querySelector('.xw-in')?.value || '',
+          h: wr.querySelector('.xh-in')?.value || '',
+        }));
       } else if (type === 'curtain') {
         base.w          = row.querySelector('.w-in')?.value         || '';
         base.h          = row.querySelector('.h-in')?.value         || '';
@@ -2555,6 +2667,10 @@ function serializeQuote() {
         base.motorized  = row.querySelector('.motorized')?.checked  || false;
         base.premium    = row.querySelector('.premium')?.checked    || false;
         base.sewingCustomAmt = row.querySelector('.sewing-custom-amt')?.value || '';
+        base.extraWins = [...row.querySelectorAll('.extra-win-row')].map(wr => ({
+          w: wr.querySelector('.xw-in')?.value || '',
+          h: wr.querySelector('.xh-in')?.value || '',
+        }));
       } else if (type === 'spc') {
         base.l = row.querySelector('.l-in')?.value || '';
         base.b = row.querySelector('.b-in')?.value || '';
@@ -2692,6 +2808,14 @@ function applyQuoteState(state) {
       const ftFields = row.querySelector('.fabric-fields');
       if (ftBtn && ftFields) { ftFields.style.display = ''; ftBtn.textContent = '－ Fabric'; ftBtn.classList.add('open'); }
     }
+    if (d.extraWins && d.extraWins.length > 0) {
+      d.extraWins.forEach(win => {
+        addExtraWin(id, 'blind');
+        const wins = row.querySelectorAll('.extra-win-row');
+        const wr = wins[wins.length - 1];
+        if (wr) { if (win.w) wr.querySelector('.xw-in').value = win.w; if (win.h) wr.querySelector('.xh-in').value = win.h; }
+      });
+    }
     calcBlind(id);
   });
 
@@ -2720,6 +2844,14 @@ function applyQuoteState(state) {
       const ftBtn = row.querySelector('.btn-fabric-toggle');
       const ftFields = row.querySelector('.fabric-fields');
       if (ftBtn && ftFields) { ftFields.style.display = ''; ftBtn.textContent = '－ Fabric'; ftBtn.classList.add('open'); }
+    }
+    if (d.extraWins && d.extraWins.length > 0) {
+      d.extraWins.forEach(win => {
+        addExtraWin(id, 'curtain');
+        const wins = row.querySelectorAll('.extra-win-row');
+        const wr = wins[wins.length - 1];
+        if (wr) { if (win.w) wr.querySelector('.xw-in').value = win.w; if (win.h) wr.querySelector('.xh-in').value = win.h; }
+      });
     }
     calcCurtain(id);
   });
@@ -3276,7 +3408,54 @@ function toggleOverride(btn, rowId) {
 }
 
 
-// ─── PDF (snapshot print) ────────────────────────────────────────────────────
+// ─── PDF (PC — native browser print → Save as PDF) ───────────────────────────
+
+function exportPCPDF() {
+  const el = document.getElementById('summaryBox');
+
+  // Apply pdf-mode styling
+  el.classList.add('pdf-mode');
+
+  // Inject section dividers + A/B/C option badges (same as html2canvas path)
+  const summaryLinesEl = el.querySelector('#summaryLines');
+  const pdfInjected = [];
+  if (summaryLinesEl) {
+    const hasConfirmed = !!summaryLinesEl.querySelector('.summary-item[data-lkey], .room-group:not([data-alternatives])');
+    const hasAlt = !!summaryLinesEl.querySelector('.room-group[data-alternatives]');
+    if (hasConfirmed && hasAlt) {
+      const d1 = document.createElement('div');
+      d1.className = 'pdf-section-divider'; d1.textContent = 'Confirmed Items'; d1.style.order = '-1';
+      summaryLinesEl.insertBefore(d1, summaryLinesEl.firstChild); pdfInjected.push(d1);
+      const d2 = document.createElement('div');
+      d2.className = 'pdf-section-divider div-options'; d2.textContent = 'Options — Select One Per Space'; d2.style.order = '5';
+      summaryLinesEl.appendChild(d2); pdfInjected.push(d2);
+    }
+    summaryLinesEl.querySelectorAll('.room-group[data-alternatives]').forEach(grp => {
+      let idx = 0;
+      [...grp.children].filter(c => c.matches('.room-group-option-block') || c.matches('.summary-item')).forEach(opt => {
+        const badge = document.createElement('span');
+        badge.className = 'pdf-option-letter'; badge.textContent = String.fromCharCode(65 + idx++);
+        opt.insertBefore(badge, opt.firstChild); pdfInjected.push(badge);
+      });
+    });
+  }
+
+  // Hide UI-only elements within the summary card
+  const hideEls = el.querySelectorAll('.discount-section, .export-row, .price-override-section, .eye-toggle, .drag-handle, .hidden-line');
+  hideEls.forEach(e => e.style.display = 'none');
+
+  // Clean up after print dialog closes
+  const cleanup = () => {
+    el.classList.remove('pdf-mode');
+    pdfInjected.forEach(e => e.remove());
+    hideEls.forEach(e => e.style.display = '');
+  };
+  window.addEventListener('afterprint', cleanup, { once: true });
+
+  window.print();
+}
+
+// ─── PDF (snapshot — mobile share) ───────────────────────────────────────────
 
 async function saveAsImage() {
   const el  = document.getElementById('summaryBox');
@@ -3374,8 +3553,9 @@ async function saveAsImage() {
     const pdf = new jsPDF({ unit: 'px', format: [imgW, imgH], hotfixes: ['px_scaling'] });
     pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgW, imgH);
 
-    // Try Web Share API (mobile — WhatsApp, save to Files, etc.)
-    if (navigator.canShare) {
+    // Try Web Share API only on mobile (iPhone/Android) — Mac/PC gets direct download
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile && navigator.canShare) {
       try {
         const pdfBlob = pdf.output('blob');
         const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
