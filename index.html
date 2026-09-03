@@ -291,8 +291,11 @@
   .item-desc { flex: 0 0 100%; display: flex; gap: 10px; flex-wrap: wrap; }
   .item-desc .field { flex: 1; min-width: 130px; }
   .item-row > .sell-field { flex: 0 0 105px; width: 105px; transition: all .2s; }
-  .sell-field.override-open { flex: 0 0 130px; width: 130px; }
-  @media(max-width:600px) { .item-row .fields { grid-template-columns: 1fr 1fr !important; } }
+  .sell-field.override-open { flex: 0 0 180px; width: 180px; }
+  @media(max-width:600px) {
+    .item-row .fields { grid-template-columns: 1fr 1fr !important; }
+    .sell-field.override-open { flex: 0 0 100% !important; width: 100% !important; }
+  }
 
   /* Quote summary */
   .summary-box {
@@ -595,10 +598,23 @@
     /* Stack item rows vertically */
     .item-row { flex-wrap: wrap; gap: 8px; }
     .item-row .fields { grid-template-columns: 1fr 1fr !important; }
-    /* Sell price field full-width below the grid */
+    /* Sell price takes all remaining space beside dup/remove buttons */
     .item-row > .field { width: 100%; min-width: 0 !important; }
-    /* Remove button aligns right */
-    .item-row > .btn-remove { margin-left: auto; margin-bottom: 0; align-self: center; }
+    .item-row > .sell-field {
+      flex: 1 1 auto !important;
+      width: auto !important;
+      min-width: 140px !important;
+    }
+    /* When override is open, sell-field goes truly full-width */
+    .item-row > .sell-field.override-open {
+      flex: 0 0 100% !important;
+      width: 100% !important;
+    }
+    /* Dup and remove buttons sit beside the sell-field, vertically centered */
+    .item-row > .btn-dup,
+    .item-row > .btn-remove { align-self: flex-end; flex-shrink: 0; }
+    /* Remove button no longer needs margin-left: auto since sell-field fills space */
+    .item-row > .btn-remove { margin-left: 0; margin-bottom: 0; }
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
     .summary-box { padding: 18px 14px; }
@@ -613,40 +629,53 @@
   }
 
   /* ── Per-item price override ── */
+  /* Sell-field header: label + Override button on same row */
+  .sell-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    flex-wrap: nowrap; margin-bottom: 4px;
+  }
+  .sell-header label { margin-bottom: 0; flex-shrink: 0; }
+  /* Sell price output — prominent readable price */
+  input.sell-out {
+    font-size: 15px; font-weight: 700; color: var(--primary);
+    background: rgba(61,42,30,.04); border-color: rgba(61,42,30,.15);
+    text-align: left; cursor: default; letter-spacing: .2px;
+  }
   .btn-override-toggle {
     background: rgba(61,42,30,.09); border: 1.5px solid rgba(61,42,30,.4); border-radius: 6px;
-    font-size: 12px; font-weight: 600; padding: 4px 11px; cursor: pointer; margin-left: 10px;
+    font-size: 12px; font-weight: 600; padding: 4px 11px; cursor: pointer; margin-left: 0;
     color: var(--primary); vertical-align: middle; line-height: 1.5; white-space: nowrap;
-    transition: all .15s; letter-spacing: .1px;
+    transition: all .15s; letter-spacing: .1px; flex-shrink: 0;
   }
   .btn-override-toggle:hover { border-color: #b05d00; color: #b05d00; background: #fff4ed; }
   .btn-override-toggle.active { border-color: #b05d00; color: #fff; background: #b05d00; }
   .spring-tube-btn {
     display: block; font-size: 11px; font-weight: 600;
-    padding: 8px 12px; border-radius: 6px; cursor: pointer; border: 1px solid;
+    padding: 5px 10px; border-radius: 6px; cursor: pointer; border: 1px solid;
     background: none; font-family: inherit; transition: all .15s; line-height: 1.4;
-    min-height: 36px; width: 100%; text-align: left; box-sizing: border-box;
+    min-height: 30px; width: 100%; text-align: left; box-sizing: border-box;
+    margin-top: 5px;
   }
   .spring-tube-btn.st-active {
-    color: rgba(184,134,90,.95); border-color: rgba(184,134,90,.4);
-    background: rgba(184,134,90,.09);
+    color: #8a5c1e; border-color: rgba(184,134,90,.5);
+    background: rgba(184,134,90,.1);
   }
-  .spring-tube-btn.st-active:hover { background: rgba(184,134,90,.18); }
+  .spring-tube-btn.st-active:hover { background: rgba(184,134,90,.2); }
   .spring-tube-btn.st-waived {
-    color: rgba(255,255,255,.6); border-color: rgba(255,255,255,.25);
-    text-decoration: line-through;
+    color: #8a7060; border-color: rgba(100,80,60,.25);
+    text-decoration: line-through; background: rgba(100,80,60,.04);
   }
-  .spring-tube-btn.st-waived:hover { color: rgba(255,255,255,.8); }
+  .spring-tube-btn.st-waived:hover { background: rgba(100,80,60,.08); color: #6a5448; }
   .price-override-wrap { margin-top: 6px; display: block; }
   .override-price {
-    width: 100%; padding: 14px 16px; font-size: 18px; font-family: inherit;
+    width: 100%; padding: 12px 14px; font-size: 17px; font-family: inherit;
     border: 2px dashed #b05d00 !important; border-radius: 10px;
     color: #b05d00; background: #fff8f4; outline: none; font-weight: 600;
-    box-sizing: border-box; min-height: 52px;
+    box-sizing: border-box; min-height: 48px;
   }
   .price-override-wrap { width: 100%; display: block; }
-  .price-override-section { margin-top: 8px; }
-  .override-hint { font-size: 10px; color: #b05d00; opacity: .8; display: block; margin-top: 3px; }
+  .price-override-section { margin-top: 6px; }
+  .override-hint { font-size: 10px; color: #9a6020; opacity: .85; display: block; margin-top: 3px; }
 
   /* ── Quote Manager ── */
   .ql-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .25s; }
@@ -1251,14 +1280,14 @@ function addBlind() {
     </div>
     <div class="extra-wins"></div>
     <button class="btn-add-win" type="button" onclick="addExtraWin(${id},'blind')">＋ Window</button>
-    <button class="spring-tube-btn" style="display:none;flex:0 0 100%" type="button" onclick="toggleSpringTube(${id})"></button>
     <div class="field sell-field">
-      <label>Sell Price <button class="btn-override-toggle" onclick="toggleOverride(this,'blind-${id}')" type="button">✏ Override</button></label>
+      <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'blind-${id}')" type="button">✏ Override</button></div>
       <input type="text" readonly class="sell-out" value="—" />
+      <button class="spring-tube-btn" style="display:none" type="button" onclick="toggleSpringTube(${id})"></button>
       <div class="price-override-section" style="display:none">
         <div class="price-override-wrap">
-          <input type="number" class="override-price" placeholder="RM override" min="0" step="1" oninput="calcBlind(${id})" />
-          <span class="override-hint">⚠ hidden in quote</span>
+          <input type="number" class="override-price" placeholder="Custom price (RM)" min="0" step="1" oninput="calcBlind(${id})" />
+          <span class="override-hint">Overrides auto-calculated price</span>
         </div>
       </div>
     </div>
@@ -1506,15 +1535,15 @@ function addCurtain() {
     <div class="extra-wins"></div>
     <button class="btn-add-win" type="button" onclick="addExtraWin(${id},'curtain')">＋ Window</button>
     <div class="field sell-field">
-      <label>Sell Price <button class="btn-override-toggle" onclick="toggleOverride(this,'curtain-${id}')" type="button">✏ Override</button></label>
+      <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'curtain-${id}')" type="button">✏ Override</button></div>
       <input type="text" readonly class="sell-out" value="—" />
-      <span class="hint surcharge-info" style="color:#b05d00"></span>
+      <span class="hint surcharge-info" style="color:#8a5c1e"></span>
       <span class="hint sewing-info" style="color:#7b5ea7"></span>
       <span class="hint motor-info" style="color:#2e7d32"></span>
       <div class="price-override-section" style="display:none">
         <div class="price-override-wrap">
-          <input type="number" class="override-price" placeholder="RM override" min="0" step="1" oninput="calcCurtain(${id})" />
-          <span class="override-hint">⚠ hidden in quote</span>
+          <input type="number" class="override-price" placeholder="Custom price (RM)" min="0" step="1" oninput="calcCurtain(${id})" />
+          <span class="override-hint">Overrides auto-calculated price</span>
         </div>
       </div>
     </div>
@@ -1668,13 +1697,13 @@ function addSPC() {
       </div>
     </div>
     <div class="field sell-field">
-      <label>Sell Price <button class="btn-override-toggle" onclick="toggleOverride(this,'spc-${id}')" type="button">✏ Override</button></label>
+      <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'spc-${id}')" type="button">✏ Override</button></div>
       <input type="text" readonly class="sell-out" value="—" />
       <span class="hint wastage-note" style="color:#b05d00"></span>
       <div class="price-override-section" style="display:none">
         <div class="price-override-wrap">
-          <input type="number" class="override-price" placeholder="RM override" min="0" step="1" oninput="calcSPC(${id})" />
-          <span class="override-hint">⚠ hidden in quote</span>
+          <input type="number" class="override-price" placeholder="Custom price (RM)" min="0" step="1" oninput="calcSPC(${id})" />
+          <span class="override-hint">Overrides auto-calculated price</span>
         </div>
       </div>
     </div>
