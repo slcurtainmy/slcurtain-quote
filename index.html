@@ -178,10 +178,22 @@
   .btn-add:hover { border-color: var(--primary); color: var(--primary); background: #EDE4D7; }
 
   .btn-remove {
-    background: none; border: none; color: #ccc; font-size: 18px; cursor: pointer;
-    line-height: 1; padding: 0 4px; transition: color .15s; align-self: flex-end; margin-bottom: 9px;
+    background: rgba(180,50,40,.07);
+    border: 1.5px solid rgba(180,50,40,.22);
+    border-radius: 8px;
+    color: rgba(180,50,40,.6);
+    font-size: 15px; cursor: pointer;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; align-self: flex-end;
+    padding: 0; line-height: 1; margin-bottom: 0;
+    transition: background .15s, border-color .15s, color .15s;
   }
-  .btn-remove:hover { color: var(--red); }
+  .btn-remove:hover {
+    background: rgba(180,50,40,.18);
+    border-color: rgba(180,50,40,.55);
+    color: rgb(180,50,40);
+  }
   /* Multi-window extra rows */
   .extra-wins { width: 100%; }
   .extra-win-row {
@@ -199,11 +211,18 @@
   }
   .btn-add-win:hover { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.7); }
   .btn-dup {
-    background: rgba(184,134,90,.15); border: 1px solid rgba(184,134,90,.3); border-radius: 6px;
-    color: rgba(255,255,255,.6); font-size: 13px; padding: 4px 9px; cursor: pointer;
-    font-family: inherit; align-self: flex-end; margin-bottom: 9px; transition: background .15s, color .15s;
+    background: rgba(184,134,90,.13);
+    border: 1.5px solid rgba(184,134,90,.4);
+    border-radius: 8px;
+    color: rgba(184,134,90,.85);
+    font-size: 16px; cursor: pointer;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; align-self: flex-end;
+    padding: 0; margin-bottom: 0;
+    font-family: inherit; transition: background .15s, border-color .15s, color .15s;
   }
-  .btn-dup:hover { background: rgba(184,134,90,.35); color: #fff; }
+  .btn-dup:hover { background: rgba(184,134,90,.3); border-color: rgba(184,134,90,.7); color: #fff; }
   .drag-handle { cursor: grab; padding: 0 6px 0 0; color: rgba(255,255,255,.3); font-size: 15px; flex-shrink: 0; opacity: 0; transition: opacity .15s; user-select: none; line-height: 1.2; }
   .summary-item:hover .drag-handle { opacity: 1; }
   .summary-item.dragging { opacity: .4; }
@@ -613,8 +632,13 @@
     /* Dup and remove buttons sit beside the sell-field, vertically centered */
     .item-row > .btn-dup,
     .item-row > .btn-remove { align-self: flex-end; flex-shrink: 0; }
-    /* Remove button no longer needs margin-left: auto since sell-field fills space */
-    .item-row > .btn-remove { margin-left: 0; margin-bottom: 0; }
+    /* Both buttons: full 44px tap target on mobile */
+    .item-row > .btn-dup,
+    .item-row > .btn-remove {
+      width: 44px; height: 44px;
+      border-radius: 10px; font-size: 18px;
+      margin-left: 0; margin-bottom: 0;
+    }
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
     .summary-box { padding: 18px 14px; }
