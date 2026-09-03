@@ -897,7 +897,7 @@
     <div class="total-row">
       <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
         <span class="total-label" id="totalLabel">Estimated Total Budget</span>
-        <button id="excAltBtn" class="exc-alt-btn" onclick="toggleExcludeAlt()" title="Toggle: include or exclude optional items (alternatives) from total">incl. options</button>
+        <button id="excAltBtn" class="exc-alt-btn active" onclick="toggleExcludeAlt()" title="Toggle: include or exclude optional items (alternatives) from total">excl. options</button>
       </div>
       <span class="total-amount" id="grandTotal">RM 0</span>
     </div>
@@ -1175,7 +1175,7 @@ let itemOrder = 0; // global insertion counter for blind+curtain ordering
 let measureUnit = 'in'; // 'in' | 'cm' | 'mm' | 'm' — active input unit for blind/curtain dimensions
 const lineExcludes = new Set();
 const altTotalRooms = new Set(); // rooms (alternatives groups) where user has toggled total visible
-let excludeAltTotal  = false;   // when true, grand total excludes alternatives-group items
+let excludeAltTotal  = true;    // when true, grand total excludes alternatives-group items
 let isDesignerQuote  = false;   // when true, eligible blind SKUs use DESIGNER_RATES
 let summaryCustomOrder = []; // user-defined display order of summary items (array of _srcId strings)
 let groupCustomOrder   = []; // user-defined order of top-level groups/items ('grp:ROOM' or 'item:SRCID')
@@ -2364,7 +2364,7 @@ function updateSummary() {
   });
   const _altBRs = new Set(Object.entries(_brMap).filter(([, items]) => {
     if (items.length <= 1) return false;
-    return new Set(items.map(l => l.style || '')).size > 1;
+    return new Set(items.map(l => (l.style || '') + '||' + (l.typeDesc || ''))).size > 1;
   }).map(([br]) => br));
   const altSell = lines.reduce((s, l) => {
     if (l.isNote || l.isSubtotal || l.isDiscount) return s;
@@ -2409,18 +2409,14 @@ function updateSummary() {
     excAltBtn.title = 'Toggle: include or exclude optional items (alternatives) from total';
   }
 
-  // When "excl. options" is active and alternatives exist, hide the grand total
+  // Grand total: when "excl. options" is active, subtract alternatives from total
   const grandTotalEl = document.getElementById('grandTotal');
-  if (excludeAltTotal && hasAlts) {
-    grandTotalEl.textContent = '—';
-  } else {
-    grandTotalEl.textContent = fmt(finalTotal);
-  }
+  grandTotalEl.textContent = excludeAltTotal ? '—' : fmt(finalTotal);
   // Sticky total bar
   const stickyBar = document.getElementById('sticky-total');
   const stickyAmt = document.getElementById('stickyTotalAmt');
   if (stickyBar && stickyAmt) {
-    if (finalTotal > 0) {
+    if (!excludeAltTotal && finalTotal > 0) {
       stickyAmt.textContent = fmt(finalTotal);
       stickyBar.classList.add('visible');
       document.body.classList.add('has-sticky-total');
