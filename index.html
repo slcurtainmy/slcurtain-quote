@@ -2399,9 +2399,17 @@ function updateSummary() {
 
   const gp    = finalTotal - totalCost;
   const gpPct = finalTotal > 0 ? (gp / finalTotal * 100).toFixed(1) : '0';
-  // Show/hide "excl. options" button depending on whether alternatives exist
+  // Always show incl/excl button; disable + grey when no alternatives exist
   const excAltBtn = document.getElementById('excAltBtn');
-  if (excAltBtn) excAltBtn.style.display = hasAlts ? '' : 'none';
+  if (excAltBtn) {
+    excAltBtn.style.display = '';
+    excAltBtn.disabled = !hasAlts;
+    excAltBtn.style.opacity = hasAlts ? '' : '0.35';
+    excAltBtn.style.cursor = hasAlts ? '' : 'default';
+    excAltBtn.title = hasAlts
+      ? 'Toggle: include or exclude optional items (alternatives) from total'
+      : 'No alternative options in this quote';
+  }
 
   // When "excl. options" is active and alternatives exist, hide the grand total
   const grandTotalEl = document.getElementById('grandTotal');
