@@ -307,8 +307,9 @@
   .item-row .fields { flex: 1; min-width: 0; display: grid; gap: 10px; overflow: hidden; }
   .item-row .fields > * { min-width: 0; overflow: hidden; }
   .item-row input, .item-row select { width: 100%; min-width: 0; box-sizing: border-box; }
-  .item-desc { flex: 0 0 100%; display: flex; gap: 10px; flex-wrap: wrap; }
+  .item-desc { flex: 0 0 100%; display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
   .item-desc .field { flex: 1; min-width: 130px; }
+  .item-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
   .item-row > .sell-field { flex: 0 0 105px; width: 105px; transition: all .2s; }
   .sell-field.override-open { flex: 0 0 180px; width: 180px; }
   @media(max-width:600px) {
@@ -617,27 +618,19 @@
     /* Stack item rows vertically */
     .item-row { flex-wrap: wrap; gap: 8px; }
     .item-row .fields { grid-template-columns: 1fr 1fr !important; }
-    /* Sell price takes all remaining space beside dup/remove buttons */
     .item-row > .field { width: 100%; min-width: 0 !important; }
+    /* Sell price goes full width on mobile (dup/remove are now in the card header) */
     .item-row > .sell-field {
-      flex: 1 1 auto !important;
-      width: auto !important;
-      min-width: 140px !important;
-    }
-    /* When override is open, sell-field goes truly full-width */
-    .item-row > .sell-field.override-open {
       flex: 0 0 100% !important;
       width: 100% !important;
     }
-    /* Dup and remove buttons sit beside the sell-field, vertically centered */
-    .item-row > .btn-dup,
-    .item-row > .btn-remove { align-self: flex-end; flex-shrink: 0; }
-    /* Both buttons: full 44px tap target on mobile */
-    .item-row > .btn-dup,
-    .item-row > .btn-remove {
-      width: 44px; height: 44px;
-      border-radius: 10px; font-size: 18px;
-      margin-left: 0; margin-bottom: 0;
+    /* Type/Category field spans full width so W+H pair up below it */
+    .item-row .fields > .field:first-child { grid-column: 1 / -1; }
+    /* Dup/remove in header: slightly larger tap target on mobile */
+    .item-actions .btn-dup,
+    .item-actions .btn-remove {
+      width: 40px; height: 40px;
+      border-radius: 10px; font-size: 17px;
     }
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
@@ -1139,14 +1132,12 @@ function toInches(val) {
   return val;
 }
 
-// Build hint text showing all 3 units for a given inch value
+// Build hint text showing ft + m for a given inch value
 function dimHint(inches) {
   if (!inches || inches <= 0) return '';
   const ft  = (inches / 12).toFixed(2);
   const m   = (inches * 0.0254).toFixed(2);
-  const cm  = (inches * 2.54).toFixed(1);
-  const mm  = Math.round(inches * 25.4);
-  return `→ ${ft} ft · ${m} m · ${cm} cm · ${mm} mm`;
+  return `→ ${ft} ft · ${m} m`;
 }
 
 // Set active measurement unit and refresh all labels + calcs
@@ -1259,11 +1250,15 @@ function addBlind() {
 
   div.innerHTML = `
     <div class="item-desc">
-      <div class="field">
+      <div class="field" style="flex:1;min-width:0">
         <label>Location</label>
         <input type="text" placeholder="e.g. Office 1, Living Room" class="desc" list="loc-suggestions" />
       </div>
-      <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
+      <div class="item-actions">
+        <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
+        <button class="btn-dup" onclick="duplicateBlind(${id})" title="Duplicate">⧉</button>
+        <button class="btn-remove" onclick="removeItem('blind-${id}')">✕</button>
+      </div>
       <div class="fabric-fields" style="display:none">
         <div class="field">
           <label>Fabric Code</label>
@@ -1315,8 +1310,6 @@ function addBlind() {
         </div>
       </div>
     </div>
-    <button class="btn-dup" onclick="duplicateBlind(${id})" title="Duplicate">⧉</button>
-    <button class="btn-remove" onclick="removeItem('blind-${id}')">✕</button>
   `;
   container.appendChild(div);
   calcBlind(id);
@@ -1481,11 +1474,15 @@ function addCurtain() {
   div.dataset.created = itemOrder++;
   div.innerHTML = `
     <div class="item-desc">
-      <div class="field">
+      <div class="field" style="flex:1;min-width:0">
         <label>Location</label>
         <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" list="loc-suggestions" />
       </div>
-      <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
+      <div class="item-actions">
+        <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
+        <button class="btn-dup" onclick="duplicateCurtain(${id})" title="Duplicate">⧉</button>
+        <button class="btn-remove" onclick="removeItem('curtain-${id}')">✕</button>
+      </div>
       <div class="fabric-fields" style="display:none">
         <div class="field">
           <label>Fabric Code</label>
@@ -1571,8 +1568,6 @@ function addCurtain() {
         </div>
       </div>
     </div>
-    <button class="btn-dup" onclick="duplicateCurtain(${id})" title="Duplicate">⧉</button>
-    <button class="btn-remove" onclick="removeItem('curtain-${id}')">✕</button>
   `;
   container.appendChild(div);
   calcCurtain(id);
@@ -1693,9 +1688,13 @@ function addSPC() {
   div.id = 'spc-' + id;
   div.innerHTML = `
     <div class="item-desc">
-      <div class="field">
+      <div class="field" style="flex:1;min-width:0">
         <label>Location</label>
         <input type="text" placeholder="e.g. Living Room, Bedroom 1" class="desc" list="loc-suggestions" />
+      </div>
+      <div class="item-actions">
+        <button class="btn-dup" onclick="duplicateSPC(${id})" title="Duplicate">⧉</button>
+        <button class="btn-remove" onclick="removeItem('spc-${id}')">✕</button>
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)">
@@ -1731,8 +1730,6 @@ function addSPC() {
         </div>
       </div>
     </div>
-    <button class="btn-dup" onclick="duplicateSPC(${id})" title="Duplicate">⧉</button>
-    <button class="btn-remove" onclick="removeItem('spc-${id}')">✕</button>
   `;
   container.appendChild(div);
   calcSPC(id);
@@ -1749,8 +1746,8 @@ function calcSPC(id) {
   const lFt = lIn > 0 ? lIn / 12 : 0;
   const bFt = bIn > 0 ? bIn / 12 : 0;
 
-  row.querySelector('.ftl').textContent = lIn > 0 ? `→ ${lFt.toFixed(2)} ft · ${(lIn*2.54).toFixed(1)} cm · ${Math.round(lIn*25.4)} mm` : '';
-  row.querySelector('.ftb').textContent = bIn > 0 ? `→ ${bFt.toFixed(2)} ft · ${(bIn*2.54).toFixed(1)} cm · ${Math.round(bIn*25.4)} mm` : '';
+  row.querySelector('.ftl').textContent = lIn > 0 ? `→ ${lFt.toFixed(2)} ft · ${(lIn*0.0254).toFixed(2)} m` : '';
+  row.querySelector('.ftb').textContent = bIn > 0 ? `→ ${bFt.toFixed(2)} ft · ${(bIn*0.0254).toFixed(2)} m` : '';
 
   const sqft  = lFt * bFt;
   row.querySelector('.sqft-out').value = sqft > 0 ? sqft.toFixed(2) + ' sqft' : '—';
