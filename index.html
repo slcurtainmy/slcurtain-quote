@@ -1056,7 +1056,12 @@
           <button class="more-menu-item" onclick="saveQuoteJSON();closeMoreMenu()">⬇ Save JSON</button>
           <button class="more-menu-item" onclick="loadQuoteJSON();closeMoreMenu()">📂 Load JSON</button>
           <hr>
-          <button class="more-menu-item" onclick="loadDesignerTestData();closeMoreMenu()">🧪 Load Test Data</button>
+          <div style="padding:4px 14px 2px;font-size:10px;font-weight:700;letter-spacing:.9px;color:rgba(255,255,255,.35);text-transform:uppercase">Test Data</div>
+          <button class="more-menu-item" onclick="loadDesignerTestData();closeMoreMenu()">🧪 A · Designer Rates</button>
+          <button class="more-menu-item" onclick="loadTestB();closeMoreMenu()">🧪 B · Full Mix (Landed)</button>
+          <button class="more-menu-item" onclick="loadTestC();closeMoreMenu()">🧪 C · Condo Package</button>
+          <button class="more-menu-item" onclick="loadTestD();closeMoreMenu()">🧪 D · Premium Bungalow</button>
+          <button class="more-menu-item" onclick="loadTestE();closeMoreMenu()">🧪 E · Commercial Office</button>
         </div>
       </div>
     </div>
@@ -3128,6 +3133,116 @@ function loadDesignerTestData() {
       { desc: 'T5 Semi Blackout (no rate)', sku: 'Zebra Blind (Semi Blackout)', w: '48',  h: '60', qty: '1', springTubeWaived: false },
       { desc: 'T6 Roller Oversize x2',     sku: 'Roller Blind',               w: '96',  h: '72', qty: '2', springTubeWaived: false },
       { desc: 'T7 Roller Wide+Oversize',    sku: 'Roller Blind',               w: '132', h: '84', qty: '1', springTubeWaived: false },
+    ],
+    curtains: [], spcs: [], doors: [], tintedRooms: [],
+  });
+}
+
+// ─── TEST DATASET B: Full Mix — Landed House ─────────────────────────────────
+function loadTestB() {
+  applyQuoteState({
+    version: 2,
+    customer: { name: 'Cik Nadia — Taman Damai', phone: '017-234-5678', date: new Date().toISOString().slice(0,10), propType: '2-Storey Terrace' },
+    propPillActive: '', mode: 'blinds', measureUnit: 'in',
+    discount: { val: '', isPct: true },
+    lineExcludes: [], summaryCustomOrder: [], groupCustomOrder: [],
+    isDesignerQuote: false,
+    blinds: [
+      { desc: 'Living Rm (Left)',  sku: 'Zebra Blind (Blackout)', w: '72', h: '84', qty: '1', springTubeWaived: false },
+      { desc: 'Living Rm (Right)', sku: 'Zebra Blind (Blackout)', w: '72', h: '84', qty: '1', springTubeWaived: false },
+      { desc: 'Master Bedroom',    sku: 'Roller Blind',           w: '54', h: '72', qty: '1', springTubeWaived: false },
+      { desc: 'Bedroom 2',         sku: 'Roller Blind',           w: '48', h: '72', qty: '1', springTubeWaived: false },
+      { desc: 'Study Room',        sku: 'Venetian Blind',         w: '36', h: '60', qty: '1', springTubeWaived: false },
+    ],
+    curtains: [
+      { desc: 'Living Room',    sku: 'Singapore Pleat — Double (with wave)',  w: '192', h: '108', qty: '1' },
+      { desc: 'Master Bedroom', sku: 'Singapore Pleat — Single (with wave)', w: '96',  h: '96',  qty: '1' },
+    ],
+    spcs: [
+      { desc: 'Living + Dining Area', sku: 'SPC — Normal Pricing', l: '336', b: '216' },
+      { desc: 'Master Bedroom',       sku: 'SPC — Normal Pricing', l: '168', b: '156' },
+    ],
+    doors: [],
+    tintedRooms: [
+      { desc: 'Living Patio', series: 'Series I', windows: [{w:'84',h:'72'},{w:'84',h:'72'}] },
+    ],
+  });
+}
+
+// ─── TEST DATASET C: Condo Package ───────────────────────────────────────────
+function loadTestC() {
+  applyQuoteState({
+    version: 2,
+    customer: { name: 'Ryan Tan — Ara Damansara', phone: '012-876-5432', date: new Date().toISOString().slice(0,10), propType: 'Condominium' },
+    propPillActive: '', mode: 'blinds', measureUnit: 'in',
+    discount: { val: '', isPct: true },
+    lineExcludes: [], summaryCustomOrder: [], groupCustomOrder: [],
+    isDesignerQuote: false,
+    blinds: [
+      { desc: 'Living Room', sku: 'Zebra Blind (Blackout)', w: '72', h: '84', qty: '1', springTubeWaived: false },
+      { desc: 'Kitchen',     sku: 'Roller Blind',           w: '36', h: '48', qty: '2', springTubeWaived: false },
+      { desc: 'Bedroom 1',   sku: 'Roller Blind',           w: '48', h: '72', qty: '1', springTubeWaived: false },
+      { desc: 'Bedroom 2',   sku: 'Roller Blind',           w: '48', h: '60', qty: '1', springTubeWaived: false },
+      { desc: 'Bathroom',    sku: 'Roller Blind',           w: '24', h: '48', qty: '1', springTubeWaived: false },
+    ],
+    curtains: [
+      { desc: 'Living Room', sku: 'Sheer — Normal with Wave', w: '120', h: '96', qty: '1' },
+    ],
+    spcs: [
+      { desc: 'Bedroom 1', sku: 'SPC — Promotional Pricing', l: '144', b: '132' },
+    ],
+    doors: [], tintedRooms: [],
+  });
+}
+
+// ─── TEST DATASET D: Premium Bungalow ────────────────────────────────────────
+function loadTestD() {
+  applyQuoteState({
+    version: 2,
+    customer: { name: 'Tan Sri Residence — Damansara Heights', phone: '012-999-8888', date: new Date().toISOString().slice(0,10), propType: 'Bungalow' },
+    propPillActive: '', mode: 'site', measureUnit: 'in',
+    discount: { val: '', isPct: true },
+    lineExcludes: [], summaryCustomOrder: [], groupCustomOrder: [],
+    isDesignerQuote: false,
+    blinds: [
+      { desc: 'Home Study (L)',  sku: 'Roman Blind (Premium)', w: '60', h: '84', qty: '1', springTubeWaived: false },
+      { desc: 'Home Study (R)',  sku: 'Roman Blind (Premium)', w: '60', h: '84', qty: '1', springTubeWaived: false },
+      { desc: 'Guest Room',      sku: 'Venetian Blind',        w: '48', h: '60', qty: '2', springTubeWaived: false },
+      { desc: 'Master Bathroom', sku: 'Roller Blind',          w: '30', h: '48', qty: '2', springTubeWaived: false },
+    ],
+    curtains: [
+      { desc: 'Living — High Ceiling (12ft)', sku: 'Singapore Pleat — Double (with wave)',     w: '240', h: '144', qty: '1' },
+      { desc: 'Dining Area',                  sku: 'Singapore Pleat — Single (with wave)',     w: '120', h: '108', qty: '1' },
+      { desc: 'Master Bedroom',               sku: 'S-Fold — Double (with wave, incl. sheer)',w: '132', h: '108', qty: '1' },
+      { desc: 'Guest Room',                   sku: 'Sheer — Premium (with wave)',              w: '84',  h: '96',  qty: '1' },
+    ],
+    spcs: [
+      { desc: 'Living + Dining (GF)', sku: 'SPC — Normal Pricing', l: '480', b: '288' },
+      { desc: 'Master Bedroom',       sku: 'SPC — Normal Pricing', l: '216', b: '180' },
+    ],
+    doors: [],
+    tintedRooms: [
+      { desc: 'Living Patio', series: 'Series I', windows: [{w:'96',h:'84'},{w:'96',h:'84'},{w:'72',h:'84'}] },
+    ],
+  });
+}
+
+// ─── TEST DATASET E: Commercial Office ───────────────────────────────────────
+function loadTestE() {
+  applyQuoteState({
+    version: 2,
+    customer: { name: 'SyarikatABC Sdn Bhd — Petaling Jaya', phone: '03-1234-5678', date: new Date().toISOString().slice(0,10), propType: 'Office' },
+    propPillActive: '', mode: 'site', measureUnit: 'in',
+    discount: { val: '', isPct: true },
+    lineExcludes: [], summaryCustomOrder: [], groupCustomOrder: [],
+    isDesignerQuote: false,
+    blinds: [
+      { desc: 'Workstation Zone A', sku: 'Vertical Blind (Blackout)', w: '60', h: '72', qty: '8', springTubeWaived: false },
+      { desc: 'Workstation Zone B', sku: 'Vertical Blind (Blackout)', w: '60', h: '72', qty: '6', springTubeWaived: false },
+      { desc: 'Meeting Room 1',     sku: 'Roller Blind',              w: '72', h: '72', qty: '4', springTubeWaived: false },
+      { desc: 'Meeting Room 2',     sku: 'Roller Blind',              w: '60', h: '72', qty: '3', springTubeWaived: false },
+      { desc: 'Director Room',      sku: 'Timber Blind',              w: '60', h: '72', qty: '2', springTubeWaived: false },
+      { desc: 'Reception',          sku: 'Zebra Blind (Blackout)',    w: '84', h: '84', qty: '2', springTubeWaived: false },
     ],
     curtains: [], spcs: [], doors: [], tintedRooms: [],
   });
