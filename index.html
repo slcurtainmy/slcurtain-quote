@@ -232,7 +232,8 @@
   .room-group-header:hover .grp-drag-handle { opacity: 1; }
   .room-group.grp-dragging { opacity: .4; }
   .room-group.drag-over-grp { outline: 2px solid rgba(184,134,90,.7); outline-offset: -2px; border-radius: 10px; }
-  .s-fabric { font-size: 10px; color: rgba(255,255,255,.32); font-style: italic; margin-top: 1px; }
+  .s-fabric  { font-size: 10px; color: rgba(255,255,255,.32); font-style: italic; margin-top: 1px; }
+  .s-remark  { font-size: 10px; color: rgba(255,255,255,.42); font-style: italic; margin-top: 1px; letter-spacing: .15px; }
   /* Room group */
   .room-group { margin-bottom: 10px; border: 1px solid rgba(184,134,90,.35); border-radius: 10px; overflow: hidden; }
   .room-group-header { display: flex; justify-content: space-between; align-items: center; padding: 7px 14px; background: rgba(184,134,90,.1); }
@@ -358,7 +359,7 @@
   .eye-toggle { background: none; border: none; cursor: pointer; font-size: 14px; padding: 0 4px; opacity: .35; transition: opacity .15s; line-height: 1; flex-shrink: 0; align-self: flex-start; margin-top: 1px; }
   .eye-toggle:hover { opacity: .9; }
   .hidden-line { opacity: .22; }
-  .hidden-line .s-room, .hidden-line .s-style, .hidden-line .s-type, .hidden-line .s-dims, .hidden-line .s-price { text-decoration: line-through; }
+  .hidden-line .s-room, .hidden-line .s-style, .hidden-line .s-type, .hidden-line .s-dims, .hidden-line .s-price, .hidden-line .s-remark { text-decoration: line-through; }
   .divider { border: none; border-top: 1px solid rgba(255,255,255,.12); margin: 14px 0; }
   .total-row { display: flex; justify-content: space-between; align-items: baseline; }
   .total-row .total-label { font-size: 12px; opacity: .6; font-weight: 500; }
@@ -1300,7 +1301,7 @@ function addBlind() {
     <div class="item-desc">
       <div class="field" style="flex:1;min-width:0">
         <label>Location</label>
-        <input type="text" placeholder="e.g. Office 1, Living Room" class="desc" list="loc-suggestions" />
+        <input type="text" placeholder="e.g. Office 1, Living Room" class="desc" list="loc-suggestions" oninput="calcBlind(${id})" />
       </div>
       <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
       <div class="item-actions">
@@ -1310,12 +1311,16 @@ function addBlind() {
       <div class="fabric-fields" style="display:none">
         <div class="field">
           <label>Fabric Code</label>
-          <input type="text" placeholder="e.g. WH-2301" class="fabric-code" />
+          <input type="text" placeholder="e.g. WH-2301" class="fabric-code" oninput="updateSummary()" />
         </div>
         <div class="field">
           <label>Fabric Colour</label>
-          <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" />
+          <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" oninput="updateSummary()" />
         </div>
+      </div>
+      <div class="field" style="flex:0 0 100%">
+        <label style="opacity:.65">Remark <span style="font-size:10px;font-weight:400">(optional)</span></label>
+        <input type="text" placeholder="e.g. Measure again, confirm colour, pending site visit" class="remark" oninput="calcBlind(${id})" />
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,0.8fr) minmax(0,0.8fr)">
@@ -1503,6 +1508,7 @@ function calcBlind(id) {
     }
   }
   row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wFt)}(w) × ${Math.ceil(hFt)}(h) ft` : '';
+  row.dataset.remark = row.querySelector('.remark')?.value.trim() || '';
   const blindDesc = row.querySelector('.desc').value.trim();
   const blindPfx  = blindDesc ? `[${blindDesc}] ` : '';
   const xWinCount = row.querySelectorAll('.extra-win-row').length;
@@ -1526,7 +1532,7 @@ function addCurtain() {
     <div class="item-desc">
       <div class="field" style="flex:1;min-width:0">
         <label>Location</label>
-        <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" list="loc-suggestions" />
+        <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" list="loc-suggestions" oninput="calcCurtain(${id})" />
       </div>
       <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
       <div class="item-actions">
@@ -1536,12 +1542,16 @@ function addCurtain() {
       <div class="fabric-fields" style="display:none">
         <div class="field">
           <label>Fabric Code</label>
-          <input type="text" placeholder="e.g. WH-2301" class="fabric-code" />
+          <input type="text" placeholder="e.g. WH-2301" class="fabric-code" oninput="updateSummary()" />
         </div>
         <div class="field">
           <label>Fabric Colour</label>
-          <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" />
+          <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" oninput="updateSummary()" />
         </div>
+      </div>
+      <div class="field" style="flex:0 0 100%">
+        <label style="opacity:.65">Remark <span style="font-size:10px;font-weight:400">(optional)</span></label>
+        <input type="text" placeholder="e.g. Confirm fabric swatch, re-measure height" class="remark" oninput="calcCurtain(${id})" />
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr)">
@@ -1719,6 +1729,7 @@ function calcCurtain(id) {
   row.dataset.cost  = totalCost + extraCost;
   row.dataset.surcharge = surcharge;
   row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn/12)}(w) × ${Math.ceil(hIn/12)}(h) ft` : '';
+  row.dataset.remark = row.querySelector('.remark')?.value.trim() || '';
   const curtDesc = row.querySelector('.desc').value.trim();
   const curtPfx  = curtDesc ? `[${curtDesc}] ` : '';
   const addOnTag = [blackout && 'Blackout', linen && 'Linen', premium && 'Chenille', sewingLabel].filter(Boolean).join(' + ');
@@ -1742,11 +1753,15 @@ function addSPC() {
     <div class="item-desc">
       <div class="field" style="flex:1;min-width:0">
         <label>Location</label>
-        <input type="text" placeholder="e.g. Living Room, Bedroom 1" class="desc" list="loc-suggestions" />
+        <input type="text" placeholder="e.g. Living Room, Bedroom 1" class="desc" list="loc-suggestions" oninput="calcSPC(${id})" />
       </div>
       <div class="item-actions">
         <button class="btn-dup" onclick="duplicateSPC(${id})" title="Duplicate">⧉</button>
         <button class="btn-remove" onclick="removeItem('spc-${id}')">✕</button>
+      </div>
+      <div class="field" style="flex:0 0 100%">
+        <label style="opacity:.65">Remark <span style="font-size:10px;font-weight:400">(optional)</span></label>
+        <input type="text" placeholder="e.g. Staircase area, check skirting height" class="remark" oninput="calcSPC(${id})" />
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)">
@@ -1819,6 +1834,7 @@ function calcSPC(id) {
   row.dataset.sell = covVal !== null ? covVal : total;
   if (covVal !== null) row.querySelector('.sell-out').value = fmt(covVal) + ' ✏';
   row.dataset.cost = sqft > 0 ? rates.cost * sqft : 0;
+  row.dataset.remark = row.querySelector('.remark')?.value.trim() || '';
   const spcDesc = row.querySelector('.desc').value.trim();
   const spcPfx  = spcDesc ? `[${spcDesc}] ` : '';
   row.dataset.label = `${spcPfx}SPC: ${lFt.toFixed(2)}×${bFt.toFixed(2)} ft (${sqft.toFixed(2)} sqft + 10% wastage)`;
@@ -1836,7 +1852,11 @@ function addDoor() {
     <div class="item-desc">
       <div class="field">
         <label>Location</label>
-        <input type="text" placeholder="e.g. Main Door, Room 1" class="desc" list="loc-suggestions" />
+        <input type="text" placeholder="e.g. Main Door, Room 1" class="desc" list="loc-suggestions" oninput="calcDoor(${id})" />
+      </div>
+      <div class="field" style="flex:0 0 100%">
+        <label style="opacity:.65">Remark <span style="font-size:10px;font-weight:400">(optional)</span></label>
+        <input type="text" placeholder="e.g. Existing door frame, grille to remove" class="remark" oninput="calcDoor(${id})" />
       </div>
     </div>
     <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr)">
@@ -1875,6 +1895,7 @@ function calcDoor(id) {
   row.dataset.sell  = dVal !== null ? dVal : total;
   if (dVal !== null) row.querySelector('.sell-out').value = fmt(dVal) + ' ✏';
   row.dataset.cost  = rates.cost * qty;
+  row.dataset.remark = row.querySelector('.remark')?.value.trim() || '';
   const doorDesc = row.querySelector('.desc').value.trim();
   const doorPfx  = doorDesc ? `[${doorDesc}] ` : '';
   row.dataset.label = `${doorPfx}${qty}× ${sku}`;
@@ -1987,6 +2008,7 @@ function duplicateBlind(id) {
   if (!dst) return;
   const sv = (cls, srcEl) => { const el = dst.querySelector(cls); if (el && srcEl) el.value = srcEl.value; };
   sv('.desc',          src.querySelector('.desc'));
+  sv('.remark',        src.querySelector('.remark'));
   sv('.fabric-code',   src.querySelector('.fabric-code'));
   sv('.fabric-colour', src.querySelector('.fabric-colour'));
   dst.querySelector('select').value = src.querySelector('select').value;
@@ -2062,6 +2084,7 @@ function duplicateCurtain(id) {
   if (!dst) return;
   const sv = (cls, srcEl) => { const el = dst.querySelector(cls); if (el && srcEl) el.value = srcEl.value; };
   sv('.desc',          src.querySelector('.desc'));
+  sv('.remark',        src.querySelector('.remark'));
   sv('.fabric-code',   src.querySelector('.fabric-code'));
   sv('.fabric-colour', src.querySelector('.fabric-colour'));
   dst.querySelector('select').value = src.querySelector('select').value;
@@ -2099,6 +2122,7 @@ function duplicateSPC(id) {
   if (!dst) return;
   const sv = (cls, srcEl) => { const el = dst.querySelector(cls); if (el && srcEl) el.value = srcEl.value; };
   sv('.desc', src.querySelector('.desc'));
+  sv('.remark', src.querySelector('.remark'));
   dst.querySelector('select').value = src.querySelector('select').value;
   sv('.l-in', src.querySelector('.l-in'));
   sv('.b-in', src.querySelector('.b-in'));
@@ -2117,7 +2141,8 @@ function duplicateDoor(id) {
   const nid = doorIdx - 1;
   const dst = document.getElementById('door-' + nid);
   if (!dst) return;
-  dst.querySelector('.desc').value = src.querySelector('.desc').value;
+  dst.querySelector('.desc').value = src.querySelector('.desc')?.value || '';
+  dst.querySelector('.remark').value = src.querySelector('.remark')?.value || '';
   dst.querySelector('select').value = src.querySelector('select').value;
   dst.querySelector('.qty').value = src.querySelector('.qty').value;
   calcDoor(nid);
@@ -2304,7 +2329,7 @@ function renderGroupedSummary(lines) {
   return html;
 }
 
-function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscount, isSubtotal, _key, _srcId, _inGroup, fabricCode, fabricColour }) {
+function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscount, isSubtotal, _key, _srcId, _inGroup, fabricCode, fabricColour, remark }) {
   if (isSubtotal) {
     return `<div class="summary-item" style="opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:10px;margin-top:4px">
       <div class="summary-item-left"><div class="s-style" style="font-size:12px;letter-spacing:.3px;text-transform:uppercase">Subtotal</div></div>
@@ -2344,6 +2369,7 @@ function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscou
       <div class="s-style" ${isNote ? 'style="font-size:12px;font-style:italic"' : ''}>${style}${dims ? ` <span class="s-dims">${dims}</span>` : ''}</div>
       ${typeDesc ? typeDesc.split('\n').map(t => `<div class="s-type">${t}</div>`).join('') : ''}
       ${fabricLine ? `<div class="s-fabric">${fabricLine}</div>` : ''}
+      ${remark ? `<div class="s-remark">✏ ${remark}</div>` : ''}
     </div>
     <div class="s-price" ${isNote ? 'style="font-size:13px"' : ''}>${isHidden ? '—' : fmt(sell)}</div>
   </div>`;
@@ -2437,7 +2463,8 @@ function updateSummary() {
     const dims = row.dataset.dims || '';
     const fabricCode   = row.querySelector('.fabric-code')?.value.trim()   || '';
     const fabricColour = row.querySelector('.fabric-colour')?.value.trim() || '';
-    lines.push({ room, style, typeDesc, sell, dims, _srcId: row.id, fabricCode, fabricColour });
+    const remark       = row.dataset.remark || '';
+    lines.push({ room, style, typeDesc, sell, dims, _srcId: row.id, fabricCode, fabricColour, remark });
     totalSell += sell;
     totalCost += parseFloat(row.dataset.cost) || 0;
   };
@@ -2748,6 +2775,7 @@ function serializeQuote() {
     document.querySelectorAll(selector + ' .item-row').forEach(row => {
       const base = {
         desc:        row.querySelector('.desc')?.value         || '',
+        remark:      row.querySelector('.remark')?.value       || '',
         sku:         row.querySelector('select')?.value        || '',
         fabricCode:  row.querySelector('.fabric-code')?.value  || '',
         fabricColour:row.querySelector('.fabric-colour')?.value|| '',
@@ -2864,7 +2892,7 @@ function applyQuoteState(state) {
   const fillRow = (row, d, calcFn) => {
     if (!row) return;
     const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
-    sv('.desc', d.desc);
+    sv('.desc', d.desc); sv('.remark', d.remark);
     if (row.querySelector('select') && d.sku) row.querySelector('select').value = d.sku;
     sv('.fabric-code', d.fabricCode);
     sv('.fabric-colour', d.fabricColour);
@@ -2895,7 +2923,7 @@ function applyQuoteState(state) {
     const row = rows[rows.length - 1];
     const id = parseInt(row.id.replace('blind-', ''));
     const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
-    sv('.desc', d.desc); sv('.fabric-code', d.fabricCode); sv('.fabric-colour', d.fabricColour);
+    sv('.desc', d.desc); sv('.remark', d.remark); sv('.fabric-code', d.fabricCode); sv('.fabric-colour', d.fabricColour);
     sv('.w-in', d.w); sv('.h-in', d.h); sv('.qty', d.qty); sv('.override-price', d.override);
     if (row.querySelector('select') && d.sku) row.querySelector('select').value = d.sku;
     if (d.override) {
@@ -2931,7 +2959,7 @@ function applyQuoteState(state) {
     const id = parseInt(row.id.replace('curtain-', ''));
     const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
     const sc = (cls, val) => { const el = row.querySelector(cls); if (el) el.checked = !!val; };
-    sv('.desc', d.desc); sv('.fabric-code', d.fabricCode); sv('.fabric-colour', d.fabricColour);
+    sv('.desc', d.desc); sv('.remark', d.remark); sv('.fabric-code', d.fabricCode); sv('.fabric-colour', d.fabricColour);
     sv('.w-in', d.w); sv('.h-in', d.h); sv('.qty', d.qty); sv('.override-price', d.override);
     if (row.querySelector('select') && d.sku) row.querySelector('select').value = d.sku;
     sc('.blackout', d.blackout); sc('.linen', d.linen); sc('.motorized', d.motorized); sc('.premium', d.premium);
@@ -2967,7 +2995,7 @@ function applyQuoteState(state) {
     const row = rows[rows.length - 1];
     const id = parseInt(row.id.replace('spc-', ''));
     const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
-    sv('.desc', d.desc); sv('.l-in', d.l); sv('.b-in', d.b); sv('.override-price', d.override);
+    sv('.desc', d.desc); sv('.remark', d.remark); sv('.l-in', d.l); sv('.b-in', d.b); sv('.override-price', d.override);
     if (row.querySelector('select') && d.sku) row.querySelector('select').value = d.sku;
     if (d.override) {
       const sec = row.querySelector('.price-override-section');
@@ -2987,7 +3015,7 @@ function applyQuoteState(state) {
     const row = rows[rows.length - 1];
     const id = parseInt(row.id.replace('door-', ''));
     const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
-    sv('.desc', d.desc); sv('.qty', d.qty); sv('.override-price', d.override);
+    sv('.desc', d.desc); sv('.remark', d.remark); sv('.qty', d.qty); sv('.override-price', d.override);
     if (row.querySelector('select') && d.sku) row.querySelector('select').value = d.sku;
     if (d.override) {
       const sec = row.querySelector('.price-override-section');
