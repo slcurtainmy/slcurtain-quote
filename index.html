@@ -196,6 +196,7 @@
   }
   /* Multi-window extra rows */
   .extra-wins { width: 100%; }
+  .extra-wins:empty { display: none; }
   .extra-win-row {
     display: flex; align-items: flex-end; gap: 8px;
     padding: 6px 0 2px; border-top: 1px solid rgba(255,255,255,.07);
@@ -619,6 +620,12 @@
     .item-row { flex-wrap: wrap; gap: 8px; }
     .item-row .fields { grid-template-columns: 1fr 1fr !important; }
     .item-row > .field { width: 100%; min-width: 0 !important; }
+    /* Override white desktop colors so the button is visible on the light card background */
+    .btn-add-win {
+      color: rgba(61,42,30,.45);
+      border-color: rgba(61,42,30,.22);
+      margin-top: 0;
+    }
     /* Sell price goes full width on mobile (dup/remove are now in the card header) */
     .item-row > .sell-field {
       flex: 0 0 100% !important;
@@ -635,6 +642,14 @@
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
     .summary-box { padding: 18px 14px; }
+    /* Hide desktop standalone buttons — item-actions shows them in the header instead */
+    .item-row > .btn-dup,
+    .item-row > .btn-remove { display: none; }
+  }
+
+  /* Desktop: hide item-actions from header; standalone buttons appear beside sell-field */
+  @media(min-width:601px) {
+    .item-actions { display: none; }
   }
 
   @media(max-width:420px) {
@@ -748,6 +763,34 @@
   /* ── Tinted Screen ── */
   .ts-room { background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
   .ts-room-header { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 8px; }
+  .ts-room-header .btn-dup,
+  .ts-room-header .btn-remove { flex-shrink: 0; margin-bottom: 2px; }
+  @media(max-width:600px) {
+    /* Prevent any overflow from escaping the room card */
+    .ts-room { overflow: hidden; }
+
+    /* Room header: grid keeps Location+buttons on row 1, Series full-width on row 2 */
+    .ts-room-header {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      align-items: end;
+    }
+    .ts-room-header .field:first-child  { grid-column: 1; grid-row: 1; min-width: 0; }
+    .ts-room-header .btn-dup            { grid-column: 2; grid-row: 1; }
+    .ts-room-header .btn-remove         { grid-column: 3; grid-row: 1; }
+    .ts-room-header .field:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+
+    /* Window row: W+H on row 1, Sqft+remove on row 2 */
+    .ts-window {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-items: end;
+    }
+    .ts-window .sqft-field { grid-column: 1; }
+    .ts-window .btn-remove { grid-column: 2; justify-self: end; }
+  }
   .ts-room-header .field:first-child { flex: 2; min-width: 140px; }
   .ts-room-header .field:nth-child(2) { flex: 1; min-width: 110px; }
   .ts-window { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; padding: 8px 0 4px; border-top: 1px dashed rgba(255,255,255,.1); }
@@ -1254,8 +1297,8 @@ function addBlind() {
         <label>Location</label>
         <input type="text" placeholder="e.g. Office 1, Living Room" class="desc" list="loc-suggestions" />
       </div>
+      <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
       <div class="item-actions">
-        <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
         <button class="btn-dup" onclick="duplicateBlind(${id})" title="Duplicate">⧉</button>
         <button class="btn-remove" onclick="removeItem('blind-${id}')">✕</button>
       </div>
@@ -1310,6 +1353,8 @@ function addBlind() {
         </div>
       </div>
     </div>
+    <button class="btn-dup" onclick="duplicateBlind(${id})" title="Duplicate">⧉</button>
+    <button class="btn-remove" onclick="removeItem('blind-${id}')">✕</button>
   `;
   container.appendChild(div);
   calcBlind(id);
@@ -1478,8 +1523,8 @@ function addCurtain() {
         <label>Location</label>
         <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" list="loc-suggestions" />
       </div>
+      <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
       <div class="item-actions">
-        <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
         <button class="btn-dup" onclick="duplicateCurtain(${id})" title="Duplicate">⧉</button>
         <button class="btn-remove" onclick="removeItem('curtain-${id}')">✕</button>
       </div>
@@ -1568,6 +1613,8 @@ function addCurtain() {
         </div>
       </div>
     </div>
+    <button class="btn-dup" onclick="duplicateCurtain(${id})" title="Duplicate">⧉</button>
+    <button class="btn-remove" onclick="removeItem('curtain-${id}')">✕</button>
   `;
   container.appendChild(div);
   calcCurtain(id);
@@ -1730,6 +1777,8 @@ function addSPC() {
         </div>
       </div>
     </div>
+    <button class="btn-dup" onclick="duplicateSPC(${id})" title="Duplicate">⧉</button>
+    <button class="btn-remove" onclick="removeItem('spc-${id}')">✕</button>
   `;
   container.appendChild(div);
   calcSPC(id);
