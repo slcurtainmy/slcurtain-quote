@@ -156,8 +156,9 @@
   .toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
   .toggle {
     position: relative; display: inline-block; width: 38px; height: 22px;
+    flex-shrink: 0; min-width: 38px;
   }
-  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
   .slider {
     position: absolute; cursor: pointer; top:0;left:0;right:0;bottom:0;
     background: #ccc; border-radius: 22px; transition: .2s;
@@ -263,6 +264,35 @@
   .alt-total-btn:hover { background: rgba(184,134,90,.25); color: #B8865A; }
   .alt-total-btn.active { background: rgba(184,134,90,.2); border-color: rgba(184,134,90,.5); color: #B8865A; }
   .pdf-mode .alt-total-btn { display: none !important; }
+  .win-mode-btn {
+    background: rgba(184,134,90,.12); border: 1px solid rgba(184,134,90,.28);
+    color: rgba(184,134,90,.55); border-radius: 4px; font-size: 9px; font-weight: 700;
+    padding: 2px 7px; cursor: pointer; font-family: inherit; letter-spacing: .3px;
+    transition: all .15s; white-space: nowrap;
+  }
+  .win-mode-btn:hover { background: rgba(184,134,90,.25); color: #B8865A; }
+  .win-mode-btn.active { background: rgba(184,134,90,.2); border-color: rgba(184,134,90,.5); color: #B8865A; }
+  .pdf-mode .win-mode-btn { display: none !important; }
+  .win-mode-style { padding: 5px 14px 2px; font-size: 11px; color: rgba(255,255,255,.7); border-top: 1px solid rgba(255,255,255,.06); }
+  .win-mode-typedesc { font-size: 10px; opacity: .72; margin-left: 4px; }
+  .win-mode-list { padding: 4px 14px 10px; }
+  .win-mode-row { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .win-mode-label { font-size: 11px; font-weight: 700; color: rgba(184,134,90,.8); min-width: 62px; flex-shrink: 0; }
+  .win-mode-row-style { display: none; } /* hidden on screen; shared header shows it */
+  .win-mode-row-typedesc { font-size: 9px; opacity: .7; margin-left: 2px; font-weight: 400; }
+  .win-mode-dims { font-size: 12px; color: rgba(255,255,255,.7); flex: 1; }
+  .win-mode-price { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.9); }
+  .win-mode-remark { font-size: 10px; color: rgba(255,255,255,.6); font-style: italic; padding: 0 0 5px 70px; }
+  /* PDF: hide shared style header; show style name inline per row instead */
+  .pdf-mode .win-mode-style { display: none !important; }
+  .pdf-mode .win-mode-row-style { display: inline; font-size: 10px; font-weight: 600; color: rgba(0,0,0,.78); margin-right: 3px; flex-shrink: 0; }
+  .pdf-mode .win-mode-row-typedesc { font-size: 9px; color: rgba(0,0,0,.5); font-weight: 400; margin-left: 1px; }
+  .pdf-mode .win-mode-list { padding: 4px 0 6px; }
+  .pdf-mode .win-mode-row { border-bottom: 1px solid rgba(0,0,0,.07); padding: 4px 0; align-items: baseline; }
+  .pdf-mode .win-mode-label { color: rgba(184,134,90,.9); font-size: 10px; min-width: 56px; flex-shrink: 0; }
+  .pdf-mode .win-mode-dims { color: rgba(0,0,0,.48); font-size: 10px; }
+  .pdf-mode .win-mode-price { color: rgba(0,0,0,.85); font-size: 12px; }
+  .pdf-mode .win-mode-remark { color: rgba(0,0,0,.6); font-size: 9px; padding: 0 0 4px 56px; font-style: italic; }
   .exc-alt-btn {
     background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.22);
     color: rgba(255,255,255,.5); border-radius: 6px; font-size: 10px; font-weight: 600;
@@ -381,8 +411,8 @@
     gap: 0 !important;
   }
   .pdf-mode .line-items > .room-group                    { order: 0; }
-  .pdf-mode .line-items > .summary-item                  { order: 1; }
-  .pdf-mode .line-items > .room-group[data-alternatives] { order: 6; }
+  .pdf-mode .line-items > .summary-item                  { order: 0; }
+  .pdf-mode .line-items > .room-group[data-alternatives]:not(.alt-total-shown) { order: 6; }
   /* Notes/surcharges always last */
   .pdf-mode .line-items > .summary-item[style*="dashed"] {
     order: 9;
@@ -397,28 +427,29 @@
     overflow: visible !important; margin-bottom: 0 !important;
   }
 
-  /* ── Confirmed-group header: subtle rule, no fill ── */
+  /* ── Confirmed-group header: subtle rule, no left accent ── */
   .pdf-mode .room-group-header {
     background: none !important;
     border-top: 1px solid rgba(255,255,255,.18) !important;
-    padding: 14px 0 5px !important;
+    border-left: none !important;
+    padding: 14px 0 5px 0 !important;
   }
   .pdf-mode .room-group-name   { font-size: 11px !important; letter-spacing: 1.2px !important; }
   .pdf-mode .room-group-badge  { display: none !important; }
   .pdf-mode .room-group-total  { font-size: 14px !important; }
 
-  /* ── Alternatives-group header: amber accent, more vertical space ── */
-  .pdf-mode .room-group[data-alternatives] .room-group-header {
-    border-top: 1.5px solid rgba(184,134,90,.38) !important;
+  /* ── Untoggled alternatives-group header: amber accent, more vertical space ── */
+  .pdf-mode .room-group[data-alternatives]:not(.alt-total-shown) .room-group-header {
+    border-top: 1px solid rgba(184,134,90,.45) !important;
     padding: 20px 0 5px !important;
   }
-  .pdf-mode .room-group[data-alternatives] .room-group-name {
+  .pdf-mode .room-group[data-alternatives]:not(.alt-total-shown) .room-group-name {
     font-size: 12px !important;
     letter-spacing: 1.6px !important;
     color: rgba(255,255,255,.78) !important;
   }
-  /* Show option count badge for alternatives, hide total (meaningless for select-one) */
-  .pdf-mode .room-group[data-alternatives] .room-group-badge {
+  /* Show option count badge for untoggled alternatives only */
+  .pdf-mode .room-group[data-alternatives]:not(.alt-total-shown) .room-group-badge {
     display: inline !important;
     background: transparent !important;
     border: none !important;
@@ -426,8 +457,18 @@
     font-size: 9px !important;
     padding: 0 !important;
   }
+  /* ── Toggled-on alternatives: style like a confirmed group ── */
+  .pdf-mode .room-group[data-alternatives].alt-total-shown .room-group-header {
+    border-top: 1px solid rgba(255,255,255,.18) !important;
+    padding: 14px 0 5px !important;
+  }
+  .pdf-mode .room-group[data-alternatives].alt-total-shown .room-group-name {
+    font-size: 11px !important;
+    letter-spacing: 1.2px !important;
+    color: #B8865A !important;
+  }
   .pdf-mode .room-group-choose { display: none !important; }
-  .pdf-mode .room-group[data-alternatives] .room-group-total { display: none !important; }
+  .pdf-mode .room-group[data-alternatives]:not(.alt-total-shown) .room-group-total { display: none !important; }
   .pdf-mode .grp-drag-handle   { display: none !important; }
 
   /* ── Items inside confirmed groups ── */
@@ -437,15 +478,25 @@
   }
   .pdf-mode .room-group .summary-item:last-child { border-bottom: none !important; }
 
-  /* ── Alternative options: pad left for letter badge ── */
-  .pdf-mode .room-group[data-alternatives] > .room-group-option-block,
-  .pdf-mode .room-group[data-alternatives] > .summary-item {
+  /* ── Alternative options: pad left for letter badge (untoggled only) ── */
+  .pdf-mode .room-group[data-alternatives]:not(.alt-total-shown) > .room-group-option-block,
+  .pdf-mode .room-group[data-alternatives]:not(.alt-total-shown) > .summary-item {
     position: relative !important;
     padding: 12px 0 12px 28px !important;
     border-bottom: 1px solid rgba(255,255,255,.08) !important;
   }
-  .pdf-mode .room-group[data-alternatives] > .room-group-option-block:last-child,
-  .pdf-mode .room-group[data-alternatives] > .summary-item:last-child {
+  .pdf-mode .room-group[data-alternatives]:not(.alt-total-shown) > .room-group-option-block:last-child,
+  .pdf-mode .room-group[data-alternatives]:not(.alt-total-shown) > .summary-item:last-child {
+    border-bottom: none !important;
+  }
+  /* ── Toggled-on group: align items like confirmed, no badge indent ── */
+  .pdf-mode .room-group[data-alternatives].alt-total-shown > .room-group-option-block,
+  .pdf-mode .room-group[data-alternatives].alt-total-shown > .summary-item {
+    padding: 9px 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  }
+  .pdf-mode .room-group[data-alternatives].alt-total-shown > .room-group-option-block:last-child,
+  .pdf-mode .room-group[data-alternatives].alt-total-shown > .summary-item:last-child {
     border-bottom: none !important;
   }
   /* Dividers between alternatives replaced by letter badge separation */
@@ -455,14 +506,14 @@
   .pdf-option-letter {
     position: absolute;
     left: 0;
-    top: 13px;
-    width: 16px;
-    height: 16px;
+    top: 12px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: rgba(184,134,90,.12);
     border: 1px solid rgba(184,134,90,.3);
     color: #B8865A;
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -473,8 +524,8 @@
 
   /* ── Standalone items (direct .line-items children, not in a group) ── */
   .pdf-mode .line-items > .summary-item {
-    padding: 9px 0;
-    border-bottom: 1px solid rgba(255,255,255,.1);
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.16);
   }
   .pdf-mode .line-items > .summary-item:last-child { border-bottom: none; }
 
@@ -496,10 +547,14 @@
   /* ── rgo / rgs / spec typographic refinements ── */
   .pdf-mode .rgo-style { font-size: 12px !important; font-weight: 600 !important; }
   .pdf-mode .rgo-total { font-size: 13px !important; font-weight: 700 !important; }
-  .pdf-mode .rgo-typedesc { font-size: 10px !important; color: rgba(0,0,0,.45) !important; }
+  .pdf-mode .rgo-typedesc { font-size: 10px !important; color: rgba(0,0,0,.45) !important;
+    overflow: hidden !important; white-space: nowrap !important; text-overflow: ellipsis !important; max-width: 220px !important; }
+  .pdf-mode .s-type { max-width: 320px !important; }
   .pdf-mode .rgs-dims  { font-size: 10px !important; color: rgba(255,255,255,.45) !important; }
   .pdf-mode .rgs-price { font-size: 10px !important; }
-  .pdf-mode .s-fabric  { font-size: 9px !important; color: rgba(255,255,255,.28) !important; }
+  .pdf-mode .s-fabric  { font-size: 9px !important; color: rgba(255,255,255,.55) !important; }
+  .pdf-mode .s-remark  { font-size: 9px !important; color: rgba(255,255,255,.55) !important; }
+  .pdf-item-num { font-size: 8px; color: rgba(255,255,255,.3); font-weight: 700; margin-right: 5px; letter-spacing: 0; font-style: normal; }
 
   /* ── Discount section ── */
   .discount-section { margin: 14px 0 10px; }
@@ -1282,6 +1337,7 @@ let itemOrder = 0; // global insertion counter for blind+curtain ordering
 let measureUnit = 'in'; // 'in' | 'cm' | 'mm' | 'm' — active input unit for blind/curtain dimensions
 const lineExcludes = new Set();
 const altTotalRooms = new Set(); // rooms (alternatives groups) where user has toggled total visible
+const windowModeRooms = new Set(); // rooms (same-type groups) where user has toggled window-mode display
 let excludeAltTotal  = true;    // when true, grand total excludes alternatives-group items
 let isDesignerQuote  = false;   // when true, eligible blind SKUs use DESIGNER_RATES
 let summaryCustomOrder = []; // user-defined display order of summary items (array of _srcId strings)
@@ -1541,12 +1597,12 @@ function addCurtain() {
       </div>
       <div class="fabric-fields" style="display:none">
         <div class="field">
-          <label>Fabric Code</label>
-          <input type="text" placeholder="e.g. WH-2301" class="fabric-code" oninput="updateSummary()" />
+          <label>Curtain Fabric Code</label>
+          <input type="text" placeholder="e.g. Velvety 007 Mud" class="fabric-code" oninput="updateSummary()" />
         </div>
         <div class="field">
-          <label>Fabric Colour</label>
-          <input type="text" placeholder="e.g. Ivory White" class="fabric-colour" oninput="updateSummary()" />
+          <label>Sheer Fabric Code</label>
+          <input type="text" placeholder="e.g. Daylight Odesa-320 White" class="fabric-colour" oninput="updateSummary()" />
         </div>
       </div>
       <div class="field" style="flex:0 0 100%">
@@ -2034,7 +2090,8 @@ function duplicateBlind(id) {
 }
 
 function toggleFabric(btn) {
-  const fields = btn.nextElementSibling;
+  const fields = btn.parentElement.querySelector('.fabric-fields');
+  if (!fields) return;
   const open = fields.style.display !== 'none';
   fields.style.display = open ? 'none' : '';
   btn.textContent = open ? '＋ Fabric' : '－ Fabric';
@@ -2262,11 +2319,12 @@ function renderGroupedSummary(lines) {
 
       const isAlternatives = styleOrder.length > 1;
       const totalAll = grpItems.reduce((s, l) => s + (l.sell || 0), 0);
+      const isWinMode = !isAlternatives && windowModeRooms.has(br);
       // Count = distinct style groups (actual number of options/alternatives)
-      const badgeText = isAlternatives ? `${styleOrder.length} options` : `${grpItems.length} items`;
+      const badgeText = isAlternatives ? `${styleOrder.length} options` : `${grpItems.length} ${isWinMode ? 'windows' : 'items'}`;
       const chooseNote = isAlternatives
         ? `<div class="room-group-choose">✦ Select one option</div>`
-        : `<div class="room-group-choose">✦ All included</div>`;
+        : isWinMode ? '' : `<div class="room-group-choose">✦ All included</div>`;
       const safeRoom = br.replace(/'/g, "\\'");
       const showAltTotal = isAlternatives && altTotalRooms.has(br);
       const headerRight = isAlternatives
@@ -2276,7 +2334,12 @@ function renderGroupedSummary(lines) {
                ${showAltTotal ? '− RM' : '+ RM'}
              </button>
            </div>`
-        : `<span class="room-group-total">${fmt(totalAll)}</span>`;
+        : `<div style="display:flex;align-items:center;gap:7px">
+             <button class="win-mode-btn${isWinMode ? ' active' : ''}" onclick="toggleWindowMode('${safeRoom}')" title="${isWinMode ? 'Switch to list view' : 'Switch to window view'}">
+               ⊞ Windows
+             </button>
+             <span class="room-group-total">${fmt(totalAll)}</span>
+           </div>`;
 
       let itemsHtml = '';
       if (isAlternatives) {
@@ -2308,10 +2371,37 @@ function renderGroupedSummary(lines) {
           }
         });
       } else {
-        itemsHtml = grpItems.map(l => renderSummaryCard({ ...l, _key: lineKey(l), _inGroup: true })).join('');
+        if (isWinMode) {
+          const sharedStyle = grpItems[0].style || '';
+          const sharedTypeDesc = (grpItems[0].typeDesc || '').split('\n').filter(Boolean).join(' · ');
+          const styleHtml = `<div class="win-mode-style">${sharedStyle}${sharedTypeDesc ? ` <span class="win-mode-typedesc">${sharedTypeDesc}</span>` : ''}</div>`;
+          const _isCurtainGrp = (grpItems[0]._srcId || '').startsWith('curtain-');
+          const rowsHtml = grpItems.map((l, i) => {
+            let fabricHtml = '';
+            if (_isCurtainGrp) {
+              fabricHtml = [
+                l.fabricCode   ? `<div class="win-mode-remark">⊂ Curtain: ${l.fabricCode}</div>`  : '',
+                l.fabricColour ? `<div class="win-mode-remark">⊂ Sheer: ${l.fabricColour}</div>` : ''
+              ].join('');
+            } else {
+              const fabricParts = [l.fabricCode, l.fabricColour].filter(Boolean);
+              fabricHtml = fabricParts.length ? `<div class="win-mode-remark">⊂ ${fabricParts.join(' · ')}</div>` : '';
+            }
+            const remarkHtml = l.remark ? `<div class="win-mode-remark">✏ ${l.remark}</div>` : '';
+            return `<div class="win-mode-row">
+              <span class="win-mode-label">Window ${i + 1}</span>
+              <span class="win-mode-row-style">${sharedStyle}${sharedTypeDesc ? ` <span class="win-mode-row-typedesc">${sharedTypeDesc}</span>` : ''}</span>
+              <span class="win-mode-dims">${l.dims || ''}</span>
+              <span class="win-mode-price">${fmt(l.sell)}</span>
+            </div>${fabricHtml}${remarkHtml}`;
+          }).join('');
+          itemsHtml = styleHtml + `<div class="win-mode-list">${rowsHtml}</div>`;
+        } else {
+          itemsHtml = grpItems.map(l => renderSummaryCard({ ...l, _key: lineKey(l), _inGroup: true })).join('');
+        }
       }
 
-      html += `<div class="room-group" data-grpkey="${safeRoom}"${isAlternatives ? ' data-alternatives' : ''}>
+      html += `<div class="room-group${showAltTotal ? ' alt-total-shown' : ''}" data-grpkey="${safeRoom}"${isAlternatives ? ' data-alternatives' : ''}>
         <div class="room-group-header">
           <div style="display:flex;align-items:center">
             <span class="grp-drag-handle" draggable="true" title="Drag to reorder group">☰</span>
@@ -2361,14 +2451,17 @@ function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscou
   const wrap = isNote
     ? 'style="opacity:.75;border-top:1px dashed rgba(255,255,255,.2);padding-top:12px;margin-top:2px"'
     : '';
-  const fabricLine = [fabricCode, fabricColour].filter(Boolean).join(' · ');
+  const _isCurtain = (_srcId || '').startsWith('curtain-');
+  const fabricLine = _isCurtain
+    ? [fabricCode ? `Curtain: ${fabricCode}` : '', fabricColour ? `Sheer: ${fabricColour}` : ''].filter(Boolean).join('\n')
+    : [fabricCode, fabricColour].filter(Boolean).join(' · ');
   return `<div class="summary-item ${hiddenClass}"${lkeyAttr} ${wrap}>
     ${moveBtn}${eyeBtn}
     <div class="summary-item-left">
       ${(room && !_inGroup) ? `<div class="s-room">${room}</div>` : ''}
       <div class="s-style" ${isNote ? 'style="font-size:12px;font-style:italic"' : ''}>${style}${dims ? ` <span class="s-dims">${dims}</span>` : ''}</div>
       ${typeDesc ? typeDesc.split('\n').map(t => `<div class="s-type">${t}</div>`).join('') : ''}
-      ${fabricLine ? `<div class="s-fabric">${fabricLine}</div>` : ''}
+      ${fabricLine ? fabricLine.split('\n').map(f => `<div class="s-fabric">⊂ ${f}</div>`).join('') : ''}
       ${remark ? `<div class="s-remark">✏ ${remark}</div>` : ''}
     </div>
     <div class="s-price" ${isNote ? 'style="font-size:13px"' : ''}>${isHidden ? '—' : fmt(sell)}</div>
@@ -2393,6 +2486,12 @@ function toggleExcludeAlt() {
 function toggleAltTotal(room) {
   if (altTotalRooms.has(room)) altTotalRooms.delete(room);
   else altTotalRooms.add(room);
+  updateSummary();
+}
+
+function toggleWindowMode(room) {
+  if (windowModeRooms.has(room)) windowModeRooms.delete(room);
+  else windowModeRooms.add(room);
   updateSummary();
 }
 
@@ -2648,9 +2747,21 @@ function updateSummary() {
     excAltBtn.title = 'Toggle: include or exclude optional items (alternatives) from total';
   }
 
-  // Grand total: when "excl. options" is active, subtract alternatives from total
+  // Grand total: when "excl. options" is active, show confirmed-only "From RM X"
   const grandTotalEl = document.getElementById('grandTotal');
-  grandTotalEl.textContent = excludeAltTotal ? '—' : fmt(finalTotal);
+  const hasUntoggledAlts = [..._altBRs].some(br => !altTotalRooms.has(br));
+  if (excludeAltTotal && hasUntoggledAlts) {
+    const untoggledAltSell = lines.reduce((s, l) => {
+      if (l.isNote || l.isSubtotal || l.isDiscount) return s;
+      if (lineExcludes.has(lineKey(l))) return s;
+      const br = baseRoom(l.room);
+      return (_altBRs.has(br) && !altTotalRooms.has(br)) ? s + (l.sell || 0) : s;
+    }, 0);
+    const confirmedTotal = finalTotal - untoggledAltSell;
+    grandTotalEl.textContent = confirmedTotal > 0 ? `From ${fmt(confirmedTotal)}` : '—';
+  } else {
+    grandTotalEl.textContent = fmt(finalTotal);
+  }
   // Sticky total bar
   const stickyBar = document.getElementById('sticky-total');
   const stickyAmt = document.getElementById('stickyTotalAmt');
@@ -3088,14 +3199,16 @@ async function _saveAndNewQuote() {
   }
   try {
     const state = serializeQuote();
+    const addr  = (state.customer?.phone || '').trim();
+    const key   = name + '|||' + addr;
     const total = parseFloat((document.getElementById('grandTotal')?.textContent || '0').replace(/[^0-9.]/g,'')) || 0;
     const date  = state.customer?.date || new Date().toISOString().slice(0,10);
     const ts    = firebase.firestore.FieldValue.serverTimestamp();
-    const existing = await db.collection('quotes').where('name', '==', name).limit(1).get();
+    const existing = await db.collection('quotes').where('key', '==', key).limit(1).get();
     if (!existing.empty) {
-      await existing.docs[0].ref.update({ name, date, total, state, updatedAt: ts });
+      await existing.docs[0].ref.update({ name, addr, key, date, total, state, updatedAt: ts });
     } else {
-      await db.collection('quotes').add({ name, date, total, state, updatedAt: ts });
+      await db.collection('quotes').add({ name, addr, key, date, total, state, updatedAt: ts });
     }
     showToast('✓ Saved — starting new quote');
     _doNewQuote();
@@ -3663,8 +3776,8 @@ function exportPCPDF() {
   const pdfInjected = [];
   if (summaryLinesEl) {
     const hasConfirmed = !!summaryLinesEl.querySelector('.summary-item[data-lkey], .room-group:not([data-alternatives])');
-    const hasAlt = !!summaryLinesEl.querySelector('.room-group[data-alternatives]');
-    if (hasConfirmed && hasAlt) {
+    const hasUntoggledAlt = !!summaryLinesEl.querySelector('.room-group[data-alternatives]:not(.alt-total-shown)');
+    if (hasConfirmed && hasUntoggledAlt) {
       const d1 = document.createElement('div');
       d1.className = 'pdf-section-divider'; d1.textContent = 'Confirmed Items'; d1.style.order = '-1';
       summaryLinesEl.insertBefore(d1, summaryLinesEl.firstChild); pdfInjected.push(d1);
@@ -3672,13 +3785,32 @@ function exportPCPDF() {
       d2.className = 'pdf-section-divider div-options'; d2.textContent = 'Options — Select One Per Space'; d2.style.order = '5';
       summaryLinesEl.appendChild(d2); pdfInjected.push(d2);
     }
-    summaryLinesEl.querySelectorAll('.room-group[data-alternatives]').forEach(grp => {
+    summaryLinesEl.querySelectorAll('.room-group[data-alternatives]:not(.alt-total-shown)').forEach(grp => {
       let idx = 0;
       [...grp.children].filter(c => c.matches('.room-group-option-block') || c.matches('.summary-item')).forEach(opt => {
         const badge = document.createElement('span');
         badge.className = 'pdf-option-letter'; badge.textContent = String.fromCharCode(65 + idx++);
         opt.insertBefore(badge, opt.firstChild); pdfInjected.push(badge);
       });
+    });
+    // Sequential item numbers: standalone items on their style label, groups on header name.
+    let lineNum = 1;
+    [...summaryLinesEl.children].forEach(child => {
+      if (child.matches('.pdf-section-divider')) return;
+      if (child.matches('.room-group[data-alternatives]:not(.alt-total-shown)')) return;
+      if (child.matches('.room-group')) {
+        const nameEl = child.querySelector('.room-group-name');
+        if (!nameEl) return;
+        const num = document.createElement('span');
+        num.className = 'pdf-item-num'; num.textContent = lineNum++ + '.';
+        nameEl.insertBefore(num, nameEl.firstChild); pdfInjected.push(num);
+      } else if (child.matches('.summary-item[data-lkey]')) {
+        const styleEl = child.querySelector('.s-room, .s-style');
+        if (!styleEl) return;
+        const num = document.createElement('span');
+        num.className = 'pdf-item-num'; num.textContent = lineNum++ + '.';
+        styleEl.insertBefore(num, styleEl.firstChild); pdfInjected.push(num);
+      }
     });
   }
 
@@ -3731,8 +3863,8 @@ async function saveAsImage() {
     const hasConfirmed = !!summaryLinesEl.querySelector(
       '.summary-item[data-lkey], .room-group:not([data-alternatives])'
     );
-    const hasAlt = !!summaryLinesEl.querySelector('.room-group[data-alternatives]');
-    if (hasConfirmed && hasAlt) {
+    const hasUntoggledAlt = !!summaryLinesEl.querySelector('.room-group[data-alternatives]:not(.alt-total-shown)');
+    if (hasConfirmed && hasUntoggledAlt) {
       const d1 = document.createElement('div');
       d1.className = 'pdf-section-divider';
       d1.textContent = 'Confirmed Items';
@@ -3746,7 +3878,7 @@ async function saveAsImage() {
       summaryLinesEl.appendChild(d2);
       pdfInjected.push(d2);
     }
-    summaryLinesEl.querySelectorAll('.room-group[data-alternatives]').forEach(grp => {
+    summaryLinesEl.querySelectorAll('.room-group[data-alternatives]:not(.alt-total-shown)').forEach(grp => {
       let idx = 0;
       [...grp.children].filter(c =>
         c.matches('.room-group-option-block') || c.matches('.summary-item')
@@ -3757,6 +3889,25 @@ async function saveAsImage() {
         opt.insertBefore(badge, opt.firstChild);
         pdfInjected.push(badge);
       });
+    });
+    // Sequential item numbers: standalone items on style label, groups on header name.
+    let lineNum = 1;
+    [...summaryLinesEl.children].forEach(child => {
+      if (child.matches('.pdf-section-divider')) return;
+      if (child.matches('.room-group[data-alternatives]:not(.alt-total-shown)')) return;
+      if (child.matches('.room-group')) {
+        const nameEl = child.querySelector('.room-group-name');
+        if (!nameEl) return;
+        const num = document.createElement('span');
+        num.className = 'pdf-item-num'; num.textContent = lineNum++ + '.';
+        nameEl.insertBefore(num, nameEl.firstChild); pdfInjected.push(num);
+      } else if (child.matches('.summary-item[data-lkey]')) {
+        const styleEl = child.querySelector('.s-room, .s-style');
+        if (!styleEl) return;
+        const num = document.createElement('span');
+        num.className = 'pdf-item-num'; num.textContent = lineNum++ + '.';
+        styleEl.insertBefore(num, styleEl.firstChild); pdfInjected.push(num);
+      }
     });
   }
 
@@ -4069,16 +4220,19 @@ async function saveToQuoteList() {
   }
   try {
     btn && (btn.textContent = 'Saving...');
+    const addr  = (state.customer?.phone || '').trim();
+    const key   = name + '|||' + addr;
+    const label = addr ? '"' + name + ' @ ' + addr + '"' : '"' + name + '"';
     const total = parseFloat((document.getElementById('grandTotal')?.textContent || '0').replace(/[^0-9.]/g,'')) || 0;
     const date  = state.customer?.date || new Date().toISOString().slice(0,10);
     const ts    = firebase.firestore.FieldValue.serverTimestamp();
-    // Check if same name already exists
-    const existing = await db.collection('quotes').where('name', '==', name).limit(1).get();
+    // Check if same name + residence already exists
+    const existing = await db.collection('quotes').where('key', '==', key).limit(1).get();
     if (!existing.empty) {
-      if (!confirm('Update saved quote for "' + name + '"?')) { btn && (btn.textContent = '💾 Save Current Quote'); return; }
-      await existing.docs[0].ref.update({ name, date, total, state, updatedAt: ts });
+      if (!confirm('Update saved quote for ' + label + '?')) { btn && (btn.textContent = '💾 Save Current Quote'); return; }
+      await existing.docs[0].ref.update({ name, addr, key, date, total, state, updatedAt: ts });
     } else {
-      await db.collection('quotes').add({ name, date, total, state, updatedAt: ts });
+      await db.collection('quotes').add({ name, addr, key, date, total, state, updatedAt: ts });
     }
     if (btn) { btn.textContent = '✓ Saved!'; showToast('✓ Quote saved'); setTimeout(() => btn.textContent = '💾 Save Current Quote', 1600); }
   } catch(e) {
@@ -4115,9 +4269,11 @@ function _renderListFromData(list) {
       var totalStr = q.total > 0 ? 'RM ' + q.total.toLocaleString() : '—';
       var safeId   = (q.id   || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
       var safeName = (q.name || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      return '<div class="ql-item" data-id="' + safeId + '" data-name="' + safeName + '">' +
+      var safeAddr = (q.addr || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      var addrLabel = q.addr ? ' <span style="opacity:.5;font-size:11px;font-weight:400">@ ' + q.addr + '</span>' : '';
+      return '<div class="ql-item" data-id="' + safeId + '" data-name="' + safeName + '" data-addr="' + safeAddr + '">' +
         '<div class="ql-item-info" onclick="qlItemLoad(this)">' +
-          '<div class="ql-item-name">' + q.name + '</div>' +
+          '<div class="ql-item-name">' + q.name + addrLabel + '</div>' +
           '<div class="ql-item-meta">' + q.date + ' · ' + totalStr + '</div>' +
         '</div>' +
         '<div class="ql-item-actions">' +
@@ -4135,12 +4291,9 @@ function qlItemLoad(el) {
 
 function qlItemDel(el) {
   const item = el.closest('.ql-item');
-  if (item) _deleteQuote(item.dataset.id, item.dataset.name);
-}
-
-function qlItemDel(el) {
-  const item = el.closest('.ql-item');
-  if (item) _deleteQuote(item.dataset.id, item.dataset.name);
+  if (!item) return;
+  const label = item.dataset.addr ? item.dataset.name + ' @ ' + item.dataset.addr : item.dataset.name;
+  _deleteQuote(item.dataset.id, label);
 }
 
 </script>
