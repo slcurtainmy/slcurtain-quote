@@ -182,13 +182,25 @@
     line-height: 1; padding: 0 4px; transition: color .15s; align-self: flex-end; margin-bottom: 9px;
   }
   .btn-remove:hover { color: var(--red); }
-  /* Multi-window extra rows */
+  /* Multi-window toggle + extra rows */
+  .win-toggle-row { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .win-toggle-label { font-size: 12px; color: var(--muted); }
+  .extra-wins-section { display: none; width: 100%; padding-top: 4px; }
+  .extra-wins-section.open { display: block; }
   .extra-wins { width: 100%; }
+  .btn-add-win { display: block; width: 100%; box-sizing: border-box;
+    background: none; border: 1px dashed var(--border); color: var(--muted);
+    font-size: 11px; padding: 5px 10px; border-radius: 4px; cursor: pointer;
+    font-family: inherit; margin-top: 6px; transition: all .15s; text-align: center; }
+  .btn-add-win:hover { border-color: var(--accent); color: var(--accent); }
   .extra-win-row {
     display: flex; align-items: flex-end; gap: 8px;
     padding: 6px 0 2px; border-top: 1px solid rgba(255,255,255,.07);
   }
   .xwin-label { font-size: 11px; color: rgba(255,255,255,.35); width: 38px; flex-shrink: 0; padding-bottom: 5px; }
+  .win1-tag { display: none; font-size: 10px; color: rgba(255,255,255,.32); font-weight: 400; margin-left: 4px; }
+  .item-row:has(.extra-win-row) .win1-tag { display: inline; }
+  .room-hint { font-size: 10.5px; color: rgba(184,134,90,.8); margin-top: 3px; display: none; }
   .xwin-price { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.65); min-width: 68px; padding-bottom: 5px; }
   .btn-rm-win { background: none; border: none; color: rgba(255,100,100,.5); cursor: pointer; font-size: 15px; padding: 2px 4px; flex-shrink: 0; padding-bottom: 5px; }
   .btn-rm-win:hover { color: var(--red); }
@@ -204,18 +216,12 @@
     .xwin-price { grid-column: 2; grid-row: 2; padding-bottom: 2px; min-width: 0; font-size: 11px; }
     .btn-rm-win { grid-column: 3; grid-row: 2; justify-self: end; padding-bottom: 2px; }
   }
-  .btn-add-win {
-    background: none; border: 1px dashed rgba(255,255,255,.18); color: rgba(255,255,255,.38);
-    font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
-    font-family: inherit; margin-top: 6px; transition: all .15s;
-  }
-  .btn-add-win:hover { border-color: rgba(255,255,255,.4); color: rgba(255,255,255,.7); }
   .btn-dup {
-    background: rgba(184,134,90,.15); border: 1px solid rgba(184,134,90,.3); border-radius: 6px;
-    color: rgba(255,255,255,.6); font-size: 13px; padding: 4px 9px; cursor: pointer;
-    font-family: inherit; align-self: flex-end; margin-bottom: 9px; transition: background .15s, color .15s;
+    background: rgba(61,42,30,.07); border: 1.5px solid rgba(61,42,30,.3); border-radius: 6px;
+    color: var(--primary); font-size: 13px; padding: 4px 9px; cursor: pointer;
+    font-family: inherit; flex-shrink: 0; transition: background .15s, color .15s;
   }
-  .btn-dup:hover { background: rgba(184,134,90,.35); color: #fff; }
+  .btn-dup:hover { background: rgba(61,42,30,.15); }
   .drag-handle { cursor: grab; padding: 0 6px 0 0; color: rgba(255,255,255,.3); font-size: 15px; flex-shrink: 0; opacity: 0; transition: opacity .15s; user-select: none; line-height: 1.2; }
   .summary-item:hover .drag-handle { opacity: 1; }
   .summary-item.dragging { opacity: .4; }
@@ -225,6 +231,7 @@
   .room-group.grp-dragging { opacity: .4; }
   .room-group.drag-over-grp { outline: 2px solid rgba(184,134,90,.7); outline-offset: -2px; border-radius: 10px; }
   .s-fabric { font-size: 10px; color: rgba(255,255,255,.32); font-style: italic; margin-top: 1px; }
+  .s-remarks { font-size: 10px; color: rgba(255,255,255,.42); font-style: italic; margin-top: 2px; white-space: pre-wrap; }
   /* Room group */
   .room-group { margin-bottom: 10px; border: 1px solid rgba(184,134,90,.35); border-radius: 10px; overflow: hidden; }
   .room-group-header { display: flex; justify-content: space-between; align-items: center; padding: 7px 14px; background: rgba(184,134,90,.1); }
@@ -235,16 +242,25 @@
   .room-group .summary-item { padding-left: 14px; border-bottom: 1px solid rgba(255,255,255,.06); }
   .room-group .summary-item:last-child { border-bottom: none; }
   .room-group .eye-toggle { display: none; }
-  .room-group-divider { border-top: 1px solid rgba(255,255,255,.08); margin: 0 14px; }
+  .room-group-divider { border-top: 1px solid rgba(255,255,255,.2); margin: 0 14px; }
   .room-group-option-block { padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,.06); }
   .room-group-option-block:last-child { border-bottom: none; }
   .room-group-option-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .rgo-option-num { font-size: 10px; font-weight: 700; color: #B8865A; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px; }
   .rgo-style { font-size: 12px; color: rgba(255,255,255,.88); font-weight: 600; }
   .rgo-total { font-size: 13px; font-weight: 700; color: #B8865A; }
   .rgo-typedesc { font-size: 10.5px; color: rgba(255,255,255,.5); margin-bottom: 3px; }
   .room-group-subitem { display: flex; justify-content: space-between; padding: 1px 0 1px 8px; }
   .rgs-dims { font-size: 11px; color: rgba(255,255,255,.4); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .rgs-price { font-size: 11px; color: rgba(255,255,255,.5); flex-shrink: 0; white-space: nowrap; margin-left: 6px; }
+  .win-mode-toggle {
+    background: rgba(184,134,90,.08); border: 1px solid rgba(184,134,90,.3); border-radius: 12px;
+    font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); padding: 3px 11px; cursor: pointer;
+    font-family: inherit; transition: all .15s; letter-spacing: .1px; white-space: nowrap;
+  }
+  .win-mode-toggle:hover { background: rgba(184,134,90,.2); color: #B8865A; border-color: rgba(184,134,90,.55); }
+  .win-mode-toggle.active { background: rgba(184,134,90,.22); border-color: rgba(184,134,90,.6); color: #e0b87a; }
+  .pdf-mode .win-mode-toggle { display: none !important; }
   .alt-total-btn {
     background: rgba(184,134,90,.12); border: 1px solid rgba(184,134,90,.28);
     color: rgba(184,134,90,.55); border-radius: 4px; font-size: 9px; font-weight: 700;
@@ -302,8 +318,9 @@
   .item-row input, .item-row select { width: 100%; min-width: 0; box-sizing: border-box; }
   .item-desc { flex: 0 0 100%; display: flex; gap: 10px; flex-wrap: wrap; }
   .item-desc .field { flex: 1; min-width: 130px; }
-  .item-row > .sell-field { flex: 0 0 105px; width: 105px; transition: all .2s; }
-  .sell-field.override-open { flex: 0 0 180px; width: 180px; }
+  .item-desc .remarks-section { flex: 0 0 100%; margin: 0; padding: 0; border-top: none; }
+  .item-row > .sell-field { flex: 0 0 auto; min-width: 140px; transition: all .2s; }
+  .sell-field.override-open { min-width: 180px; }
   @media(max-width:600px) {
     .item-row .fields { grid-template-columns: 1fr 1fr !important; }
     .sell-field.override-open { flex: 0 0 100% !important; width: 100% !important; }
@@ -344,6 +361,7 @@
   .s-room  { font-size: 13px; font-weight: 700; margin-bottom: 1px; letter-spacing: .1px; }
   .s-style { font-size: 12px; opacity: .7; }
   .s-dims  { font-size: 10px; opacity: .38; margin-left: 6px; letter-spacing: .15px; }
+  .s-win-dim { font-size: 10px; color: rgba(255,255,255,.42); margin-top: 2px; padding-left: 2px; letter-spacing: .1px; }
   .s-type  { font-size: 11px; opacity: .5; margin-top: 1px; }
   .s-price { font-size: 14px; font-weight: 700; white-space: nowrap; padding-top: 1px; text-align: right; min-width: 80px; }
   .eye-toggle { background: none; border: none; cursor: pointer; font-size: 14px; padding: 0 4px; opacity: .35; transition: opacity .15s; line-height: 1; flex-shrink: 0; align-self: flex-start; margin-top: 1px; }
@@ -354,6 +372,14 @@
   .total-row { display: flex; justify-content: space-between; align-items: baseline; }
   .total-row .total-label { font-size: 12px; opacity: .6; font-weight: 500; }
   .total-row .total-amount { font-size: 24px; font-weight: 800; text-align: right; min-width: 90px; letter-spacing: -.3px; }
+  .remarks-section { margin: 12px 0 6px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.1); }
+.remarks-input { width: 100%; background: white; border: 1.5px solid var(--border); border-radius: 7px; color: var(--text); font-size: 13px; font-family: inherit; padding: 9px 12px; resize: vertical; box-sizing: border-box; line-height: 1.55; min-height: 46px; outline: none; transition: border-color .15s; }
+  .remarks-input::placeholder { color: var(--muted); opacity: .7; }
+  .remarks-input:focus { border-color: var(--primary); }
+  .remarks-display { display: none; font-size: 11px; color: rgba(255,255,255,.62); line-height: 1.65; white-space: pre-wrap; }
+  .pdf-mode .remarks-section:not([data-has-remarks]) { display: none !important; }
+  .pdf-mode .remarks-input { display: none !important; }
+  .pdf-mode .remarks-display { display: block !important; }
   .summary-disclaimer { margin-top: 14px; font-size: 10px; opacity: .38; line-height: 1.6;
     border-top: 1px solid rgba(255,255,255,.15); padding-top: 14px; }
   .gp-row { display: none; }
@@ -487,9 +513,11 @@
   .pdf-mode .rgo-style { font-size: 12px !important; font-weight: 600 !important; }
   .pdf-mode .rgo-total { font-size: 13px !important; font-weight: 700 !important; }
   .pdf-mode .rgo-typedesc { font-size: 10px !important; color: rgba(0,0,0,.45) !important; }
-  .pdf-mode .rgs-dims  { font-size: 10px !important; color: rgba(255,255,255,.45) !important; }
+  .pdf-mode .rgs-dims  { font-size: 10px !important; color: rgba(0,0,0,.45) !important; }
+  .pdf-mode .s-win-dim { color: rgba(0,0,0,.45) !important; }
   .pdf-mode .rgs-price { font-size: 10px !important; }
   .pdf-mode .s-fabric  { font-size: 9px !important; color: rgba(255,255,255,.28) !important; }
+  .pdf-mode .s-remarks { font-size: 9px !important; color: rgba(0,0,0,.5) !important; }
 
   /* ── Discount section ── */
   .discount-section { margin: 14px 0 10px; }
@@ -566,7 +594,7 @@
     /* Hide everything except the summary card */
     header, .tabs, #panel-blinds, #panel-curtains, #panel-spc, #panel-tinted, #panel-accessories,
     .export-row, .converter-panel, #sticky-total, .more-dropdown-wrap,
-    .btn-add, .btn-remove, .btn-dup, .btn-add-win,
+    .btn-add, .btn-remove, .btn-dup, .btn-add-win, .win-toggle-row, .extra-wins-section,
     #newQuoteModal, .sl-modal-overlay, .toast { display: none !important; }
     /* Summary fills the A4 page */
     body { background: white !important; margin: 0; padding: 0; }
@@ -610,23 +638,16 @@
     /* Stack item rows vertically */
     .item-row { flex-wrap: wrap; gap: 8px; }
     .item-row .fields { grid-template-columns: 1fr 1fr !important; }
-    /* Sell price takes all remaining space beside dup/remove buttons */
+    /* On mobile: sell-field goes full-width on its own row, fields above it */
     .item-row > .field { width: 100%; min-width: 0 !important; }
     .item-row > .sell-field {
-      flex: 1 1 auto !important;
-      width: auto !important;
-      min-width: 140px !important;
-    }
-    /* When override is open, sell-field goes truly full-width */
-    .item-row > .sell-field.override-open {
       flex: 0 0 100% !important;
       width: 100% !important;
+      min-width: 0 !important;
     }
-    /* Dup and remove buttons sit beside the sell-field, vertically centered */
-    .item-row > .btn-dup,
-    .item-row > .btn-remove { align-self: flex-end; flex-shrink: 0; }
-    /* Remove button no longer needs margin-left: auto since sell-field fills space */
-    .item-row > .btn-remove { margin-left: 0; margin-bottom: 0; }
+    /* Remove button aligns to the right after sell-field */
+    .item-row > .btn-remove { align-self: flex-end; flex-shrink: 0; margin-left: 0; margin-bottom: 0; }
+    /* + Window button is globally full-width via order:4 rule above */
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
     .summary-box { padding: 18px 14px; }
@@ -643,10 +664,11 @@
   /* ── Per-item price override ── */
   /* Sell-field header: label + Override button on same row */
   .sell-header {
-    display: flex; align-items: center; justify-content: space-between; gap: 6px;
-    flex-wrap: nowrap; margin-bottom: 4px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    margin-bottom: 4px;
   }
-  .sell-header label { margin-bottom: 0; flex-shrink: 0; }
+  .sell-header label { margin-bottom: 0; }
+  .sell-header > div { display: flex; gap: 5px; flex-wrap: wrap; }
   /* Sell price output — prominent readable price */
   input.sell-out {
     font-size: 15px; font-weight: 700; color: var(--primary);
@@ -748,8 +770,8 @@
   .ts-window { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; padding: 8px 0 4px; border-top: 1px dashed rgba(255,255,255,.1); }
   .ts-window .field { flex: 1; min-width: 75px; }
   .ts-window .field.sqft-field { max-width: 100px; }
-  .btn-add-win { background: rgba(255,255,255,.07); border: 1px dashed rgba(255,255,255,.25); border-radius: 8px; color: rgba(255,255,255,.6); font-size: 12px; padding: 7px 14px; cursor: pointer; font-family: inherit; margin-top: 8px; display: block; }
-  .btn-add-win:hover { background: rgba(255,255,255,.13); color: #fff; }
+  .ts-room .btn-add-win { background: rgba(255,255,255,.07); border: 1px dashed rgba(255,255,255,.25); border-radius: 8px; color: rgba(255,255,255,.6); font-size: 12px; padding: 7px 14px; cursor: pointer; font-family: inherit; margin-top: 8px; display: block; }
+  .ts-room .btn-add-win:hover { background: rgba(255,255,255,.13); color: #fff; }
   .ts-total-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(184,134,90,.35); }
   .ts-sqft-label { color: rgba(255,255,255,.5); font-size: 11px; }
   .ts-price-label { color: #B8865A; font-weight: 700; font-size: 15px; }
@@ -961,6 +983,14 @@
       </div>
       <div id="acc-hook-items"></div>
       <button class="btn-add" onclick="addAccHook()">+ Add Side Hook — RM 50/set</button>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Motorized Track</div>
+        <div class="badge">Includes motor + installation + 7ft track · Extra track RM 20/ft · Curve RM 80/pcs</div>
+      </div>
+      <div id="acc-motor-items"></div>
+      <button class="btn-add" onclick="addAccMotorTrack()">+ Add Motorized Track</button>
     </div>
   </div>
 
@@ -1266,6 +1296,7 @@ let itemOrder = 0; // global insertion counter for blind+curtain ordering
 let measureUnit = 'in'; // 'in' | 'cm' | 'mm' | 'm' — active input unit for blind/curtain dimensions
 const lineExcludes = new Set();
 const altTotalRooms = new Set(); // rooms (alternatives groups) where user has toggled total visible
+const windowModeRooms = new Set(); // alternatives groups the user has switched to "Windows" display
 let excludeAltTotal  = true;    // when true, grand total excludes alternatives-group items
 let isDesignerQuote  = false;   // when true, eligible blind SKUs use DESIGNER_RATES
 let summaryCustomOrder = []; // user-defined display order of summary items (array of _srcId strings)
@@ -1285,7 +1316,13 @@ function addBlind() {
     <div class="item-desc">
       <div class="field">
         <label>Location</label>
-        <input type="text" placeholder="e.g. Office 1, Living Room" class="desc" list="loc-suggestions" />
+        <input type="text" placeholder="e.g. Office 1, Living Room" class="desc" list="loc-suggestions" oninput="checkDupRoom(this)" />
+        <span class="room-hint">Same room found — new item will group as an alternative style.</span>
+      </div>
+      <div class="field remarks-section">
+        <label>Remarks</label>
+        <textarea class="remarks-input" placeholder="e.g. To be measured again, confirm with client, open gap on left side..." rows="2" oninput="onRemarksInput(this)"></textarea>
+        <div class="remarks-display"></div>
       </div>
       <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
       <div class="fabric-fields" style="display:none">
@@ -1307,7 +1344,7 @@ function addBlind() {
         </select>
       </div>
       <div class="field">
-        <label data-ulabel="Width">Width (${measureUnit === 'in' ? 'inch' : measureUnit})</label>
+        <label data-ulabel="Width">Width (${measureUnit === 'in' ? 'inch' : measureUnit})<span class="win1-tag">· Win 1</span></label>
         <input type="number" min="0.1" step="any" placeholder="${measureUnit === 'mm' ? 'e.g. 1219' : measureUnit === 'cm' ? 'e.g. 122' : 'e.g. 48'}" oninput="calcBlind(${id})" class="w-in" />
         <span class="hint ftw"></span>
       </div>
@@ -1326,10 +1363,8 @@ function addBlind() {
         <input type="number" min="1" value="1" oninput="calcBlind(${id})" class="qty" />
       </div>
     </div>
-    <div class="extra-wins"></div>
-    <button class="btn-add-win" type="button" onclick="addExtraWin(${id},'blind')">＋ Window</button>
     <div class="field sell-field">
-      <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'blind-${id}')" type="button">✏ Override</button></div>
+      <div class="sell-header"><label>Sell Price</label><div style="display:flex;gap:5px"><button class="btn-override-toggle" onclick="toggleOverride(this,'blind-${id}')" type="button">✏ Override</button><button class="btn-dup" onclick="duplicateBlind(${id})" title="Duplicate item">⧉ Dup</button></div></div>
       <input type="text" readonly class="sell-out" value="—" />
       <button class="spring-tube-btn" style="display:none" type="button" onclick="toggleSpringTube(${id})"></button>
       <div class="price-override-section" style="display:none">
@@ -1339,8 +1374,15 @@ function addBlind() {
         </div>
       </div>
     </div>
-    <button class="btn-dup" onclick="duplicateBlind(${id})" title="Duplicate">⧉</button>
     <button class="btn-remove" onclick="removeItem('blind-${id}')">✕</button>
+    <div class="win-toggle-row">
+      <label class="toggle"><input type="checkbox" class="multi-win-toggle" onchange="toggleMultiWin(this,${id},'blind')"/><span class="slider"></span></label>
+      <span class="win-toggle-label">Multiple Windows</span>
+    </div>
+    <div class="extra-wins-section">
+      <div class="extra-wins"></div>
+      <button class="btn-add-win" type="button" onclick="addExtraWin(${id},'blind')">＋ Add Window</button>
+    </div>
   `;
   container.appendChild(div);
   calcBlind(id);
@@ -1373,6 +1415,22 @@ function addExtraWin(id, type) {
   container.appendChild(wr);
 }
 
+function toggleMultiWin(checkbox, id, type) {
+  const row = document.getElementById(type + '-' + id);
+  if (!row) return;
+  const section = row.querySelector('.extra-wins-section');
+  const container = row.querySelector('.extra-wins');
+  if (checkbox.checked) {
+    if (section) section.classList.add('open');
+    if (container && container.children.length === 0) addExtraWin(id, type);
+  } else {
+    if (section) section.classList.remove('open');
+    if (container) container.innerHTML = '';
+    if (type === 'blind') calcBlind(id);
+    else calcCurtain(id);
+  }
+}
+
 function removeExtraWin(btn, id, type) {
   btn.closest('.extra-win-row').remove();
   // Renumber remaining windows
@@ -1382,6 +1440,14 @@ function removeExtraWin(btn, id, type) {
       const lbl = wr.querySelector('.xwin-label');
       if (lbl) lbl.textContent = `Win ${i + 2}`;
     });
+    // If last window removed, uncheck toggle and close section
+    const container = row.querySelector('.extra-wins');
+    if (container && container.children.length === 0) {
+      const toggle = row.querySelector('.multi-win-toggle');
+      const section = row.querySelector('.extra-wins-section');
+      if (toggle) toggle.checked = false;
+      if (section) section.classList.remove('open');
+    }
     if (type === 'blind') calcBlind(id);
     else calcCurtain(id);
   }
@@ -1483,10 +1549,25 @@ function calcBlind(id) {
       if (row.dataset.springTubeWaived) row.dataset.springTubeWaived = '';
     }
   }
-  row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wFt)}(w) × ${Math.ceil(hFt)}(h) ft` : '';
+  const mainDimsBlind = wIn > 0 && hIn > 0 ? `${Math.ceil(wFt)}(w) × ${Math.ceil(hFt)}(h) ft` : '';
+  const xWinRowsBlind = [...row.querySelectorAll('.extra-win-row')];
+  if (xWinRowsBlind.length > 0 && mainDimsBlind) {
+    const winDimsBlind = [`Win 1: ${mainDimsBlind}`];
+    xWinRowsBlind.forEach((wr, i) => {
+      const xwRaw2 = parseFloat(wr.querySelector('.xw-in').value) || 0;
+      const xhRaw2 = parseFloat(wr.querySelector('.xh-in').value) || 0;
+      if (xwRaw2 && xhRaw2) {
+        const xwFt2 = toInches(xwRaw2) / 12, xhFt2 = toInches(xhRaw2) / 12;
+        winDimsBlind.push(`Win ${i + 2}: ${Math.ceil(xwFt2)}(w) × ${Math.ceil(xhFt2)}(h) ft`);
+      }
+    });
+    row.dataset.dims = winDimsBlind.join(' · ');
+  } else {
+    row.dataset.dims = mainDimsBlind;
+  }
   const blindDesc = row.querySelector('.desc').value.trim();
   const blindPfx  = blindDesc ? `[${blindDesc}] ` : '';
-  const xWinCount = row.querySelectorAll('.extra-win-row').length;
+  const xWinCount = xWinRowsBlind.length;
   row.dataset.label = rawSqft > 0 || extraSell > 0
     ? xWinCount > 0
       ? `${blindPfx}${sku} (${xWinCount + 1} windows)`
@@ -1507,7 +1588,13 @@ function addCurtain() {
     <div class="item-desc">
       <div class="field">
         <label>Location</label>
-        <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" list="loc-suggestions" />
+        <input type="text" placeholder="e.g. Master Bedroom, Hall" class="desc" list="loc-suggestions" oninput="checkDupRoom(this)" />
+        <span class="room-hint">Same room found — new item will group as an alternative style.</span>
+      </div>
+      <div class="field remarks-section">
+        <label>Remarks</label>
+        <textarea class="remarks-input" placeholder="e.g. To be measured again, confirm with client, open gap on left side..." rows="2" oninput="onRemarksInput(this)"></textarea>
+        <div class="remarks-display"></div>
       </div>
       <button class="btn-fabric-toggle" type="button" onclick="toggleFabric(this)">＋ Fabric</button>
       <div class="fabric-fields" style="display:none">
@@ -1529,7 +1616,7 @@ function addCurtain() {
         </select>
       </div>
       <div class="field">
-        <label data-ulabel="Track Width">Track Width (${measureUnit === 'in' ? 'inch' : measureUnit})</label>
+        <label data-ulabel="Track Width">Track Width (${measureUnit === 'in' ? 'inch' : measureUnit})<span class="win1-tag">· Win 1</span></label>
         <input type="number" min="0.1" step="any" placeholder="${measureUnit === 'mm' ? 'e.g. 3048' : measureUnit === 'cm' ? 'e.g. 305' : 'e.g. 120'}" oninput="calcCurtain(${id})" class="w-in" />
         <span class="hint ftw"></span>
       </div>
@@ -1580,10 +1667,8 @@ function addCurtain() {
         </div>
       </div>
     </div>
-    <div class="extra-wins"></div>
-    <button class="btn-add-win" type="button" onclick="addExtraWin(${id},'curtain')">＋ Window</button>
     <div class="field sell-field">
-      <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'curtain-${id}')" type="button">✏ Override</button></div>
+      <div class="sell-header"><label>Sell Price</label><div style="display:flex;gap:5px"><button class="btn-override-toggle" onclick="toggleOverride(this,'curtain-${id}')" type="button">✏ Override</button><button class="btn-dup" onclick="duplicateCurtain(${id})" title="Duplicate item">⧉ Dup</button></div></div>
       <input type="text" readonly class="sell-out" value="—" />
       <span class="hint surcharge-info" style="color:#8a5c1e"></span>
       <span class="hint sewing-info" style="color:#7b5ea7"></span>
@@ -1595,8 +1680,15 @@ function addCurtain() {
         </div>
       </div>
     </div>
-    <button class="btn-dup" onclick="duplicateCurtain(${id})" title="Duplicate">⧉</button>
     <button class="btn-remove" onclick="removeItem('curtain-${id}')">✕</button>
+    <div class="win-toggle-row">
+      <label class="toggle"><input type="checkbox" class="multi-win-toggle" onchange="toggleMultiWin(this,${id},'curtain')"/><span class="slider"></span></label>
+      <span class="win-toggle-label">Multiple Windows</span>
+    </div>
+    <div class="extra-wins-section">
+      <div class="extra-wins"></div>
+      <button class="btn-add-win" type="button" onclick="addExtraWin(${id},'curtain')">＋ Add Window</button>
+    </div>
   `;
   container.appendChild(div);
   calcCurtain(id);
@@ -1695,11 +1787,26 @@ function calcCurtain(id) {
   row.dataset.sell  = grandSell;
   row.dataset.cost  = totalCost + extraCost;
   row.dataset.surcharge = surcharge;
-  row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn/12)}(w) × ${Math.ceil(hIn/12)}(h) ft` : '';
+  const mainDimsCurt = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn/12)}(w) × ${Math.ceil(hIn/12)}(h) ft` : '';
+  const xWinRowsCurt = [...row.querySelectorAll('.extra-win-row')];
+  if (xWinRowsCurt.length > 0 && mainDimsCurt) {
+    const winDimsCurt = [`Win 1: ${mainDimsCurt}`];
+    xWinRowsCurt.forEach((wr, i) => {
+      const xwRaw2 = parseFloat(wr.querySelector('.xw-in').value) || 0;
+      if (xwRaw2) {
+        const xhRaw2 = parseFloat(wr.querySelector('.xh-in').value) || 0;
+        const xwFt2 = toInches(xwRaw2) / 12, xhFt2 = toInches(xhRaw2) / 12;
+        winDimsCurt.push(`Win ${i + 2}: ${Math.ceil(xwFt2)}(w) × ${Math.ceil(xhFt2)}(h) ft`);
+      }
+    });
+    row.dataset.dims = winDimsCurt.join(' · ');
+  } else {
+    row.dataset.dims = mainDimsCurt;
+  }
   const curtDesc = row.querySelector('.desc').value.trim();
   const curtPfx  = curtDesc ? `[${curtDesc}] ` : '';
   const addOnTag = [blackout && 'Blackout', linen && 'Linen', premium && 'Chenille', sewingLabel].filter(Boolean).join(' + ');
-  const xWinCount = row.querySelectorAll('.extra-win-row').length;
+  const xWinCount = xWinRowsCurt.length;
   row.dataset.label = wIn > 0 || extraSell > 0
     ? xWinCount > 0
       ? `${curtPfx}${sku} (${xWinCount + 1} windows${addOnTag ? ' + ' + addOnTag : ''})`
@@ -1745,7 +1852,7 @@ function addSPC() {
       </div>
     </div>
     <div class="field sell-field">
-      <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'spc-${id}')" type="button">✏ Override</button></div>
+      <div class="sell-header"><label>Sell Price</label><div style="display:flex;gap:5px"><button class="btn-override-toggle" onclick="toggleOverride(this,'spc-${id}')" type="button">✏ Override</button><button class="btn-dup" onclick="duplicateSPC(${id})" title="Duplicate item">⧉ Dup</button></div></div>
       <input type="text" readonly class="sell-out" value="—" />
       <span class="hint wastage-note" style="color:#b05d00"></span>
       <div class="price-override-section" style="display:none">
@@ -1755,7 +1862,6 @@ function addSPC() {
         </div>
       </div>
     </div>
-    <button class="btn-dup" onclick="duplicateSPC(${id})" title="Duplicate">⧉</button>
     <button class="btn-remove" onclick="removeItem('spc-${id}')">✕</button>
   `;
   container.appendChild(div);
@@ -1825,10 +1931,9 @@ function addDoor() {
       </div>
     </div>
     <div class="field sell-field">
-      <label>Sell Price</label>
+      <div class="sell-header"><label>Sell Price</label><button class="btn-dup" onclick="duplicateDoor(${id})" title="Duplicate item">⧉ Dup</button></div>
       <input type="text" readonly class="sell-out" value="—" />
     </div>
-    <button class="btn-dup" onclick="duplicateDoor(${id})" title="Duplicate">⧉</button>
     <button class="btn-remove" onclick="removeItem('door-${id}')">✕</button>
   `;
   container.appendChild(div);
@@ -1855,7 +1960,7 @@ function calcDoor(id) {
 }
 
 // ─── ACCESSORIES ─────────────────────────────────────────────────────────────
-let accTrackIdx = 0, accDTrackIdx = 0, accHookIdx = 0;
+let accTrackIdx = 0, accDTrackIdx = 0, accHookIdx = 0, accMotorIdx = 0;
 
 function addAccTrack() {
   const id = accTrackIdx++;
@@ -2053,6 +2158,100 @@ function calcAccHook(id) {
   updateSummary();
 }
 
+// ─── MOTORIZED TRACK ─────────────────────────────────────────────────────────
+function addAccMotorTrack() {
+  const id = accMotorIdx++;
+  const container = document.getElementById('acc-motor-items');
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  div.id = 'acc-motor-' + id;
+  div.innerHTML = `
+    <div class="item-desc">
+      <div class="field">
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Living Room" class="desc" list="loc-suggestions" oninput="calcAccMotorTrack(${id})" />
+      </div>
+    </div>
+    <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,2fr)">
+      <div class="field">
+        <label>Sewing Method</label>
+        <select class="sewing-method" onchange="calcAccMotorTrack(${id})">
+          <option value="Singapore Pleat">Singapore Pleat</option>
+          <option value="S-Fold">S-Fold</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Track Length</label>
+        <input type="number" min="0.1" step="0.1" placeholder="e.g. 120" class="length-in" oninput="calcAccMotorTrack(${id})" />
+      </div>
+      <div class="field">
+        <label>Curves (pcs)</label>
+        <input type="number" min="0" step="1" placeholder="0" class="curves-qty" value="0" oninput="calcAccMotorTrack(${id})" />
+      </div>
+      <div class="field sell-field">
+        <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'acc-motor-${id}')" type="button">✏ Override</button></div>
+        <input type="text" readonly class="sell-out" value="—" />
+        <div class="price-override-section" style="display:none">
+          <div class="price-override-wrap">
+            <input type="number" class="override-price" placeholder="Custom price (RM)" min="0" step="1" oninput="calcAccMotorTrack(${id})" />
+            <span class="override-hint">Overrides auto-calculated price</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-remove" onclick="removeItem('acc-motor-${id}')">✕</button>
+  `;
+  container.appendChild(div);
+  calcAccMotorTrack(id);
+}
+
+function calcAccMotorTrack(id) {
+  const row = document.getElementById('acc-motor-' + id);
+  if (!row) return;
+  const method = row.querySelector('.sewing-method').value;
+  const rawLen = parseFloat(row.querySelector('.length-in').value) || 0;
+  const curves = parseInt(row.querySelector('.curves-qty').value) || 0;
+
+  const MOTOR_BASE = isDesignerQuote
+    ? { 'Singapore Pleat': 600, 'S-Fold': 650 }
+    : { 'Singapore Pleat': 650, 'S-Fold': 700 };
+  const base = MOTOR_BASE[method] || (isDesignerQuote ? 600 : 650);
+
+  const ft = rawLen > 0 ? toInches(rawLen) / 12 : 0;
+  const extraFt = ft > 7 ? ft - 7 : 0;
+  const extraTrackCost = Math.ceil(extraFt * 20);
+  const curveSell = curves * 80;
+  const curveCost = curves * 50;
+
+  const total = rawLen > 0 ? base + extraTrackCost + curveSell : 0;
+  const cost  = curveCost;
+
+  const overInp = row.querySelector('.override-price');
+  const overVal = overInp && overInp.value !== '' ? parseFloat(overInp.value) : null;
+  const finalSell = overVal !== null ? overVal : total;
+  if (overVal !== null) {
+    row.querySelector('.sell-out').value = fmt(overVal) + ' ✏';
+  } else {
+    row.querySelector('.sell-out').value = total > 0 ? fmt(total) : '—';
+  }
+
+  let dimsArr = [];
+  if (rawLen > 0) dimsArr.push(`${rawLen} ${measureUnit} (${ft.toFixed(2)} ft)`);
+  if (curves > 0) dimsArr.push(`${curves} curve${curves !== 1 ? 's' : ''}`);
+  let rateArr = [];
+  rateArr.push(`RM ${base} (${method})`);
+  if (extraFt > 0) rateArr.push(`+${extraFt.toFixed(2)}ft extra × RM20`);
+  if (curves > 0) rateArr.push(`+${curves}×RM80 curve`);
+
+  row.dataset.sell        = finalSell;
+  row.dataset.cost        = cost;
+  row.dataset.remark      = '';
+  row.dataset.dims        = dimsArr.join(' · ');
+  row.dataset.rateDesc    = total > 0 ? rateArr.join(' · ') : '';
+  row.dataset.isAccessory = '1';
+  updateSummary();
+}
+
 // ─── TINTED SCREEN ───────────────────────────────────────────────────────────
 function addTintedRoom() {
   const rid = tintedIdx++;
@@ -2191,6 +2390,37 @@ function toggleFabric(btn) {
   btn.classList.toggle('open', !open);
 }
 
+function onRemarksInput(textarea) {
+  const section = textarea.closest('.remarks-section');
+  const display = section.querySelector('.remarks-display');
+  const val = textarea.value.trim();
+  if (display) display.textContent = val;
+  if (val) section.setAttribute('data-has-remarks', '1');
+  else section.removeAttribute('data-has-remarks');
+}
+
+function checkDupRoom(input) {
+  const val = (input.value || '').trim().toLowerCase();
+  const hint = input.parentElement.querySelector('.room-hint');
+  if (!hint) return;
+  if (!val) { hint.style.display = 'none'; return; }
+  const allDescs = [...document.querySelectorAll('.item-row .desc')]
+    .filter(d => d !== input)
+    .map(d => (d.value || '').trim().toLowerCase());
+  hint.style.display = allDescs.includes(val) ? 'block' : 'none';
+}
+
+function onRemarksInput() {
+  const ta      = document.getElementById('remarksInput');
+  const display = document.getElementById('remarksDisplay');
+  const section = document.getElementById('remarksSection');
+  if (!ta || !display || !section) return;
+  const val = ta.value;
+  display.textContent = val;
+  if (val.trim()) section.setAttribute('data-has-remarks', '');
+  else            section.removeAttribute('data-has-remarks');
+}
+
 function toggleMoreMenu() {
   document.getElementById('moreMenu').classList.toggle('open');
 }
@@ -2208,7 +2438,7 @@ function updateTabCounts() {
     curtains:    document.querySelectorAll('#curtain-items .item-row').length,
     spc:         document.querySelectorAll('#spc-items .item-row').length,
     tinted:      document.querySelectorAll('.ts-room').length,
-    accessories: document.querySelectorAll('#acc-track-items .item-row, #acc-dtrack-items .item-row, #acc-hook-items .item-row').length,
+    accessories: document.querySelectorAll('#acc-track-items .item-row, #acc-dtrack-items .item-row, #acc-hook-items .item-row, #acc-motor-items .item-row').length,
   };
   Object.entries(counts).forEach(([key, n]) => {
     const el = document.getElementById('cnt-' + key);
@@ -2409,30 +2639,46 @@ function renderGroupedSummary(lines) {
       });
 
       const isAlternatives = styleOrder.length > 1;
+      const isWinMode = isAlternatives && windowModeRooms.has(br);
       const totalAll = grpItems.reduce((s, l) => s + (l.sell || 0), 0);
-      // Count = distinct style groups (actual number of options/alternatives)
-      const badgeText = isAlternatives ? `${styleOrder.length} options` : `${grpItems.length} items`;
-      const chooseNote = isAlternatives
-        ? `<div class="room-group-choose">✦ Select one option</div>`
-        : `<div class="room-group-choose">✦ All included</div>`;
       const safeRoom = br.replace(/'/g, "\\'");
-      const showAltTotal = isAlternatives && altTotalRooms.has(br);
-      const headerRight = isAlternatives
-        ? `<div style="display:flex;align-items:center;gap:7px">
-             ${showAltTotal ? `<span class="room-group-total">${fmt(totalAll)}</span>` : ''}
-             <button class="alt-total-btn${showAltTotal ? ' active' : ''}" onclick="toggleAltTotal('${safeRoom}')" title="${showAltTotal ? 'Hide combined total' : 'Show combined total'}">
-               ${showAltTotal ? '− RM' : '+ RM'}
-             </button>
-           </div>`
-        : `<span class="room-group-total">${fmt(totalAll)}</span>`;
+
+      // Badge, note, header-right depend on mode
+      let badgeText, chooseNote, headerRight;
+      if (!isAlternatives) {
+        // Single-style multi-item group (e.g. same blind, multiple qty rows)
+        badgeText = `${grpItems.length} items`;
+        chooseNote = `<div class="room-group-choose">✦ All included</div>`;
+        const showAltTotal = !altTotalRooms.has(br);
+        headerRight = `<div style="display:flex;align-items:center;gap:7px">
+          ${showAltTotal ? `<span class="room-group-total">${fmt(totalAll)}</span>` : ''}
+          <button class="alt-total-btn${showAltTotal ? ' active' : ''}" onclick="toggleAltTotal('${safeRoom}')" title="${showAltTotal ? 'Hide combined total' : 'Show combined total'}">
+            ${showAltTotal ? '− RM' : '+ RM'}
+          </button>
+        </div>`;
+      } else if (isWinMode) {
+        // Alternatives shown as multiple windows (cumulative)
+        badgeText = `${styleOrder.length} windows`;
+        chooseNote = `<div class="room-group-choose">✦ All included</div>`;
+        headerRight = `<div style="display:flex;align-items:center;gap:7px">
+          <span class="room-group-total">${fmt(totalAll)}</span>
+          <button class="win-mode-toggle active" onclick="toggleWindowMode('${safeRoom}')" title="Switch to Options view">🪟 Windows</button>
+        </div>`;
+      } else {
+        // Alternatives shown as options (client picks one)
+        badgeText = `${styleOrder.length} options`;
+        chooseNote = `<div class="room-group-choose">✦ Select one option</div>`;
+        headerRight = `<button class="win-mode-toggle" onclick="toggleWindowMode('${safeRoom}')" title="Switch to Windows view">⬚ Options</button>`;
+      }
 
       let itemsHtml = '';
       if (isAlternatives) {
+        const itemLabel = isWinMode ? 'Window' : 'Option';
         styleOrder.forEach((sKey, si) => {
           const sItems = styleGroupMap[sKey];
           const sTotal = sItems.reduce((s, l) => s + (l.sell || 0), 0);
           if (sItems.length > 1) {
-            // Same style, multiple windows → show as combined option block
+            // Same style, multiple windows → show as combined block
             const subRows = sItems.map(l =>
               `<div class="room-group-subitem">
                 <span class="rgs-dims">${l.dims || ''}</span>
@@ -2441,25 +2687,29 @@ function renderGroupedSummary(lines) {
             ).join('');
             const grpTypeDesc = (sItems[0].typeDesc || '').split('\n').filter(Boolean)
               .map(t => `<div class="rgo-typedesc">${t}</div>`).join('');
+            const styleSubLabel = sItems[0].style ? `<div class="rgo-typedesc">${sItems[0].style}</div>` : '';
             itemsHtml += `<div class="room-group-option-block">
               <div class="room-group-option-header">
-                <span class="rgo-style">${sItems[0].style || ''}</span>
+                <div><div class="rgo-option-num">${itemLabel} ${si + 1}</div>${styleSubLabel}</div>
                 <span class="rgo-total">${fmt(sTotal)}</span>
               </div>
               ${grpTypeDesc}
               ${subRows}
             </div>`;
           } else {
-            // Single item for this option — render normally, with divider between sections
+            // Single item — render normally with label above
             const divider = si > 0 ? `<div class="room-group-divider"></div>` : '';
-            itemsHtml += divider + renderSummaryCard({ ...sItems[0], _key: lineKey(sItems[0]), _inGroup: true });
+            const optLabel = `<div class="rgo-option-num" style="padding:6px 14px 0">${itemLabel} ${si + 1}</div>`;
+            itemsHtml += divider + optLabel + renderSummaryCard({ ...sItems[0], _key: lineKey(sItems[0]), _inGroup: true });
           }
         });
       } else {
         itemsHtml = grpItems.map(l => renderSummaryCard({ ...l, _key: lineKey(l), _inGroup: true })).join('');
       }
 
-      html += `<div class="room-group" data-grpkey="${safeRoom}"${isAlternatives ? ' data-alternatives' : ''}>
+      // In Windows mode, don't mark as data-alternatives (so PDF treats it as normal cumulative)
+      const altAttr = (isAlternatives && !isWinMode) ? ' data-alternatives' : '';
+      html += `<div class="room-group" data-grpkey="${safeRoom}"${altAttr}>
         <div class="room-group-header">
           <div style="display:flex;align-items:center">
             <span class="grp-drag-handle" draggable="true" title="Drag to reorder group">☰</span>
@@ -2477,7 +2727,7 @@ function renderGroupedSummary(lines) {
   return html;
 }
 
-function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscount, isSubtotal, _key, _srcId, _inGroup, fabricCode, fabricColour }) {
+function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscount, isSubtotal, _key, _srcId, _inGroup, fabricCode, fabricColour, remarks }) {
   if (isSubtotal) {
     return `<div class="summary-item" style="opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:10px;margin-top:4px">
       <div class="summary-item-left"><div class="s-style" style="font-size:12px;letter-spacing:.3px;text-transform:uppercase">Subtotal</div></div>
@@ -2510,13 +2760,21 @@ function renderSummaryCard({ room, style, typeDesc, sell, dims, isNote, isDiscou
     ? 'style="opacity:.75;border-top:1px dashed rgba(255,255,255,.2);padding-top:12px;margin-top:2px"'
     : '';
   const fabricLine = [fabricCode, fabricColour].filter(Boolean).join(' · ');
+  // Multi-window: dims like "Win 1: 9(w)×10(h) ft · Win 2: 8(w)×10(h) ft" → sub-lines
+  const isMultiWin = dims && dims.includes(' · ') && dims.startsWith('Win ');
+  const dimsInline  = isMultiWin ? '' : dims;
+  const winSubLines = isMultiWin
+    ? dims.split(' · ').map(w => `<div class="s-win-dim">${w}</div>`).join('')
+    : '';
   return `<div class="summary-item ${hiddenClass}"${lkeyAttr} ${wrap}>
     ${moveBtn}${eyeBtn}
     <div class="summary-item-left">
       ${(room && !_inGroup) ? `<div class="s-room">${room}</div>` : ''}
-      <div class="s-style" ${isNote ? 'style="font-size:12px;font-style:italic"' : ''}>${style}${dims ? ` <span class="s-dims">${dims}</span>` : ''}</div>
+      <div class="s-style" ${isNote ? 'style="font-size:12px;font-style:italic"' : ''}>${style}${dimsInline ? ` <span class="s-dims">${dimsInline}</span>` : ''}</div>
       ${typeDesc ? typeDesc.split('\n').map(t => `<div class="s-type">${t}</div>`).join('') : ''}
+      ${winSubLines}
       ${fabricLine ? `<div class="s-fabric">${fabricLine}</div>` : ''}
+      ${remarks ? `<div class="s-remarks">${remarks.replace(/\n/g,'<br>')}</div>` : ''}
     </div>
     <div class="s-price" ${isNote ? 'style="font-size:13px"' : ''}>${isHidden ? '—' : fmt(sell)}</div>
   </div>`;
@@ -2542,6 +2800,13 @@ function toggleAltTotal(room) {
   else altTotalRooms.add(room);
   updateSummary();
 }
+
+function toggleWindowMode(room) {
+  if (windowModeRooms.has(room)) windowModeRooms.delete(room);
+  else windowModeRooms.add(room);
+  updateSummary();
+}
+
 
 function eyeToggle(btn) {
   const key = btn.dataset.key;
@@ -2610,7 +2875,8 @@ function updateSummary() {
     const dims = row.dataset.dims || '';
     const fabricCode   = row.querySelector('.fabric-code')?.value.trim()   || '';
     const fabricColour = row.querySelector('.fabric-colour')?.value.trim() || '';
-    lines.push({ room, style, typeDesc, sell, dims, _srcId: row.id, fabricCode, fabricColour, isAccessory: row.dataset.isAccessory === '1' });
+    const remarks      = row.querySelector('.remarks-input')?.value.trim() || '';
+    lines.push({ room, style, typeDesc, sell, dims, _srcId: row.id, fabricCode, fabricColour, remarks, isAccessory: row.dataset.isAccessory === '1' });
     totalSell += sell;
     totalCost += parseFloat(row.dataset.cost) || 0;
   };
@@ -2695,6 +2961,9 @@ function updateSummary() {
   document.querySelectorAll('#acc-hook-items .item-row').forEach(row => {
     addRow(row, 'Side Hook', row.dataset.rateDesc || '');
   });
+  document.querySelectorAll('#acc-motor-items .item-row').forEach(row => {
+    addRow(row, 'Motorized Track', row.dataset.rateDesc || '');
+  });
 
   // Tinted Screen
   let tintedSubtotal = 0, tintedProjectSqft = 0, tintedTotalCost = 0;
@@ -2758,7 +3027,8 @@ function updateSummary() {
       _brMap[br].push(l);
     }
   });
-  const _altBRs = new Set(Object.entries(_brMap).filter(([, items]) => {
+  const _altBRs = new Set(Object.entries(_brMap).filter(([br, items]) => {
+    if (windowModeRooms.has(br)) return false; // window mode = cumulative, not alternatives
     if (items.length <= 1) return false;
     return new Set(items.map(l => (l.style || '') + '||' + (l.typeDesc || ''))).size > 1;
   }).map(([br]) => br));
@@ -2805,15 +3075,24 @@ function updateSummary() {
     excAltBtn.title = 'Toggle: include or exclude optional items (alternatives) from total';
   }
 
-  // Grand total: when "excl. options" is active, subtract alternatives from total
+  // Grand total: when "excl. options" is active, show "from RM X" (base without options)
   const grandTotalEl = document.getElementById('grandTotal');
-  grandTotalEl.textContent = excludeAltTotal ? '—' : fmt(finalTotal);
+  const baseTotal = finalTotal - altSell;
+  if (excludeAltTotal && altSell > 0) {
+    grandTotalEl.textContent = `from ${fmt(baseTotal)}`;
+  } else {
+    grandTotalEl.textContent = fmt(finalTotal);
+  }
   // Sticky total bar
   const stickyBar = document.getElementById('sticky-total');
   const stickyAmt = document.getElementById('stickyTotalAmt');
+  const stickyLbl = document.getElementById('sticky-total')?.querySelector('.st-label');
   if (stickyBar && stickyAmt) {
-    if (!excludeAltTotal && finalTotal > 0) {
-      stickyAmt.textContent = fmt(finalTotal);
+    const showBase = excludeAltTotal && altSell > 0 && baseTotal > 0;
+    const showFull = !excludeAltTotal && finalTotal > 0;
+    if (showBase || showFull) {
+      stickyAmt.textContent = showBase ? `from ${fmt(baseTotal)}` : fmt(finalTotal);
+      if (stickyLbl) stickyLbl.textContent = showBase ? 'Estimated From' : 'Estimated Total';
       stickyBar.classList.add('visible');
       document.body.classList.add('has-sticky-total');
     } else {
@@ -2935,6 +3214,7 @@ function serializeQuote() {
         sku:         row.querySelector('select')?.value        || '',
         fabricCode:  row.querySelector('.fabric-code')?.value  || '',
         fabricColour:row.querySelector('.fabric-colour')?.value|| '',
+        remarks:     row.querySelector('.remarks-input')?.value || '',
         override:    row.querySelector('.override-price')?.value|| '',
         overrideOpen: row.querySelector('.price-override-section')?.style.display !== 'none',
         qty:         row.querySelector('.qty')?.value          || '1',
@@ -2943,6 +3223,7 @@ function serializeQuote() {
         base.w = row.querySelector('.w-in')?.value || '';
         base.h = row.querySelector('.h-in')?.value || '';
         base.springTubeWaived = row.dataset.springTubeWaived === '1';
+        base.multiWin = row.querySelector('.multi-win-toggle')?.checked || false;
         base.extraWins = [...row.querySelectorAll('.extra-win-row')].map(wr => ({
           w: wr.querySelector('.xw-in')?.value || '',
           h: wr.querySelector('.xh-in')?.value || '',
@@ -2955,6 +3236,7 @@ function serializeQuote() {
         base.motorized  = row.querySelector('.motorized')?.checked  || false;
         base.premium    = row.querySelector('.premium')?.checked    || false;
         base.sewingCustomAmt = row.querySelector('.sewing-custom-amt')?.value || '';
+        base.multiWin = row.querySelector('.multi-win-toggle')?.checked || false;
         base.extraWins = [...row.querySelectorAll('.extra-win-row')].map(wr => ({
           w: wr.querySelector('.xw-in')?.value || '',
           h: wr.querySelector('.xh-in')?.value || '',
@@ -2984,6 +3266,7 @@ function serializeQuote() {
       val:   document.getElementById('discountVal')?.value || '',
       isPct: document.getElementById('dpct')?.classList.contains('active') ?? true,
     },
+    remarks: document.getElementById('remarksInput')?.value || '',
     lineExcludes: [...lineExcludes],
     summaryCustomOrder: [...summaryCustomOrder],
     groupCustomOrder:   [...groupCustomOrder],
@@ -3009,6 +3292,13 @@ function serializeQuote() {
     accHooks:   [...document.querySelectorAll('#acc-hook-items .item-row')].map(r => ({
       desc:     r.querySelector('.desc')?.value || '',
       qty:      r.querySelector('.qty')?.value  || '1',
+      override: r.querySelector('.override-price')?.value || '',
+    })),
+    accMotorTracks: [...document.querySelectorAll('#acc-motor-items .item-row')].map(r => ({
+      desc:     r.querySelector('.desc')?.value || '',
+      method:   r.querySelector('.sewing-method')?.value || 'Singapore Pleat',
+      ft:       r.querySelector('.length-in')?.value || '',
+      curves:   r.querySelector('.curves-qty')?.value || '0',
       override: r.querySelector('.override-price')?.value || '',
     })),
     tintedRooms: [...document.querySelectorAll('.ts-room')].map(room => ({
@@ -3049,6 +3339,10 @@ function applyQuoteState(state) {
     setDiscType(state.discount.isPct ? 'pct' : 'rm');
   }
 
+  // Remarks
+  set('remarksInput', state.remarks);
+  onRemarksInput();
+
   // lineExcludes & summary order
   lineExcludes.clear();
   (state.lineExcludes || []).forEach(k => lineExcludes.add(k));
@@ -3086,7 +3380,7 @@ function applyQuoteState(state) {
   };
 
   // Clear all existing rows
-  ['#blind-items','#curtain-items','#spc-items','#door-items','#acc-track-items','#acc-dtrack-items','#acc-hook-items'].forEach(sel => {
+  ['#blind-items','#curtain-items','#spc-items','#door-items','#acc-track-items','#acc-dtrack-items','#acc-hook-items','#acc-motor-items'].forEach(sel => {
     document.querySelector(sel).querySelectorAll('.item-row').forEach(r => r.remove());
   });
   document.getElementById('tinted-rooms').innerHTML = '';
@@ -3101,6 +3395,7 @@ function applyQuoteState(state) {
     sv('.desc', d.desc); sv('.fabric-code', d.fabricCode); sv('.fabric-colour', d.fabricColour);
     sv('.w-in', d.w); sv('.h-in', d.h); sv('.qty', d.qty); sv('.override-price', d.override);
     if (row.querySelector('select') && d.sku) row.querySelector('select').value = d.sku;
+    if (d.remarks) { const ri = row.querySelector('.remarks-input'); const rs = row.querySelector('.remarks-section'); const rd = row.querySelector('.remarks-display'); if (ri) ri.value = d.remarks; if (rd) rd.textContent = d.remarks; if (rs) rs.setAttribute('data-has-remarks','1'); }
     if (d.override) {
       const sec = row.querySelector('.price-override-section');
       const btn = row.querySelector('.btn-override-toggle');
@@ -3116,6 +3411,10 @@ function applyQuoteState(state) {
       if (ftBtn && ftFields) { ftFields.style.display = ''; ftBtn.textContent = '－ Fabric'; ftBtn.classList.add('open'); }
     }
     if (d.extraWins && d.extraWins.length > 0) {
+      const mwToggle = row.querySelector('.multi-win-toggle');
+      const mwSection = row.querySelector('.extra-wins-section');
+      if (mwToggle) mwToggle.checked = true;
+      if (mwSection) mwSection.classList.add('open');
       d.extraWins.forEach(win => {
         addExtraWin(id, 'blind');
         const wins = row.querySelectorAll('.extra-win-row');
@@ -3137,6 +3436,7 @@ function applyQuoteState(state) {
     sv('.desc', d.desc); sv('.fabric-code', d.fabricCode); sv('.fabric-colour', d.fabricColour);
     sv('.w-in', d.w); sv('.h-in', d.h); sv('.qty', d.qty); sv('.override-price', d.override);
     if (row.querySelector('select') && d.sku) row.querySelector('select').value = d.sku;
+    if (d.remarks) { const ri = row.querySelector('.remarks-input'); const rs = row.querySelector('.remarks-section'); const rd = row.querySelector('.remarks-display'); if (ri) ri.value = d.remarks; if (rd) rd.textContent = d.remarks; if (rs) rs.setAttribute('data-has-remarks','1'); }
     sc('.blackout', d.blackout); sc('.linen', d.linen); sc('.motorized', d.motorized); sc('.premium', d.premium);
     if (d.sewingCustomAmt) { const el = row.querySelector('.sewing-custom-amt'); if (el) el.value = d.sewingCustomAmt; }
     if (d.override) {
@@ -3153,6 +3453,10 @@ function applyQuoteState(state) {
       if (ftBtn && ftFields) { ftFields.style.display = ''; ftBtn.textContent = '－ Fabric'; ftBtn.classList.add('open'); }
     }
     if (d.extraWins && d.extraWins.length > 0) {
+      const mwToggle = row.querySelector('.multi-win-toggle');
+      const mwSection = row.querySelector('.extra-wins-section');
+      if (mwToggle) mwToggle.checked = true;
+      if (mwSection) mwSection.classList.add('open');
       d.extraWins.forEach(win => {
         addExtraWin(id, 'curtain');
         const wins = row.querySelectorAll('.extra-win-row');
@@ -3260,6 +3564,17 @@ function applyQuoteState(state) {
     if (d.override) { const w = row.querySelector('.price-override-section'); const b = row.querySelector('.btn-override-toggle'); if (w) w.style.display = ''; if (b) b.classList.add('active'); }
     const id = parseInt(row.id.replace('acc-hook-', ''));
     calcAccHook(id);
+  });
+
+  (state.accMotorTracks || []).forEach(d => {
+    addAccMotorTrack();
+    const rows = document.querySelectorAll('#acc-motor-items .item-row');
+    const row = rows[rows.length - 1];
+    const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
+    sv('.desc', d.desc); sv('.sewing-method', d.method); sv('.length-in', d.ft); sv('.curves-qty', d.curves || '0'); sv('.override-price', d.override);
+    if (d.override) { const w = row.querySelector('.price-override-section'); const b = row.querySelector('.btn-override-toggle'); if (w) w.style.display = ''; if (b) b.classList.add('active'); }
+    const id = parseInt(row.id.replace('acc-motor-', ''));
+    calcAccMotorTrack(id);
   });
 
   updateSummary();
@@ -3394,11 +3709,12 @@ function _doNewQuote() {
   groupCustomOrder   = [];
   isDesignerQuote    = false;
   document.querySelectorAll('#custTypePills .prop-pill').forEach((b,i) => b.classList.toggle('active', i===0));
-  ['#blind-items','#curtain-items','#spc-items','#door-items','#acc-track-items','#acc-dtrack-items','#acc-hook-items'].forEach(sel => {
+  ['#blind-items','#curtain-items','#spc-items','#door-items','#acc-track-items','#acc-dtrack-items','#acc-hook-items','#acc-motor-items'].forEach(sel => {
     document.querySelector(sel).querySelectorAll('.item-row').forEach(r => r.remove());
   });
   document.getElementById('tinted-rooms').innerHTML = '';
-  ['custName','custPhone','discountVal'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['custName','custPhone','discountVal','remarksInput'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  onRemarksInput();
   document.getElementById('custDate').value = new Date().toISOString().slice(0,10);
   document.getElementById('custPropType').value = '';
   document.querySelectorAll('#propPills .prop-pill').forEach((b,i) => b.classList.toggle('active', i===0));
@@ -3553,7 +3869,8 @@ function exportExcel() {
   const accTrackItems  = document.querySelectorAll('#acc-track-items .item-row');
   const accDTrackItems = document.querySelectorAll('#acc-dtrack-items .item-row');
   const accHookItems   = document.querySelectorAll('#acc-hook-items .item-row');
-  const hasAcc = [...accTrackItems, ...accDTrackItems, ...accHookItems].some(r => parseFloat(r.dataset.sell) > 0);
+  const accMotorItems  = document.querySelectorAll('#acc-motor-items .item-row');
+  const hasAcc = [...accTrackItems, ...accDTrackItems, ...accHookItems, ...accMotorItems].some(r => parseFloat(r.dataset.sell) > 0);
   if (hasAcc) {
     rows.push(['ACCESSORIES']);
     rows.push(['#','Location','Type','Detail','Total (RM)']);
@@ -3571,7 +3888,11 @@ function exportExcel() {
       const qty = row.querySelector('.qty')?.value || '1';
       rows.push([++n, g(row), 'Side Hook', `${qty} set`, parseFloat(row.dataset.sell)]);
     });
-    const accSubtot = [...accTrackItems, ...accDTrackItems, ...accHookItems].reduce((s,r) => s + (parseFloat(r.dataset.sell)||0), 0);
+    accMotorItems.forEach(row => {
+      if (!(parseFloat(row.dataset.sell) > 0)) return;
+      rows.push([++n, g(row), 'Motorized Track', row.dataset.dims || '', parseFloat(row.dataset.sell)]);
+    });
+    const accSubtot = [...accTrackItems, ...accDTrackItems, ...accHookItems, ...accMotorItems].reduce((s,r) => s + (parseFloat(r.dataset.sell)||0), 0);
     rows.push(['','','','Subtotal', accSubtot]);
     gap();
   }
@@ -3780,6 +4101,7 @@ function toggleOverride(btn, rowId) {
   else if (rowId.startsWith('acc-track-'))  { const id = rowId.replace('acc-track-','');  calcAccTrack(parseInt(id)||id); }
   else if (rowId.startsWith('acc-dtrack-')) { const id = rowId.replace('acc-dtrack-',''); calcAccDTrack(parseInt(id)||id); }
   else if (rowId.startsWith('acc-hook-'))   { const id = rowId.replace('acc-hook-','');   calcAccHook(parseInt(id)||id); }
+  else if (rowId.startsWith('acc-motor-'))  { const id = rowId.replace('acc-motor-','');  calcAccMotorTrack(parseInt(id)||id); }
   else { const id = rowId.replace('curtain-',''); calcCurtain(parseInt(id)||id); }
 }
 
@@ -3946,10 +4268,15 @@ async function saveAsImage() {
         }
       } catch (e) {
         if (e.name === 'AbortError') {
+          restoreEl();
           btn.textContent = '📄 PDF';
           btn.disabled = false;
           pdfInjected.forEach(e => e.remove());
           el.classList.remove('pdf-mode');
+          hideEls.forEach(e => e.style.display = '');
+          eyeEls.forEach(e => e.style.display = '');
+          dragHandleEls.forEach(e => e.style.display = '');
+          hiddenLineEls.forEach(e => e.style.display = '');
           return;
         }
         // canShare exists but share failed — fall through to download
