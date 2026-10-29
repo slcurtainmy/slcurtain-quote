@@ -274,7 +274,7 @@
   .win-mode-btn.active { background: rgba(184,134,90,.2); border-color: rgba(184,134,90,.5); color: #B8865A; }
   .pdf-mode .win-mode-btn { display: none !important; }
   .win-mode-style { padding: 5px 14px 2px; font-size: 11px; color: rgba(255,255,255,.7); border-top: 1px solid rgba(255,255,255,.06); }
-  .win-mode-typedesc { font-size: 10px; opacity: .72; margin-left: 4px; }
+  .win-mode-typedesc { font-size: 10px; opacity: .72; margin-top: 1px; }
   .win-mode-list { padding: 4px 14px 10px; }
   .win-mode-row { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
   .win-mode-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.75); min-width: 62px; flex-shrink: 0; }
@@ -283,16 +283,26 @@
   .win-mode-dims { font-size: 10px; color: rgba(255,255,255,.38); flex: 1; letter-spacing: .15px; }
   .win-mode-price { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.9); white-space: nowrap; }
   .win-mode-remark { font-size: 10px; color: rgba(255,255,255,.55); font-style: italic; padding: 0 0 5px 70px; }
-  /* PDF: hide shared style header; show style name inline per row instead */
-  .pdf-mode .win-mode-style { display: none !important; }
-  .pdf-mode .win-mode-row-style { display: inline; font-size: 10px; font-weight: 600; color: rgba(255,255,255,.72); margin-right: 3px; flex-shrink: 0; }
-  .pdf-mode .win-mode-row-typedesc { font-size: 9px; color: rgba(255,255,255,.48); font-weight: 400; margin-left: 1px; }
-  .pdf-mode .win-mode-list { padding: 4px 0 6px; }
-  .pdf-mode .win-mode-row { border-bottom: 1px solid rgba(255,255,255,.07); padding: 4px 0; align-items: baseline; }
-  .pdf-mode .win-mode-label { color: rgba(255,255,255,.75); font-size: 11px; font-weight: 600; min-width: 56px; flex-shrink: 0; }
-  .pdf-mode .win-mode-dims { color: rgba(255,255,255,.38); font-size: 10px; letter-spacing: .15px; }
-  .pdf-mode .win-mode-price { color: rgba(255,255,255,.9); font-size: 13px; font-weight: 700; }
-  .pdf-mode .win-mode-remark { color: rgba(255,255,255,.55); font-size: 9px; padding: 0 0 4px 56px; font-style: italic; }
+  /* ── Win-mode: inline location label (hidden on screen, shown in PDF) ── */
+  .win-mode-loc { display: none; }
+  /* dims dual-unit spans */
+  .dims-ft { display: inline; }
+  .dims-in { display: none; }
+  /* PDF: show shared style header once; hide per-row style */
+  .pdf-mode .win-mode-style { display: block !important; padding: 2px 0 5px; font-size: 10px; color: rgba(255,255,255,.65); border-top: none; }
+  .pdf-mode .win-mode-typedesc { display: block; font-size: 9px; opacity: .7; margin-left: 0; margin-top: 1px; }
+  .pdf-mode .win-mode-row-style { display: none !important; }
+  .pdf-mode .win-mode-row-typedesc { display: none !important; }
+  .pdf-mode .win-mode-list { padding: 2px 0 6px; }
+  .pdf-mode .win-mode-row { border-bottom: 1px solid rgba(255,255,255,.07); padding: 5px 0; align-items: baseline; }
+  .pdf-mode .win-mode-label { color: rgba(255,255,255,.82); font-size: 11px; font-weight: 600; min-width: 0; }
+  .pdf-mode .win-mode-loc { display: inline; color: rgba(255,255,255,.52); font-weight: 400; }
+  .pdf-mode .win-mode-dims { color: rgba(255,255,255,.45); font-size: 10px; letter-spacing: .15px; padding-left: 2px; }
+  .pdf-mode .dims-ft { display: none; }
+  .pdf-mode .dims-in { display: inline; }
+  .pdf-mode .win-mode-price { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.9); }
+  .pdf-mode .win-mode-remark { color: rgba(255,255,255,.5); font-size: 9px; padding: 0; font-style: italic; }
+  .pdf-mode .win-mode-loc-remark { display: none; }
   .exc-alt-btn {
     background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.22);
     color: rgba(255,255,255,.5); border-radius: 6px; font-size: 10px; font-weight: 600;
@@ -1102,6 +1112,7 @@
     </div>
     <div class="export-row">
       <button class="btn-export print" onclick="saveAsImage()" id="screenshotBtn">📄 PDF</button>
+
       <button class="btn-export" onclick="openQuoteList()" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);">📋 My Quotes</button>
       <button class="btn-export" onclick="newQuote()" style="background:rgba(220,60,60,.25);border-color:rgba(220,60,60,.5);">🗑 New</button>
       <div class="more-dropdown-wrap" style="margin-left:auto">
@@ -1563,7 +1574,8 @@ function calcBlind(id) {
       if (row.dataset.springTubeWaived) row.dataset.springTubeWaived = '';
     }
   }
-  row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wFt)}(w) × ${Math.ceil(hFt)}(h) ft` : '';
+  row.dataset.dims   = wIn > 0 && hIn > 0 ? `${Math.ceil(wFt)}(w) × ${Math.ceil(hFt)}(h) ft` : '';
+  row.dataset.dimsIn = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn)} × ${Math.ceil(hIn)} in` : '';
   row.dataset.remark = row.querySelector('.remark')?.value.trim() || '';
   const blindDesc = row.querySelector('.desc').value.trim();
   const blindPfx  = blindDesc ? `[${blindDesc}] ` : '';
@@ -1784,7 +1796,8 @@ function calcCurtain(id) {
   row.dataset.sell  = grandSell;
   row.dataset.cost  = totalCost + extraCost;
   row.dataset.surcharge = surcharge;
-  row.dataset.dims  = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn/12)}(w) × ${Math.ceil(hIn/12)}(h) ft` : '';
+  row.dataset.dims   = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn/12)}(w) × ${Math.ceil(hIn/12)}(h) ft` : '';
+  row.dataset.dimsIn = wIn > 0 && hIn > 0 ? `${Math.ceil(wIn)} × ${Math.ceil(hIn)} in` : '';
   row.dataset.remark = row.querySelector('.remark')?.value.trim() || '';
   const curtDesc = row.querySelector('.desc').value.trim();
   const curtPfx  = curtDesc ? `[${curtDesc}] ` : '';
@@ -2321,10 +2334,10 @@ function renderGroupedSummary(lines) {
       const totalAll = grpItems.reduce((s, l) => s + (l.sell || 0), 0);
       const isWinMode = !isAlternatives && windowModeRooms.has(br);
       // Count = distinct style groups (actual number of options/alternatives)
-      const badgeText = isAlternatives ? `${styleOrder.length} options` : `${grpItems.length} ${isWinMode ? 'windows' : 'items'}`;
+      const badgeText = isAlternatives ? `${styleOrder.length} options` : `${grpItems.length} ${isWinMode ? 'windows' : 'options'}`;
       const chooseNote = isAlternatives
         ? `<div class="room-group-choose">✦ Select one option</div>`
-        : isWinMode ? '' : `<div class="room-group-choose">✦ All included</div>`;
+        : isWinMode ? '' : `<div class="room-group-choose">✦ Select one option</div>`;
       const safeRoom = br.replace(/'/g, "\\'");
       const showAltTotal = isAlternatives && altTotalRooms.has(br);
       const headerRight = isAlternatives
@@ -2338,7 +2351,7 @@ function renderGroupedSummary(lines) {
              <button class="win-mode-btn${isWinMode ? ' active' : ''}" onclick="toggleWindowMode('${safeRoom}')" title="${isWinMode ? 'Switch to list view' : 'Switch to window view'}">
                ⊞ Windows
              </button>
-             <span class="room-group-total">${fmt(totalAll)}</span>
+             <span class="room-group-total">${isWinMode ? fmt(totalAll) : 'From ' + fmt(Math.min(...grpItems.map(l => l.sell || 0)))}</span>
            </div>`;
 
       let itemsHtml = '';
@@ -2373,8 +2386,9 @@ function renderGroupedSummary(lines) {
       } else {
         if (isWinMode) {
           const sharedStyle = grpItems[0].style || '';
-          const sharedTypeDesc = (grpItems[0].typeDesc || '').split('\n').filter(Boolean).join(' · ');
-          const styleHtml = `<div class="win-mode-style">${sharedStyle}${sharedTypeDesc ? ` <span class="win-mode-typedesc">${sharedTypeDesc}</span>` : ''}</div>`;
+          const sharedTypeParts = (grpItems[0].typeDesc || '').split('\n').filter(Boolean);
+          const sharedTypeDescHtml = sharedTypeParts.map(t => `<div class="win-mode-typedesc">${t}</div>`).join('');
+          const styleHtml = `<div class="win-mode-style">${sharedStyle}${sharedTypeDescHtml}</div>`;
           const _isCurtainGrp = (grpItems[0]._srcId || '').startsWith('curtain-');
           const rowsHtml = grpItems.map((l, i) => {
             let fabricHtml = '';
@@ -2387,11 +2401,11 @@ function renderGroupedSummary(lines) {
               const fabricParts = [l.fabricCode, l.fabricColour].filter(Boolean);
               fabricHtml = fabricParts.length ? `<div class="win-mode-remark">⊂ ${fabricParts.join(' · ')}</div>` : '';
             }
-            const remarkHtml = l.remark ? `<div class="win-mode-remark">✏ ${l.remark}</div>` : '';
+            const remarkHtml = l.remark ? `<div class="win-mode-remark win-mode-loc-remark">✏ ${l.remark}</div>` : '';
             return `<div class="win-mode-row">
-              <span class="win-mode-label">Window ${i + 1}</span>
-              <span class="win-mode-row-style">${sharedStyle}${sharedTypeDesc ? ` <span class="win-mode-row-typedesc">${sharedTypeDesc}</span>` : ''}</span>
-              <span class="win-mode-dims">${l.dims || ''}</span>
+              <span class="win-mode-label">Window ${i + 1}<span class="win-mode-loc">${l.remark ? ' – ' + l.remark : ''}</span></span>
+              <span class="win-mode-row-style">${sharedStyle}${sharedTypeParts.length ? ` <span class="win-mode-row-typedesc">${sharedTypeParts.join(' · ')}</span>` : ''}</span>
+              <span class="win-mode-dims"><span class="dims-ft">${l.dims || ''}</span><span class="dims-in">${l.dimsIn || ''}</span></span>
               <span class="win-mode-price">${fmt(l.sell)}</span>
             </div>${fabricHtml}${remarkHtml}`;
           }).join('');
@@ -2495,6 +2509,7 @@ function toggleWindowMode(room) {
   updateSummary();
 }
 
+
 function eyeToggle(btn) {
   const key = btn.dataset.key;
   if (lineExcludes.has(key)) lineExcludes.delete(key);
@@ -2563,7 +2578,8 @@ function updateSummary() {
     const fabricCode   = row.querySelector('.fabric-code')?.value.trim()   || '';
     const fabricColour = row.querySelector('.fabric-colour')?.value.trim() || '';
     const remark       = row.dataset.remark || '';
-    lines.push({ room, style, typeDesc, sell, dims, _srcId: row.id, fabricCode, fabricColour, remark });
+    const dimsIn       = row.dataset.dimsIn || '';
+    lines.push({ room, style, typeDesc, sell, dims, dimsIn, _srcId: row.id, fabricCode, fabricColour, remark });
     totalSell += sell;
     totalCost += parseFloat(row.dataset.cost) || 0;
   };
@@ -2700,9 +2716,10 @@ function updateSummary() {
       _brMap[br].push(l);
     }
   });
-  const _altBRs = new Set(Object.entries(_brMap).filter(([, items]) => {
+  const _altBRs = new Set(Object.entries(_brMap).filter(([br, items]) => {
     if (items.length <= 1) return false;
-    return new Set(items.map(l => (l.style || '') + '||' + (l.typeDesc || ''))).size > 1;
+    const multiStyle = new Set(items.map(l => (l.style || '') + '||' + (l.typeDesc || ''))).size > 1;
+    return multiStyle || !windowModeRooms.has(br);
   }).map(([br]) => br));
   const altSell = lines.reduce((s, l) => {
     if (l.isNote || l.isSubtotal || l.isDiscount) return s;
