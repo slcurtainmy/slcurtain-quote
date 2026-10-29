@@ -281,7 +281,16 @@
   .win-mode-row-style { display: none; } /* hidden on screen; shared header shows it */
   .win-mode-row-typedesc { font-size: 9px; opacity: .65; margin-left: 2px; font-weight: 400; }
   .win-mode-dims { font-size: 10px; color: rgba(255,255,255,.38); flex: 1; letter-spacing: .15px; }
-  .win-mode-price { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.9); white-space: nowrap; }
+  .win-mode-price { font-size: 14px; font-weight: 700; color: rgba(255,255,255,.9); white-space: nowrap; display: none; }
+  .win-mode-list.show-prices .win-mode-price { display: inline; }
+  .win-price-footer { display: flex; justify-content: flex-end; padding: 3px 0 2px; }
+  .win-price-toggle-btn {
+    background: none; border: none; font-family: inherit; font-size: 10px;
+    color: rgba(255,255,255,.32); cursor: pointer; padding: 2px 0; letter-spacing: .2px;
+    transition: color .15s;
+  }
+  .win-price-toggle-btn:hover { color: rgba(255,255,255,.6); }
+  .win-price-toggle-btn.active { color: rgba(184,134,90,.65); }
   .win-mode-remark { font-size: 10px; color: rgba(255,255,255,.55); font-style: italic; padding: 0 0 5px 70px; }
   /* ── Win-mode: inline location label (hidden on screen, shown in PDF) ── */
   .win-mode-loc { display: none; }
@@ -300,7 +309,8 @@
   .pdf-mode .win-mode-dims { color: rgba(255,255,255,.45); font-size: 10px; letter-spacing: .15px; padding-left: 2px; }
   .pdf-mode .dims-ft { display: none; }
   .pdf-mode .dims-in { display: inline; }
-  .pdf-mode .win-mode-price { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.9); }
+  .pdf-mode .win-mode-list.show-prices .win-mode-price { display: inline; font-size: 13px; font-weight: 700; color: rgba(255,255,255,.9); }
+  .pdf-mode .win-price-footer { display: none; }
   .pdf-mode .win-mode-remark { color: rgba(255,255,255,.5); font-size: 9px; padding: 0; font-style: italic; }
   .pdf-mode .win-mode-loc-remark { display: none; }
   .exc-alt-btn {
@@ -1349,6 +1359,7 @@ let measureUnit = 'in'; // 'in' | 'cm' | 'mm' | 'm' — active input unit for bl
 const lineExcludes = new Set();
 const altTotalRooms = new Set(); // rooms (alternatives groups) where user has toggled total visible
 const windowModeRooms = new Set(); // rooms (same-type groups) where user has toggled window-mode display
+const winPriceRooms   = new Set(); // win-mode rooms where itemized prices are shown
 let excludeAltTotal  = true;    // when true, grand total excludes alternatives-group items
 let isDesignerQuote  = false;   // when true, eligible blind SKUs use DESIGNER_RATES
 let summaryCustomOrder = []; // user-defined display order of summary items (array of _srcId strings)
@@ -2409,7 +2420,11 @@ function renderGroupedSummary(lines) {
               <span class="win-mode-price">${fmt(l.sell)}</span>
             </div>${fabricHtml}${remarkHtml}`;
           }).join('');
-          itemsHtml = styleHtml + `<div class="win-mode-list">${rowsHtml}</div>`;
+          const showPrices = winPriceRooms.has(br);
+          itemsHtml = styleHtml + `<div class="win-mode-list${showPrices ? ' show-prices' : ''}">${rowsHtml}</div>
+            <div class="win-price-footer">
+              <button class="win-price-toggle-btn${showPrices ? ' active' : ''}" onclick="toggleWinPrices('${safeRoom}')">${showPrices ? '☑ itemized' : '☐ itemized'}</button>
+            </div>`;
         } else {
           itemsHtml = grpItems.map(l => renderSummaryCard({ ...l, _key: lineKey(l), _inGroup: true })).join('');
         }
@@ -2506,6 +2521,12 @@ function toggleAltTotal(room) {
 function toggleWindowMode(room) {
   if (windowModeRooms.has(room)) windowModeRooms.delete(room);
   else windowModeRooms.add(room);
+  updateSummary();
+}
+
+function toggleWinPrices(room) {
+  if (winPriceRooms.has(room)) winPriceRooms.delete(room);
+  else winPriceRooms.add(room);
   updateSummary();
 }
 
