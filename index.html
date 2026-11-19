@@ -649,7 +649,7 @@
   @media print {
     @page { size: A4 portrait; margin: 12mm 15mm; }
     /* Hide everything except the summary card */
-    header, .tabs, #panel-blinds, #panel-curtains, #panel-spc, #panel-tinted,
+    header, .tabs, #panel-blinds, #panel-curtains, #panel-spc, #panel-tinted, #panel-accessories,
     .export-row, .converter-panel, #sticky-total, .more-dropdown-wrap,
     .btn-add, .btn-remove, .btn-dup, .btn-add-win,
     #newQuoteModal, .sl-modal-overlay, .toast { display: none !important; }
@@ -990,6 +990,7 @@
     <div class="tab" data-tab="curtains">🪢 Curtains & Sheers<span class="tab-count" id="cnt-curtains"></span></div>
     <div class="tab" data-tab="spc">🪵 SPC Flooring<span class="tab-count" id="cnt-spc"></span></div>
     <div class="tab" data-tab="tinted">🎞 Tinted Screen<span class="tab-count" id="cnt-tinted"></span></div>
+    <div class="tab" data-tab="accessories">🔩 Accessories<span class="tab-count" id="cnt-accessories"></span></div>
   </div>
 
   <!-- Unit selector bar -->
@@ -1024,6 +1025,10 @@
       <div id="curtain-items"></div>
       <button class="btn-add" onclick="addCurtain()">+ Add Curtain / Sheer</button>
     </div>
+    <div style="text-align:center;padding:10px 0 4px;font-size:12px;color:rgba(255,255,255,.38)">
+      Need a track or side hooks?
+      <button onclick="document.querySelector('[data-tab=accessories]').click()" style="background:none;border:none;color:#B8865A;font-size:12px;cursor:pointer;padding:0;text-decoration:underline">Go to Accessories →</button>
+    </div>
   </div>
 
   <!-- ======================== SPC ======================== -->
@@ -1040,6 +1045,34 @@
       <div class="card-header"><div class="card-title">Door Trimming</div></div>
       <div id="door-items"></div>
       <button class="btn-add" onclick="addDoor()">+ Add Door</button>
+    </div>
+  </div>
+
+  <!-- ======================== ACCESSORIES ======================== -->
+  <div class="panel" id="panel-accessories">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Single Track</div>
+        <div class="badge">RM 15/ft · Track only, no curtain</div>
+      </div>
+      <div id="acc-track-items"></div>
+      <button class="btn-add" onclick="addAccTrack()">+ Add Single Track — RM 15/ft</button>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Double Track + Single Layer Curtain</div>
+        <div class="badge">RM 68/ft · RM 58 curtain + RM 10 track surcharge · French or Singapore Pleat only</div>
+      </div>
+      <div id="acc-dtrack-items"></div>
+      <button class="btn-add" onclick="addAccDTrack()">+ Add Double Track + Single Layer Curtain — RM 68/ft</button>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Side Hook Add-on</div>
+        <div class="badge">RM 50/set · Without curtain</div>
+      </div>
+      <div id="acc-hook-items"></div>
+      <button class="btn-add" onclick="addAccHook()">+ Add Side Hook — RM 50/set</button>
     </div>
   </div>
 
@@ -1285,6 +1318,9 @@ function setMeasureUnit(u) {
   document.querySelectorAll('#blind-items   .h-in').forEach(el => el.placeholder = phs.bh);
   document.querySelectorAll('#curtain-items .w-in').forEach(el => el.placeholder = phs.cw);
   document.querySelectorAll('#curtain-items .h-in').forEach(el => el.placeholder = phs.ch);
+  document.querySelectorAll('#acc-track-items  .length-in').forEach(el => el.placeholder = phs.cw);
+  document.querySelectorAll('#acc-dtrack-items .w-in').forEach(el => el.placeholder = phs.cw);
+  document.querySelectorAll('#acc-dtrack-items .h-in').forEach(el => el.placeholder = phs.ch);
   document.querySelectorAll('#blind-items   .item-row').forEach(r => calcBlind(parseInt(r.id.replace('blind-',''))));
   document.querySelectorAll('#curtain-items .item-row').forEach(r => calcCurtain(parseInt(r.id.replace('curtain-',''))));
 }
@@ -1982,6 +2018,209 @@ function calcDoor(id) {
   updateSummary();
 }
 
+// ─── ACCESSORIES ─────────────────────────────────────────────────────────────
+let accTrackIdx = 0, accDTrackIdx = 0, accHookIdx = 0;
+
+function addAccTrack() {
+  const id = accTrackIdx++;
+  const container = document.getElementById('acc-track-items');
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  div.id = 'acc-track-' + id;
+  div.innerHTML = `
+    <div class="item-desc">
+      <div class="field">
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Living Room" class="desc" list="loc-suggestions" oninput="calcAccTrack(${id})" />
+      </div>
+    </div>
+    <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr)">
+      <div class="field">
+        <label>Length</label>
+        <input type="number" min="0.1" step="0.1" placeholder="e.g. 120" class="length-in" oninput="calcAccTrack(${id})" />
+      </div>
+      <div class="field sell-field">
+        <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'acc-track-${id}')" type="button">✏ Override</button></div>
+        <input type="text" readonly class="sell-out" value="—" />
+        <div class="price-override-section" style="display:none">
+          <div class="price-override-wrap">
+            <input type="number" class="override-price" placeholder="Custom price (RM)" min="0" step="1" oninput="calcAccTrack(${id})" />
+            <span class="override-hint">Overrides auto-calculated price</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-remove" onclick="removeItem('acc-track-${id}')">✕</button>
+  `;
+  container.appendChild(div);
+  calcAccTrack(id);
+}
+
+function calcAccTrack(id) {
+  const row = document.getElementById('acc-track-' + id);
+  if (!row) return;
+  const raw = parseFloat(row.querySelector('.length-in').value) || 0;
+  const ft = toInches(raw) / 12;
+  const total = ft > 0 ? Math.ceil(ft * 15) : 0;
+  const overInp1 = row.querySelector('.override-price');
+  const overVal1 = overInp1 && overInp1.value !== '' ? parseFloat(overInp1.value) : null;
+  const finalSell1 = overVal1 !== null ? overVal1 : total;
+  if (overVal1 !== null) {
+    row.querySelector('.sell-out').value = fmt(overVal1) + ' ✏';
+  } else {
+    row.querySelector('.sell-out').value = total > 0 ? fmt(total) : '—';
+  }
+  row.dataset.sell        = finalSell1;
+  row.dataset.cost        = 0;
+  row.dataset.remark      = '';
+  row.dataset.dims        = raw > 0 ? `${raw} ${measureUnit}` : '';
+  row.dataset.rateDesc    = ft > 0 ? `${ft.toFixed(2)} ft × RM 15/ft` : '';
+  row.dataset.isAccessory = '1';
+  updateSummary();
+}
+
+function addAccDTrack() {
+  const id = accDTrackIdx++;
+  const container = document.getElementById('acc-dtrack-items');
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  div.id = 'acc-dtrack-' + id;
+  div.innerHTML = `
+    <div class="item-desc">
+      <div class="field">
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Master Bedroom" class="desc" list="loc-suggestions" oninput="calcAccDTrack(${id})" />
+      </div>
+    </div>
+    <div style="flex: 0 0 100%; display: flex; flex-direction: column; gap: 10px; min-width: 0;">
+      <div class="fields" style="grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)">
+        <div class="field">
+          <label>Width</label>
+          <input type="number" min="0.1" step="0.1" placeholder="e.g. 120" class="w-in" oninput="calcAccDTrack(${id})" />
+        </div>
+        <div class="field">
+          <label title="Height is recorded for reference only and does not affect price">Height (ref.)</label>
+          <input type="number" min="0.1" step="0.1" placeholder="e.g. 108" class="h-in" oninput="calcAccDTrack(${id})" />
+        </div>
+        <div class="field">
+          <label>Sewing Method</label>
+          <select class="sewing-method" onchange="calcAccDTrack(${id})" title="Eyelet &amp; pencil pleat are incompatible with double track hardware">
+            <option value="French Pleat">French Pleat</option>
+            <option value="Singapore Pleat">Singapore Pleat</option>
+          </select>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: flex-end;">
+        <div class="fields" style="grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); flex: 1; margin: 0;">
+          <div class="field">
+            <label>Fabric Code</label>
+            <input type="text" placeholder="e.g. SB-2201" class="fabric-code" oninput="calcAccDTrack(${id})" />
+          </div>
+          <div class="field">
+            <label>Colour</label>
+            <input type="text" placeholder="e.g. Ivory" class="fabric-colour" oninput="calcAccDTrack(${id})" />
+          </div>
+          <div class="field sell-field">
+            <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'acc-dtrack-${id}')" type="button">✏ Override</button></div>
+            <input type="text" readonly class="sell-out" value="—" />
+            <div class="price-override-section" style="display:none">
+              <div class="price-override-wrap">
+                <input type="number" class="override-price" placeholder="Custom price (RM)" min="0" step="1" oninput="calcAccDTrack(${id})" />
+                <span class="override-hint">Overrides auto-calculated price</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-remove" onclick="removeItem('acc-dtrack-${id}')">✕</button>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  calcAccDTrack(id);
+}
+
+function calcAccDTrack(id) {
+  const row = document.getElementById('acc-dtrack-' + id);
+  if (!row) return;
+  const w = parseFloat(row.querySelector('.w-in').value) || 0;
+  const h = parseFloat(row.querySelector('.h-in').value) || 0;
+  const method = row.querySelector('.sewing-method').value;
+  const wFt = toInches(w) / 12;
+  const total = wFt > 0 ? Math.ceil(wFt * 68) : 0;
+  const overInp2 = row.querySelector('.override-price');
+  const overVal2 = overInp2 && overInp2.value !== '' ? parseFloat(overInp2.value) : null;
+  const finalSell2 = overVal2 !== null ? overVal2 : total;
+  if (overVal2 !== null) {
+    row.querySelector('.sell-out').value = fmt(overVal2) + ' ✏';
+  } else {
+    row.querySelector('.sell-out').value = total > 0 ? fmt(total) : '—';
+  }
+  row.dataset.sell        = finalSell2;
+  row.dataset.cost        = 0;
+  row.dataset.remark      = '';
+  row.dataset.dims        = w > 0 ? `W${w}${h > 0 ? ` × H${h}` : ''} ${measureUnit} · ${method}` : '';
+  row.dataset.rateDesc    = wFt > 0 ? `${wFt.toFixed(2)} ft × RM 68/ft (RM 58 curtain + RM 10 surcharge)` : '';
+  row.dataset.isAccessory = '1';
+  updateSummary();
+}
+
+function addAccHook() {
+  const id = accHookIdx++;
+  const container = document.getElementById('acc-hook-items');
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  div.id = 'acc-hook-' + id;
+  div.innerHTML = `
+    <div class="item-desc">
+      <div class="field">
+        <label>Location</label>
+        <input type="text" placeholder="e.g. Master Bedroom door frame" class="desc" list="loc-suggestions" oninput="calcAccHook(${id})" />
+      </div>
+    </div>
+    <div class="fields" style="grid-template-columns: minmax(0,2fr) minmax(0,1fr)">
+      <div class="field">
+        <label>Qty (sets)</label>
+        <input type="number" min="1" placeholder="e.g. 2" class="qty" oninput="calcAccHook(${id})" />
+      </div>
+      <div class="field sell-field">
+        <div class="sell-header"><label>Sell Price</label><button class="btn-override-toggle" onclick="toggleOverride(this,'acc-hook-${id}')" type="button">✏ Override</button></div>
+        <input type="text" readonly class="sell-out" value="—" />
+        <div class="price-override-section" style="display:none">
+          <div class="price-override-wrap">
+            <input type="number" class="override-price" placeholder="Custom price (RM)" min="0" step="1" oninput="calcAccHook(${id})" />
+            <span class="override-hint">Overrides auto-calculated price</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-remove" onclick="removeItem('acc-hook-${id}')">✕</button>
+  `;
+  container.appendChild(div);
+  calcAccHook(id);
+}
+
+function calcAccHook(id) {
+  const row = document.getElementById('acc-hook-' + id);
+  if (!row) return;
+  const qty = parseInt(row.querySelector('.qty').value) || 0;
+  const total = qty > 0 ? qty * 50 : 0;
+  const overInp3 = row.querySelector('.override-price');
+  const overVal3 = overInp3 && overInp3.value !== '' ? parseFloat(overInp3.value) : null;
+  const finalSell3 = overVal3 !== null ? overVal3 : total;
+  if (overVal3 !== null) {
+    row.querySelector('.sell-out').value = fmt(overVal3) + ' ✏';
+  } else {
+    row.querySelector('.sell-out').value = total > 0 ? fmt(total) : '—';
+  }
+  row.dataset.sell        = finalSell3;
+  row.dataset.cost        = 0;
+  row.dataset.remark      = '';
+  row.dataset.dims        = qty > 0 ? `${qty} set` : '';
+  row.dataset.rateDesc    = qty > 0 ? `${qty} set × RM 50/set` : '';
+  row.dataset.isAccessory = '1';
+  updateSummary();
+}
+
 // ─── TINTED SCREEN ───────────────────────────────────────────────────────────
 function addTintedRoom() {
   const rid = tintedIdx++;
@@ -2135,10 +2374,11 @@ document.addEventListener('click', e => {
 
 function updateTabCounts() {
   const counts = {
-    blinds:   document.querySelectorAll('#blind-items .item-row').length,
-    curtains: document.querySelectorAll('#curtain-items .item-row').length,
-    spc:      document.querySelectorAll('#spc-items .item-row').length,
-    tinted:   document.querySelectorAll('.ts-room').length,
+    blinds:      document.querySelectorAll('#blind-items .item-row').length,
+    curtains:    document.querySelectorAll('#curtain-items .item-row').length,
+    spc:         document.querySelectorAll('#spc-items .item-row').length,
+    tinted:      document.querySelectorAll('.ts-room').length,
+    accessories: document.querySelectorAll('#acc-track-items .item-row, #acc-dtrack-items .item-row, #acc-hook-items .item-row').length,
   };
   Object.entries(counts).forEach(([key, n]) => {
     const el = document.getElementById('cnt-' + key);
@@ -2600,7 +2840,7 @@ function updateSummary() {
     const fabricColour = row.querySelector('.fabric-colour')?.value.trim() || '';
     const remark       = row.dataset.remark || '';
     const dimsIn       = row.dataset.dimsIn || '';
-    lines.push({ room, style, typeDesc, sell, dims, dimsIn, _srcId: row.id, fabricCode, fabricColour, remark });
+    lines.push({ room, style, typeDesc, sell, dims, dimsIn, _srcId: row.id, fabricCode, fabricColour, remark, isAccessory: row.dataset.isAccessory === '1' });
     totalSell += sell;
     totalCost += parseFloat(row.dataset.cost) || 0;
   };
@@ -2708,6 +2948,17 @@ function updateSummary() {
     }
   }
 
+  // Accessories
+  document.querySelectorAll('#acc-track-items .item-row').forEach(row => {
+    addRow(row, 'Single Track', row.dataset.rateDesc || '');
+  });
+  document.querySelectorAll('#acc-dtrack-items .item-row').forEach(row => {
+    addRow(row, 'Double Track + Single Layer Curtain', row.dataset.rateDesc || '');
+  });
+  document.querySelectorAll('#acc-hook-items .item-row').forEach(row => {
+    addRow(row, 'Side Hook', row.dataset.rateDesc || '');
+  });
+
   // ── Discount ──
   const discVal  = parseFloat(document.getElementById('discountVal')?.value) || 0;
   const discIsPct = document.getElementById('dpct')?.classList.contains('active') ?? true;
@@ -2731,7 +2982,7 @@ function updateSummary() {
   // Compute altSell: sum of items belonging to alternatives groups (for the exclude-options toggle)
   const _brMap = {};
   lines.forEach(l => {
-    if (l.room && !l.isNote && !l.isSubtotal && !l.isDiscount) {
+    if (l.room && !l.isNote && !l.isSubtotal && !l.isDiscount && !l.isAccessory) {
       const br = baseRoom(l.room);
       if (!_brMap[br]) _brMap[br] = [];
       _brMap[br].push(l);
@@ -2985,6 +3236,25 @@ function serializeQuote() {
     curtains: getRows('#curtain-items', 'curtain'),
     spcs:     getRows('#spc-items',     'spc'),
     doors:    getRows('#door-items',    'door'),
+    accTracks:  [...document.querySelectorAll('#acc-track-items .item-row')].map(r => ({
+      desc:     r.querySelector('.desc')?.value || '',
+      ft:       r.querySelector('.length-in')?.value || '',
+      override: r.querySelector('.override-price')?.value || '',
+    })),
+    accDTracks: [...document.querySelectorAll('#acc-dtrack-items .item-row')].map(r => ({
+      desc:         r.querySelector('.desc')?.value || '',
+      w:            r.querySelector('.w-in')?.value || '',
+      h:            r.querySelector('.h-in')?.value || '',
+      sewingMethod: r.querySelector('.sewing-method')?.value || '',
+      fabricCode:   r.querySelector('.fabric-code')?.value || '',
+      fabricColour: r.querySelector('.fabric-colour')?.value || '',
+      override:     r.querySelector('.override-price')?.value || '',
+    })),
+    accHooks:   [...document.querySelectorAll('#acc-hook-items .item-row')].map(r => ({
+      desc:     r.querySelector('.desc')?.value || '',
+      qty:      r.querySelector('.qty')?.value  || '1',
+      override: r.querySelector('.override-price')?.value || '',
+    })),
     tintedRooms: [...document.querySelectorAll('.ts-room')].map(room => ({
       desc:    room.querySelector('.ts-desc')?.value    || '',
       series:  room.querySelector('.ts-series')?.value || '',
@@ -3060,7 +3330,7 @@ function applyQuoteState(state) {
   };
 
   // Clear all existing rows
-  ['#blind-items','#curtain-items','#spc-items','#door-items'].forEach(sel => {
+  ['#blind-items','#curtain-items','#spc-items','#door-items','#acc-track-items','#acc-dtrack-items','#acc-hook-items'].forEach(sel => {
     document.querySelector(sel).querySelectorAll('.item-row').forEach(r => r.remove());
   });
   document.getElementById('tinted-rooms').innerHTML = '';
@@ -3175,6 +3445,62 @@ function applyQuoteState(state) {
       if (sf)  sf.classList.add('override-open');
     }
     calcDoor(id);
+  });
+
+  // Accessories — single track
+  (state.accTracks || []).forEach(d => {
+    addAccTrack();
+    const rows = document.querySelectorAll('#acc-track-items .item-row');
+    const row = rows[rows.length - 1];
+    const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
+    sv('.desc', d.desc); sv('.length-in', d.ft); sv('.override-price', d.override);
+    if (d.override) {
+      const sec = row.querySelector('.price-override-section');
+      const btn = row.querySelector('.btn-override-toggle');
+      const sf  = row.querySelector('.sell-field');
+      if (sec) sec.style.display = '';
+      if (btn) btn.classList.add('active');
+      if (sf)  sf.classList.add('override-open');
+    }
+    calcAccTrack(parseInt(row.id.replace('acc-track-', '')));
+  });
+
+  // Accessories — double track + curtain
+  (state.accDTracks || []).forEach(d => {
+    addAccDTrack();
+    const rows = document.querySelectorAll('#acc-dtrack-items .item-row');
+    const row = rows[rows.length - 1];
+    const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
+    sv('.desc', d.desc); sv('.w-in', d.w); sv('.h-in', d.h);
+    if (d.sewingMethod && row.querySelector('.sewing-method')) row.querySelector('.sewing-method').value = d.sewingMethod;
+    sv('.fabric-code', d.fabricCode); sv('.fabric-colour', d.fabricColour); sv('.override-price', d.override);
+    if (d.override) {
+      const sec = row.querySelector('.price-override-section');
+      const btn = row.querySelector('.btn-override-toggle');
+      const sf  = row.querySelector('.sell-field');
+      if (sec) sec.style.display = '';
+      if (btn) btn.classList.add('active');
+      if (sf)  sf.classList.add('override-open');
+    }
+    calcAccDTrack(parseInt(row.id.replace('acc-dtrack-', '')));
+  });
+
+  // Accessories — side hook
+  (state.accHooks || []).forEach(d => {
+    addAccHook();
+    const rows = document.querySelectorAll('#acc-hook-items .item-row');
+    const row = rows[rows.length - 1];
+    const sv = (cls, val) => { const el = row.querySelector(cls); if (el && val !== undefined && val !== '') el.value = val; };
+    sv('.desc', d.desc); sv('.qty', d.qty); sv('.override-price', d.override);
+    if (d.override) {
+      const sec = row.querySelector('.price-override-section');
+      const btn = row.querySelector('.btn-override-toggle');
+      const sf  = row.querySelector('.sell-field');
+      if (sec) sec.style.display = '';
+      if (btn) btn.classList.add('active');
+      if (sf)  sf.classList.add('override-open');
+    }
+    calcAccHook(parseInt(row.id.replace('acc-hook-', '')));
   });
 
   // Tinted Screen rooms
@@ -3441,7 +3767,7 @@ function _doNewQuote() {
   groupCustomOrder   = [];
   isDesignerQuote    = false;
   document.querySelectorAll('#custTypePills .prop-pill').forEach((b,i) => b.classList.toggle('active', i===0));
-  ['#blind-items','#curtain-items','#spc-items','#door-items'].forEach(sel => {
+  ['#blind-items','#curtain-items','#spc-items','#door-items','#acc-track-items','#acc-dtrack-items','#acc-hook-items'].forEach(sel => {
     document.querySelector(sel).querySelectorAll('.item-row').forEach(r => r.remove());
   });
   document.getElementById('tinted-rooms').innerHTML = '';
@@ -3593,6 +3919,33 @@ function exportExcel() {
                  parseFloat(row.dataset.sell)]);
     });
     rows.push(['','','','','','','','','','Subtotal', subtot(doorItems)]);
+    gap();
+  }
+
+  // ── Accessories ──────────────────────────────────────────────────────────────
+  const accTrackItems  = document.querySelectorAll('#acc-track-items .item-row');
+  const accDTrackItems = document.querySelectorAll('#acc-dtrack-items .item-row');
+  const accHookItems   = document.querySelectorAll('#acc-hook-items .item-row');
+  const hasAcc = [...accTrackItems, ...accDTrackItems, ...accHookItems].some(r => parseFloat(r.dataset.sell) > 0);
+  if (hasAcc) {
+    rows.push(['ACCESSORIES']);
+    rows.push(['#','Location','Type','Detail','Total (RM)']);
+    let n = 0;
+    accTrackItems.forEach(row => {
+      if (!(parseFloat(row.dataset.sell) > 0)) return;
+      rows.push([++n, g(row), 'Single Track', row.dataset.dims || '', parseFloat(row.dataset.sell)]);
+    });
+    accDTrackItems.forEach(row => {
+      if (!(parseFloat(row.dataset.sell) > 0)) return;
+      rows.push([++n, g(row), 'Double Track + Single Layer Curtain', row.dataset.dims || '', parseFloat(row.dataset.sell)]);
+    });
+    accHookItems.forEach(row => {
+      if (!(parseFloat(row.dataset.sell) > 0)) return;
+      const qty = row.querySelector('.qty')?.value || '1';
+      rows.push([++n, g(row), 'Side Hook', `${qty} set`, parseFloat(row.dataset.sell)]);
+    });
+    const accSubtot = [...accTrackItems, ...accDTrackItems, ...accHookItems].reduce((s,r) => s + (parseFloat(r.dataset.sell)||0), 0);
+    rows.push(['','','','Subtotal', accSubtot]);
     gap();
   }
 
